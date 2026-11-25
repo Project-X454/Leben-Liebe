@@ -135,6 +135,26 @@ nav.tabs .plus{width:34px;height:34px;border-radius:12px;display:flex;align-item
 .datechip{display:flex;align-items:center;gap:4px;background:rgba(255,255,255,.18);border-radius:12px;padding:2px}
 .datechip button{width:34px;height:34px;color:#fff;font-size:18px;border-radius:10px}.datechip button:disabled{opacity:.35}
 .datechip span{font-size:13px;font-weight:700;min-width:92px;text-align:center}
+
+/* Begleiter-Animationen: je drei fürs Auftauchen und Verschwinden */
+.bud{display:inline-block;transform-origin:50% 100%}
+.budPop{animation:budPop .55s cubic-bezier(.2,.9,.3,1.3) both}
+.budWiggle{animation:budWiggle .75s ease-out both}
+.budHop{animation:budHop .7s ease-out both}
+.budDrop{animation:budDrop .42s ease-in both}
+.budSlide{animation:budSlide .45s ease-in both}
+.budSpin{animation:budSpin .42s ease-in both}
+@keyframes budPop{0%{opacity:0;transform:translateY(40px) scale(.6)}60%{opacity:1;transform:translateY(-8px) scale(1.06)}100%{opacity:1;transform:none}}
+@keyframes budWiggle{0%{opacity:0;transform:scale(.8)}30%{opacity:1;transform:scale(1) rotate(-8deg)}50%{transform:rotate(7deg)}70%{transform:rotate(-4deg)}85%{transform:rotate(2deg)}100%{opacity:1;transform:none}}
+@keyframes budHop{0%{opacity:0;transform:translateY(30px)}30%{opacity:1;transform:translateY(-18px)}50%{transform:translateY(0) scaleY(.94)}70%{transform:translateY(-8px)}100%{opacity:1;transform:none}}
+@keyframes budDrop{0%{transform:none}25%{transform:translateY(-8px)}100%{opacity:0;transform:translateY(60px) scale(.7)}}
+@keyframes budSlide{0%{transform:none}20%{transform:rotate(-6deg)}100%{opacity:0;transform:translateX(-120%) rotate(-12deg)}}
+@keyframes budSpin{0%{transform:none}100%{opacity:0;transform:scale(0) rotate(200deg)}}
+.bubIn{animation:bubIn .35s .25s ease-out both}
+.bubOut{animation:bubOut .22s ease-in both}
+@keyframes bubIn{0%{opacity:0;transform:translateY(8px) scale(.96)}100%{opacity:1;transform:none}}
+@keyframes bubOut{100%{opacity:0;transform:translateY(6px) scale(.96)}}
+@media (prefers-reduced-motion: reduce){.bud,.bubIn,.bubOut{animation:none!important}}
 </style>
 </head>
 <body>
@@ -204,7 +224,7 @@ async function refresh(silent) {
   if (!S.conn) return;
   try { await flushQueue(); setSum(await api('summary')); if (!silent) toast('Aktualisiert'); }
   catch (e) { if (!silent) toast(navigator.onLine ? 'Fehler: ' + e.message : 'Offline – gespeicherte Daten'); }
-  if (S.view === 'home' && needSummary()) S.view = 'summary';
+  if (S.view === 'home' && needSummary()) { S.view = 'summary'; S.appear = true; }
   render();
 }
 
@@ -459,6 +479,225 @@ function verdict() {
   return { weeks: weeksTracked, text: 'Leben ' + word(dl) + ', Liebe ' + word(dr) + '.' + (lever ? ' Stärkster Zusammenhang bisher: ' + lever.l + '.' : '') };
 }
 
+/* ================= Begleiter (Ben der Bär / die Maus) ================= */
+S.buddy = store.get('lt_buddy', { animal: 'baer', name: 'Ben' });
+S.chat = [];
+function figure(animal, mood, size) {
+  const R = '50%', s = size / 200, P = [];
+  const add = (x, y, w, h, r, bg, extra) => P.push('<i style="position:absolute;box-sizing:border-box;left:' + x + 'px;top:' + y + 'px;width:' + w + 'px;height:' + h + 'px;border-radius:' + r + ';background:' + bg + ';' + (extra || '') + '"></i>');
+  const face = (dy, ink, ex) => {
+    if (mood === 'happy') {
+      add(ex[0] - 1, 102 + dy, 14, 8, '14px 14px 0 0', 'transparent', 'border:3px solid ' + ink + ';border-bottom:none');
+      add(ex[1] - 1, 102 + dy, 14, 8, '14px 14px 0 0', 'transparent', 'border:3px solid ' + ink + ';border-bottom:none');
+      add(92, 133 + dy, 16, 9, '0 0 10px 10px', 'transparent', 'border:2.5px solid ' + ink + ';border-top:none');
+      return;
+    }
+    add(ex[0], 99 + dy, 11, 13, R, ink); add(ex[1], 99 + dy, 11, 13, R, ink);
+    add(ex[0] + 3, 101 + dy, 4, 4, R, '#fff'); add(ex[1] + 3, 101 + dy, 4, 4, R, '#fff');
+    if (mood === 'neutral') add(96, 137 + dy, 8, 3, '2px', ink);
+    if (mood === 'sad') {
+      add(92, 137 + dy, 16, 8, '10px 10px 0 0', 'transparent', 'border:2.5px solid ' + ink + ';border-bottom:none');
+      add(ex[0] - 4, 89 + dy, 16, 3, '2px', ink, 'transform:rotate(-16deg)');
+      add(ex[1] - 1, 89 + dy, 16, 3, '2px', ink, 'transform:rotate(16deg)');
+      add(ex[0] + 1, 115 + dy, 7, 10, '50% 50% 50% 50% / 60% 60% 40% 40%', '#7DB7F5');
+    }
+  };
+  add(50, 189, 100, 9, R, 'radial-gradient(ellipse at center,rgba(15,23,42,.18),rgba(15,23,42,0) 70%)');
+  if (animal === 'maus') {
+    const fur = 'linear-gradient(180deg,#DEDBE6 0%,#CBC7D5 100%)';
+    add(64, 158, 72, 40, '36px 36px 16px 16px', fur); add(82, 167, 36, 24, R, '#F6F4F9');
+    add(14, 24, 70, 70, R, '#C6C1D1'); add(116, 24, 70, 70, R, '#C6C1D1');
+    add(27, 37, 44, 44, R, '#F7BFD0'); add(129, 37, 44, 44, R, '#F7BFD0');
+    add(32, 58, 136, 114, '48% 48% 44% 44% / 54% 54% 46% 46%', fur);
+    add(74, 120, 52, 36, R, '#F6F4F9'); add(93, 120, 14, 10, '45% 45% 60% 60%', '#EF7FA0');
+    add(36, 130, 30, 2, '1px', '#9C96A8', 'transform:rotate(-7deg)'); add(36, 138, 30, 2, '1px', '#9C96A8', 'transform:rotate(7deg)');
+    add(134, 130, 30, 2, '1px', '#9C96A8', 'transform:rotate(7deg)'); add(134, 138, 30, 2, '1px', '#9C96A8', 'transform:rotate(-7deg)');
+    add(48, 124, 22, 12, R, 'rgba(244,128,160,.5)'); add(130, 124, 22, 12, R, 'rgba(244,128,160,.5)');
+    face(4, '#3A3444', [70, 119]);
+  } else {
+    const fur = 'linear-gradient(180deg,#D8A271 0%,#C68A57 100%)';
+    add(60, 156, 80, 42, '40px 40px 18px 18px', fur); add(80, 165, 40, 26, R, '#F6E2C8');
+    add(54, 176, 28, 20, R, '#B97D4C'); add(118, 176, 28, 20, R, '#B97D4C');
+    add(32, 38, 46, 46, R, '#B97D4C'); add(122, 38, 46, 46, R, '#B97D4C');
+    add(43, 49, 24, 24, R, '#F1C9A2'); add(133, 49, 24, 24, R, '#F1C9A2');
+    add(26, 50, 148, 122, '48% 48% 44% 44% / 54% 54% 46% 46%', fur);
+    add(70, 116, 60, 42, R, '#F7E4CB'); add(91, 118, 18, 12, '45% 45% 60% 60%', '#3B2A20'); add(95, 120, 5, 3, R, 'rgba(255,255,255,.7)');
+    add(44, 122, 24, 13, R, 'rgba(244,128,160,.45)'); add(132, 122, 24, 13, R, 'rgba(244,128,160,.45)');
+    face(0, '#3B2A20', [68, 121]);
+  }
+  const label = (animal === 'maus' ? 'Maus' : 'Bär') + ' ' + esc(S.buddy.name) + ', ' + (mood === 'happy' ? 'fröhlich' : mood === 'sad' ? 'traurig' : 'nachdenklich');
+  return '<span role="img" aria-label="' + label + '" style="display:inline-block;position:relative;width:' + size + 'px;height:' + size + 'px;flex:none"><span style="position:absolute;left:0;top:0;width:200px;height:200px;transform:scale(' + s + ');transform-origin:0 0">' + P.join('') + '</span></span>';
+}
+const APPEAR = ['budPop', 'budWiggle', 'budHop'], LEAVE = ['budDrop', 'budSlide', 'budSpin'];
+const pick = (a) => a[Math.floor(Math.random() * a.length)];
+S.appear = true;
+const budWrap = (html) => '<span class="bud ' + (S.appear ? pick(APPEAR) : '') + '">' + html + '</span>';
+const reduced = () => !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+async function leaveBud() {
+  const el = document.querySelector('.bud'); if (!el || reduced()) return;
+  APPEAR.forEach((c) => el.classList.remove(c)); el.classList.add(pick(LEAVE));
+  const b = document.querySelector('.bub'); if (b) b.classList.add('bubOut');
+  await new Promise((r) => setTimeout(r, 440));
+}
+const bName = () => esc(S.buddy.name || (S.buddy.animal === 'maus' ? 'Mila' : 'Ben'));
+const bTheme = () => S.buddy.animal === 'maus'
+  ? { bg: 'repeating-radial-gradient(circle at 100% 0%,rgba(255,255,255,.10) 0 2px,rgba(255,255,255,0) 2px 20px),radial-gradient(circle at 50% 28%,rgba(255,255,255,.3) 0 110px,rgba(255,255,255,0) 150px),linear-gradient(165deg,#7C3AED 0%,#A21CAF 45%,#BE185D 100%)', ink: '#86198F', soft: '#FAF5FF', line: '#F5D0FE', btn: 'linear-gradient(90deg,#7C3AED 0%,#A21CAF 50%,#BE185D 100%)' }
+  : { bg: 'var(--dots),radial-gradient(circle at 50% 28%,rgba(255,255,255,.28) 0 110px,rgba(255,255,255,0) 150px),linear-gradient(165deg,#047857 0%,#0E7490 40%,#1D4ED8 100%)', ink: '#047857', soft: '#ECFDF5', line: '#A7F3D0', btn: 'linear-gradient(90deg,#047857 0%,#0E7490 50%,#1D4ED8 100%)' };
+function hasDay(d) { return mine('leben').some((e) => e.d === d) || mine('liebe').some((e) => e.d === d); }
+function buddyMood() {
+  const sc = scoresNow(), snap = store.get('lt_snap', {}) || {}, t = today();
+  if (sc.leben == null) return 'happy';
+  const missing2 = !hasDay(t) && !hasDay(addDays(t, -1)) && !hasDay(addDays(t, -2));
+  const fS = fk('leben', 'stress', 'Stress');
+  const stress3 = lastDays('leben', (x) => x.r[fS] >= 4, 7) >= 3;
+  if (sc.leben < 40 || missing2 || stress3) return 'sad';
+  if (sc.leben >= 60 && (snap.leben == null || sc.leben >= snap.leben)) return 'happy';
+  return 'neutral';
+}
+function buddyTip() {
+  const h = new Date().getHours(), t = today(), y = addDays(t, -1);
+  const doneT = { leben: mine('leben').some((e) => e.d === t), liebe: mine('liebe').some((e) => e.d === t) };
+  const doneY = { leben: mine('leben').some((e) => e.d === y), liebe: mine('liebe').some((e) => e.d === y) };
+  const behind = goalStatus('leben').concat(goalStatus('liebe')).filter((g) => !g.reached && g.deficit >= 1).sort((a, b) => b.deficit - a.deficit)[0];
+  if (h < 11 && (!doneY.leben || !doneY.liebe)) return { id: 'y', text: 'Gestern fehlt noch dein ' + (!doneY.leben && !doneY.liebe ? 'Check-in' : !doneY.leben ? 'Leben-Teil' : 'Liebe-Teil') + '. Magst du ihn kurz nachtragen, solange du dich erinnerst?', act: 'tipYesterday', label: 'Nachtragen' };
+  if (h >= 21 && (!doneT.leben || !doneT.liebe)) return { id: 'late', text: 'Es ist schon nach neun und dein Check-in ist noch offen. Zwei Minuten, dann hast du es für heute.', act: 'startCheckin', label: 'Jetzt einchecken' };
+  if (h >= 17 && (!doneT.leben || !doneT.liebe)) return { id: 'eve', text: 'Heute Abend noch kurz einchecken? Es dauert nur zwei Minuten.', act: 'startCheckin', label: 'Check-in' };
+  if (h >= 11 && h < 17 && behind) return { id: 'goal', text: 'Heute wäre ein guter Tag für „' + behind.f + '“. Du stehst bei ' + behind.done + ' von ' + behind.target + '.', act: null };
+  if (h >= 22 && doneT.leben) return { id: 'sleep', text: 'Alles eingetragen, stark. Leg das Handy jetzt weg, dein Schlaf dankt es dir morgen.', act: null };
+  return null;
+}
+function dayAhead() {
+  const out = [], t = today();
+  goalStatus('leben').concat(goalStatus('liebe')).forEach((g) => {
+    if (!g.reached && g.target - g.done === 1) out.push({ b: g.done + '/' + g.target, c: g.area, x: 'Noch einmal „' + g.f + '“, dann ist dein Wochenziel voll.' });
+  });
+  goalStatus('leben').concat(goalStatus('liebe')).filter((g) => !g.reached && g.deficit >= 1 && g.target - g.done > 1).sort((a, b) => b.deficit - a.deficit).slice(0, 1)
+    .forEach((g) => out.push({ b: g.done + '/' + g.target, c: g.area, x: '„' + g.f + '“ steht noch aus.' }));
+  if (!hasDay(t)) out.push({ b: '2′', c: 'x', x: 'Check-in heute Abend, dauert zwei Minuten.' });
+  return out.slice(0, 3);
+}
+function greetText(mood) {
+  const sc = scoresNow(), snap = store.get('lt_snap', {}) || {}, fb = feedback();
+  const head = mood === 'happy' ? 'Gestern lief es richtig gut.' : mood === 'sad' ? 'Ich glaube, gerade ist es etwas viel.' : 'Ein ganz normaler Tag, und das ist okay.';
+  let body = '';
+  if (sc.leben != null) {
+    const d = snap.leben != null ? sc.leben - snap.leben : null;
+    body += 'Dein Leben-Score liegt bei <b>' + sc.leben + '</b>' + (d ? (d > 0 ? ', ' + d + (d === 1 ? ' Punkt' : ' Punkte') + ' mehr' : ', ' + Math.abs(d) + ' weniger als zuletzt') : '') + '. ';
+  }
+  if (sc.liebe != null) body += 'Bei euch beiden seid ihr bei <b>' + sc.liebe + '</b>. ';
+  const why = mood === 'sad' ? (fb.warn[0] || fb.good[0]) : (fb.good[0] || fb.warn[0]);
+  if (why) body += esc(why.t) + '.';
+  if (!body) body = 'Schön, dass du da bist. Nach deinem ersten Check-in kann ich dir mehr erzählen.';
+  return { head, body };
+}
+/* Antworten auf Standardfragen, berechnet aus den eigenen Einträgen */
+const QUESTIONS = [
+  ['gluecklich', 'Wie glücklich bin ich gerade?'],
+  ['liebe', 'Wie hat sich meine Liebe verändert?'],
+  ['heute', 'Was tut mir heute gut?'],
+  ['woche', 'Wie war meine Woche?'],
+  ['hinten', 'Woran hänge ich hinterher?']
+];
+function answer(id) {
+  const t = today(), me = S.sum.me, sc = scoresNow();
+  if (id === 'gluecklich') {
+    const f = fk('leben', 'stimmung', 'Stimmung');
+    const now = ratingAvg('leben', f, addDays(t, -6), addDays(t, 1), me), prev = ratingAvg('leben', f, addDays(t, -13), addDays(t, -6), me);
+    if (now == null) return 'Dazu habe ich noch keine Einträge. Bewerte im Check-in ein paar Tage deine Stimmung, dann sage ich dir mehr.';
+    let s = 'Deine Stimmung liegt in den letzten 7 Tagen bei <b>' + fmt(now, 1) + ' von 5</b>';
+    s += prev != null ? (Math.abs(now - prev) < 0.3 ? ', ungefähr wie in der Woche davor.' : now > prev ? ', besser als in der Woche davor (' + fmt(prev, 1) + ').' : ', etwas niedriger als in der Woche davor (' + fmt(prev, 1) + ').') : '.';
+    if (sc.lebenDaily != null) s += ' Dein Tagesgefühl insgesamt liegt diese Woche bei ' + pct(sc.lebenDaily) + '.';
+    const A = analysis(), c = A.corr.find((x) => x.l.indexOf(f) >= 0 && x.r > 0);
+    if (c) s += ' Bei dir hängt das am meisten mit „' + esc(c.l.replace(' und ' + f, '').replace(f + ' und ', '')) + '“ zusammen.';
+    return s;
+  }
+  if (id === 'liebe') {
+    const h = sc.histR.filter((x) => x != null);
+    if (!h.length) return 'Für die Liebe habe ich noch keinen Verlauf. Nach ein paar Check-ins kann ich dir zeigen, wie es sich entwickelt.';
+    let s = h.length > 1 ? 'Euer gemeinsamer Score ist von <b>' + h[0] + ' auf ' + h[h.length - 1] + '</b> ' + (h[h.length - 1] >= h[0] ? 'gestiegen' : 'gesunken') + ' (letzte ' + h.length + ' Wochen).' : 'Euer gemeinsamer Score liegt diese Woche bei <b>' + h[0] + '</b>.';
+    const fBz = fk('liebe', 'bewusst', 'Bewusste Zeit'), mon = monday(t), di = dayIdx(t);
+    const sumZ = (a, b) => mine('liebe').filter((e) => e.t === 'Zeit' && e.f === fBz && e.d >= a && e.d < b).reduce((x, e) => x + (e.v || 0), 0);
+    const zN = sumZ(mon, addDays(t, 1)), zP = sumZ(addDays(mon, -7), addDays(mon, -7 + di + 1));
+    if (zN || zP) s += ' ' + esc(fBz) + ' bisher diese Woche: ' + fmt(zN, 1) + ' h (letzte Woche bis heute ' + fmt(zP, 1) + ' h).';
+    const reached = goalStatus('liebe').filter((g) => g.reached).map((g) => g.f);
+    if (reached.length) s += ' Geschafft: ' + esc(reached.join(', ')) + '.';
+    if (sc.gap != null && sc.gap >= 20) s += ' Ihr erlebt die Woche gerade unterschiedlich, ein kurzes „Wie geht es uns?“ würde helfen.';
+    return s;
+  }
+  if (id === 'heute') {
+    const T = todos(), A = analysis(), ok = A.insights.filter((i) => i.num != null)[0];
+    let s = 'Mein Vorschlag für heute: <b>' + esc(T[0] ? T[0].t : 'eine kleine Pause nur für dich') + '</b>' + (T[0] ? ' (' + esc(T[0].x) + ')' : '') + '.';
+    if (T[1]) s += ' Und wenn noch Luft ist: ' + esc(T[1].t) + '.';
+    if (ok) s += ' Aus deinen Daten weiß ich: ' + esc(ok.text);
+    return s;
+  }
+  if (id === 'woche') {
+    const fb = feedback(), reached = goalStatus('leben').concat(goalStatus('liebe')).filter((g) => g.reached).map((g) => g.f);
+    let s = 'Diese Woche: Leben <b>' + (sc.leben != null ? sc.leben : '–') + '</b>, Liebe gemeinsam <b>' + (sc.liebe != null ? sc.liebe : '–') + '</b>.';
+    s += reached.length ? ' Erreicht: ' + esc(reached.join(', ')) + '.' : ' Noch kein Wochenziel ganz erreicht, aber es zählt alles anteilig.';
+    if (fb.good[0]) s += ' Gut: ' + esc(fb.good[0].t) + '.';
+    if (fb.warn[0]) s += ' Achtung: ' + esc(fb.warn[0].t) + '.';
+    return s;
+  }
+  if (id === 'hinten') {
+    const b = goalStatus('leben').concat(goalStatus('liebe')).filter((g) => !g.reached && g.deficit >= 0.5).sort((a, c) => c.deficit - a.deficit);
+    if (!b.length) return 'Gerade nirgends. Gemessen an den bisherigen Wochentagen liegst du überall im Plan.';
+    return 'Am meisten hinterher: ' + b.slice(0, 3).map((g) => '<b>' + esc(g.f) + '</b> (' + g.done + ' von ' + g.target + ')').join(', ') + '. Bis Sonntag ' + (b[0].left === 1 ? 'bleibt noch 1 Tag' : 'bleiben noch ' + b[0].left + ' Tage') + '. Jedes Mal zählt anteilig.';
+  }
+  return '';
+}
+function routeQuestion(q) {
+  const s = q.toLowerCase();
+  if (/glücklich|gluecklich|stimmung|laune|geht es mir|fühl/.test(s)) return 'gluecklich';
+  if (/liebe|beziehung|partner|uns |wir |zusammen/.test(s + ' ')) return 'liebe';
+  if (/heute|tun|gut tun|guttun|vorschlag/.test(s)) return 'heute';
+  if (/woche|bilanz|überblick/.test(s)) return 'woche';
+  if (/hinter|rückstand|ziel|offen/.test(s)) return 'hinten';
+  return null;
+}
+function vGreeting() {
+  const mood = buddyMood(), T = bTheme(), g = greetText(mood), tip = buddyTip(), items = dayAhead();
+  const col = (c) => c === 'leben' ? ['#ECFDF5', '#047857'] : c === 'liebe' ? ['#FFF1F2', '#BE123C'] : ['#EFF6FF', '#1D4ED8'];
+  const now = new Date();
+  return '<div class="scroll" style="background:' + T.bg + '"><div style="min-height:100%;display:flex;flex-direction:column">' +
+    '<div class="row" style="padding:calc(18px + env(safe-area-inset-top)) 20px 0;color:#fff"><span style="font-size:13px;font-weight:700;opacity:.92">' + WD[now.getDay()] + ', ' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + '</span><button class="iconbtn glass" style="width:auto;padding:0 12px;height:36px;font-size:13px;font-weight:700" data-a="sumDone">Später</button></div>' +
+    '<div style="display:flex;justify-content:center;margin-top:4px">' + budWrap(figure(S.buddy.animal, mood, 200)) + '</div>' +
+    '<div style="flex:1;margin-top:-4px;border-radius:30px 30px 0 0;background:#fff;padding:22px 20px calc(24px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:14px;box-shadow:0 -10px 30px rgba(15,23,42,.18)">' +
+    '<div class="col" style="gap:4px"><span class="cap" style="color:' + T.ink + '">' + bName() + ' sagt</span><h1 style="font-size:23px;line-height:1.25">' + greet() + '! ' + g.head + '</h1></div>' +
+    '<p style="margin:0;font-size:14px;line-height:1.55;color:#334155">' + g.body + '</p>' +
+    (items.length ? '<div style="border-radius:18px;background:var(--bg);padding:6px 14px"><div style="padding:8px 0 4px;font-size:13px;font-weight:800">Was der Tag noch bringt</div>' + items.map((it) => { const c = col(it.c); return '<div class="row" style="justify-content:flex-start;gap:10px;padding:8px 0;border-top:1px solid #E6E9F2"><span style="flex:none;width:30px;height:28px;border-radius:9px;background:' + c[0] + ';color:' + c[1] + ';display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">' + it.b + '</span><span style="font-size:13px">' + esc(it.x) + '</span></div>'; }).join('') + '</div>' : '') +
+    (tip ? '<div style="border-radius:16px;padding:12px 14px;background:linear-gradient(135deg,#FFFBEB,#FEF3C7);border:1px solid #FDE68A;display:flex;flex-direction:column;gap:8px"><div class="row" style="justify-content:flex-start;align-items:flex-start;gap:10px"><b style="font-size:12px;color:#92400E;padding-top:1px">Tipp</b><span style="font-size:13px;line-height:1.45;color:#78350F">' + esc(tip.text) + '</span></div>' + (tip.act ? '<button class="ghost" style="min-height:40px;font-size:13px;border-color:#FDE68A;color:#92400E" data-a="' + tip.act + '">' + tip.label + '</button>' : '') + '</div>' : '') +
+    '<div class="row" style="gap:10px;margin-top:auto"><button class="ghost" style="flex:1;min-height:52px;color:' + T.ink + ';background:' + T.soft + ';border-color:' + T.line + '" data-a="openBuddy">Frag ' + bName() + '</button><button class="btn" style="flex:1.4;background:' + T.btn + '" data-a="sumDone">Los geht\'s</button></div>' +
+    '</div></div></div>';
+}
+function vBuddyPeek() {
+  const tip = buddyTip(), dis = store.get('lt_tipoff', {});
+  const showTip = tip && dis[today()] !== tip.id;
+  return '<div style="position:absolute;left:8px;right:12px;bottom:calc(78px + env(safe-area-inset-bottom));display:flex;align-items:flex-end;gap:6px;pointer-events:none;z-index:5">' +
+    '<button data-a="openBuddy" aria-label="' + bName() + ' öffnen" style="pointer-events:auto">' + budWrap(figure(S.buddy.animal, buddyMood(), 96)) + '</button>' +
+    (showTip ? '<div class="bub ' + (S.appear ? 'bubIn' : '') + '" style="pointer-events:auto;flex:1;margin-bottom:34px;border-radius:20px 20px 20px 6px;padding:12px 14px;background:#fff;box-shadow:0 14px 40px rgba(15,23,42,.18);display:flex;flex-direction:column;gap:8px"><span style="font-size:13px;line-height:1.45">' + esc(tip.text) + '</span><div class="row" style="gap:8px">' + (tip.act ? '<button class="btn" style="min-height:38px;font-size:13px;box-shadow:none" data-a="' + tip.act + '">' + tip.label + '</button>' : '') + '<button class="ghost" style="min-height:38px;font-size:13px;' + (tip.act ? 'flex:none;width:auto;padding:0 14px' : '') + '" data-a="tipOff" data-v="' + tip.id + '">Okay</button></div></div>' : '') + '</div>';
+}
+function vBuddy() {
+  const T = bTheme();
+  if (!S.chat.length) S.chat.push({ from: 'b', html: 'Hallo, ich bin ' + bName() + '. Ich kenne nur deine eigenen Einträge' + (S.buddy.animal ? '' : '') + '. Was möchtest du wissen?' });
+  return '<div class="head" style="flex-direction:row;align-items:center;gap:12px;background:' + T.bg + ';box-shadow:none"><button class="iconbtn glass" data-a="go" data-v="home" aria-label="Schließen">' + svg(P.x, '#fff', 18, 2.4) + '</button>' +
+    '<span style="width:64px;height:64px;border-radius:20px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;overflow:hidden">' + budWrap(figure(S.buddy.animal, buddyMood(), 60)) + '</span>' +
+    '<div class="col"><b class="jk" style="font-size:20px">' + bName() + '</b><span style="font-size:12px;opacity:.92">antwortet aus deinen Einträgen</span></div></div>' +
+    '<div class="scroll"><div class="pad" style="padding-top:16px;gap:12px"><div class="chips">' + QUESTIONS.map(([id, q]) => '<button class="chip" style="box-shadow:var(--sh);border:none" data-a="ask" data-v="' + id + '">' + q + '</button>').join('') + '</div>' +
+    S.chat.map((m) => m.from === 'me'
+      ? '<div style="align-self:flex-end;max-width:80%;border-radius:20px 20px 6px 20px;padding:12px 14px;font-size:14px;color:#fff;background:' + T.btn + '">' + m.html + '</div>'
+      : '<div style="align-self:flex-start;max-width:90%;border-radius:20px 20px 20px 6px;padding:14px;background:#fff;box-shadow:var(--sh);font-size:14px;line-height:1.5">' + m.html + '</div>').join('') +
+    '</div></div>' +
+    '<div class="foot" style="flex-direction:row;align-items:center;gap:8px"><label for="askIn" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Frage an ' + bName() + '</label><input id="askIn" type="text" placeholder="Frag ' + bName() + ' etwas …" style="flex:1;min-height:48px" data-in4="q"><button aria-label="Senden" data-a="askFree" style="width:48px;height:48px;border-radius:16px;display:flex;align-items:center;justify-content:center;background:' + T.btn + ';color:#fff">' + svg(P.arrow, '#fff', 20, 2.4) + '</button></div>';
+}
+function vBuddySettings(inOnboarding) {
+  const a = S.buddy.animal;
+  return '<div class="card"><div class="row"><b style="font-size:15px">Dein Begleiter</b>' + figure(a, 'happy', 56) + '</div>' +
+    '<div class="segw" role="group" aria-label="Tier" style="box-shadow:none;background:var(--bg)"><button class="' + (a === 'baer' ? 'on L' : '') + '" data-a="buddyAnimal" data-v="baer">Bär</button><button class="' + (a === 'maus' ? 'on R' : '') + '" data-a="buddyAnimal" data-v="maus">Maus</button></div>' +
+    '<label class="col" style="gap:6px"><b style="font-size:13px">Name</b><input id="buddyName" type="text" maxlength="20" value="' + esc(S.buddy.name) + '" data-in5="name"></label>' +
+    (inOnboarding ? '' : '<span class="sub">Er begrüßt dich einmal am Tag und gibt Tipps je nach Uhrzeit.</span>') + '</div>';
+}
+
 /* ================= Ansichten ================= */
 function scoreCard(area, val, extra) {
   return '<div class="score ' + (area === 'leben' ? 'L gradL' : 'R gradR') + '"><span style="font-size:12px;font-weight:700;opacity:.92">' + (area === 'leben' ? 'Leben' : 'Liebe · gemeinsam') + '</span>' +
@@ -494,7 +733,7 @@ function vOnboarding() {
   const rows = cfgRows('leben').filter((r) => r.t === 'Bewertung' || r.t === 'Woche');
   if (!S.obSel) { S.obSel = {}; rows.forEach((r) => { S.obSel[r.f] = { act: r.act !== false, z: r.z }; }); }
   return '<div class="scroll"><div class="pad" style="gap:16px"><div class="row"><button class="iconbtn" data-a="obBack" aria-label="Zurück">' + svg(P.back) + '</button><span class="sub">Alles später unter Anpassen änderbar</span></div>' +
-    '<div class="col" style="gap:6px"><h1 style="font-size:30px">Mach sie zu deiner</h1><span class="small" style="font-size:15px">Was willst du in deinem Leben beobachten? Tippe an, was dir gerade wichtig ist.</span></div>' +
+    '<div class="col" style="gap:6px"><h1 style="font-size:30px">Mach sie zu deiner</h1><span class="small" style="font-size:15px">Wähle deinen Begleiter und was du in deinem Leben beobachten willst.</span></div>' + vBuddySettings(true) +
     '<div class="card"><b style="font-size:13px;color:#065F46">Täglich bewerten</b><div class="chips">' + rows.filter((r) => r.t === 'Bewertung').map((r) => '<button class="chip L ' + (S.obSel[r.f].act ? 'on' : '') + '" data-a="obTog" data-f="' + esc(r.f) + '" aria-pressed="' + S.obSel[r.f].act + '">' + esc(r.f) + '</button>').join('') + '</div></div>' +
     '<div class="list"><div class="li" style="border:none;padding-bottom:4px"><b style="font-size:13px;color:#065F46">Wochenziele</b></div>' + rows.filter((r) => r.t === 'Woche').map((r) => { const s = S.obSel[r.f]; return '<div class="li"><button class="box ' + (s.act ? 'on' : '') + '" data-a="obTog" data-f="' + esc(r.f) + '" aria-label="' + esc(r.f) + ' ' + (s.act ? 'aktiv' : 'aus') + '">' + (s.act ? '✓' : '') + '</button><span style="flex:1;font-size:14px;font-weight:600;' + (s.act ? '' : 'color:var(--sub)') + '">' + esc(r.f) + '</span><div class="stepper" style="gap:6px"><button data-a="obZ" data-f="' + esc(r.f) + '" data-v="-1" aria-label="weniger" style="width:34px;height:34px">−</button><b style="font-size:16px;min-width:28px;text-align:center">' + s.z + '×</b><button data-a="obZ" data-f="' + esc(r.f) + '" data-v="1" aria-label="mehr" style="width:34px;height:34px">+</button></div></div>'; }).join('') + '</div>' +
     '<p class="small" style="margin:0">Liebe richtet ihr gemeinsam unter „Anpassen“ ein. Tipp: Stell dir einen täglichen Wecker, z. B. um 21 Uhr, als Erinnerung für den Check-in.</p>' +
@@ -529,7 +768,7 @@ function vHome() {
   const A = analysis(), reco = recommendation(A), V = verdict(), fb = feedback();
   const doneL = mine('leben').some((e) => e.d === today()), doneR = mine('liebe').some((e) => e.d === today());
   const behind = goalStatus('leben').concat(goalStatus('liebe')).filter((g) => !g.reached && g.deficit >= 1).sort((a, b) => b.deficit - a.deficit)[0];
-  let h = '<div class="scroll"><div class="pad">' +
+  let h = '<div class="scroll"><div class="pad" style="padding-bottom:150px">' +
     '<div class="row"><div class="col" style="gap:2px"><span class="small">' + nice(today()) + ' · KW ' + kw(today()) + '</span><h1>' + greet() + '</h1></div><button class="iconbtn" data-a="go" data-v="anpassen" aria-label="Anpassen">' + svg(P.sliders) + '</button></div>' +
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">' + scoreCard('leben', sc.leben, deltaPill(sc.leben, snap.leben)) + scoreCard('liebe', sc.liebe, deltaPill(sc.liebe, snap.liebe)) + '</div>';
   h += '<div class="card"><div class="row"><h2>Dein Check-in heute</h2><span class="sub">ca. 2 Min.</span></div><div class="row" style="gap:8px">' +
@@ -545,7 +784,7 @@ function vHome() {
     '<div class="row" style="gap:8px;align-items:stretch">' + (fb.good[0] ? '<span style="flex:1;padding:8px 10px;border-radius:12px;background:#ECFDF5;font-size:12px;color:#065F46"><b>Gut:</b> ' + esc(fb.good[0].t) + '</span>' : '') + (fb.warn[0] ? '<span style="flex:1;padding:8px 10px;border-radius:12px;background:#FFF1F2;font-size:12px;color:#9F1239"><b>Achtung:</b> ' + esc(fb.warn[0].t) + '</span>' : '') + '</div></div>';
   const q = store.get('lt_queue', []);
   if (q.length) h += '<p class="small" style="margin:0">' + q.length + ' Check-in(s) warten auf Übertragung.</p>';
-  return h + '</div></div>' + vTabs('home');
+  return h + '</div></div>' + vBuddyPeek() + vTabs('home');
 }
 function vTabs(cur) {
   const b = (v, l, ic) => '<button data-a="' + (v === 'checkin' ? 'startCheckin' : 'go') + '" data-v="' + v + '" class="' + (cur === v ? 'on' : '') + '" aria-current="' + (cur === v ? 'page' : 'false') + '">' + ic + l + '</button>';
@@ -555,7 +794,7 @@ function vCheckin() {
   const area = S.ci, L = area === 'leben', C = cfg(area), d = draft(area, S.date), cls = L ? 'L' : 'R';
   const canBack = S.date > addDays(today(), -7), canFwd = S.date < today();
   let h = '<div class="head ' + cls + '"><div class="row"><button class="iconbtn glass" data-a="' + (L ? 'closeCheckin' : 'ciBack') + '" aria-label="' + (L ? 'Check-in schließen' : 'Zurück zu Leben') + '">' + svg(L ? P.x : P.back, '#fff', 18, 2.4) + '</button>' +
-    '<div class="datechip"><button data-a="day" data-v="-1" ' + (canBack ? '' : 'disabled') + ' aria-label="Vorheriger Tag">‹</button><span>' + (S.date === today() ? 'Heute' : short(S.date)) + '</span><button data-a="day" data-v="1" ' + (canFwd ? '' : 'disabled') + ' aria-label="Nächster Tag">›</button></div>' +
+    '<div class="datechip"><button data-a="day" data-v="-1" ' + (canBack ? '' : 'disabled') + ' aria-label="Vorheriger Tag">‹</button><span>' + (S.date === today() ? 'Heute' : S.date === addDays(today(), -1) ? 'Gestern' : short(S.date)) + '</span><button data-a="day" data-v="1" ' + (canFwd ? '' : 'disabled') + ' aria-label="Nächster Tag">›</button></div>' +
     '<span style="font-size:13px;font-weight:700;min-width:44px;text-align:right">' + (L ? '1' : '2') + ' / 2</span></div>' +
     '<div class="prog"><i class="on"></i><i class="' + (L ? '' : 'on') + '"></i></div><div class="col" style="gap:2px"><h1>' + (L ? 'Erst du: Leben' : 'Dann ihr: Liebe') + '</h1><span style="font-size:13px;opacity:.92">' + (L ? 'Privat, nur in deinem eigenen Sheet' : 'Geteilt mit ' + esc(S.sum.partner)) + '</span></div></div>';
   h += '<div class="scroll"><div class="pad" style="padding-top:16px">';
@@ -643,6 +882,7 @@ function vAnpassen() {
   });
   h += '<button class="ghost" style="border:2px dashed #94A3B8;color:#1D4ED8;min-height:52px;font-size:15px" data-a="newCrit" data-v="' + A.area + '">+ Kriterium hinzufügen</button>';
   h += '<div class="card"><h2>So zählt der Score</h2><div style="display:flex;height:14px;border-radius:7px;overflow:hidden"><div style="width:35%;background:#047857"></div><div style="width:45%;background:#1D4ED8"></div><div style="width:20%;background:#6D28D9"></div></div><div class="row" style="font-size:12px"><span><b>35 %</b> Tagesgefühl</span><span><b>45 %</b> Wochenziele</span><span><b>20 %</b> Monat</span></div><span class="sub">Die Gewichte änderst du im Sheet unter „Einstellungen“.</span></div>';
+  h += vBuddySettings(false);
   h += '<div class="list"><div class="li" style="border:none;padding-bottom:4px"><h2 style="font-size:16px">Einstellungen</h2></div>' +
     '<div class="li"><div class="col" style="flex:1"><b style="font-size:14px">Meinen eigenen Liebe-Score zeigen</b><span class="sub">Nur für dich, im Verlauf</span></div><button class="switch ' + (S.prefs.personal ? 'on R' : '') + '" role="switch" aria-checked="' + !!S.prefs.personal + '" aria-label="Eigenen Liebe-Score zeigen" data-a="prefPersonal"><span></span></button></div>' +
     '<div class="li"><button data-a="obAgain" style="flex:1;text-align:left;min-height:40px;font-size:14px;font-weight:600">Einführung noch einmal ansehen</button></div>' +
@@ -674,7 +914,8 @@ function render() {
   let h;
   if (!S.conn || !S.sum) h = vSetup();
   else if (S.view === 'onboarding') h = vOnboarding();
-  else if (S.view === 'summary') h = vSummary();
+  else if (S.view === 'summary') h = vGreeting();
+  else if (S.view === 'buddy') h = vBuddy();
   else if (S.view === 'checkin') h = vCheckin();
   else if (S.view === 'done') h = vDone();
   else if (S.view === 'verlauf') h = vVerlauf();
@@ -686,16 +927,20 @@ function render() {
   $app.innerHTML = h;
   const sc2 = document.querySelector('.scroll'); if (sc2 && S.keepScroll) sc2.scrollTop = top;
   S.keepScroll = false;
+  S.appear = false;
   if (fid) { const el = document.getElementById(fid); if (el && (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT')) { el.focus(); try { el.setSelectionRange(el.value.length, el.value.length); } catch (e) { /* type=url */ } } }
 }
-function go(v) { S.view = v; S.sheet = null; render(); const sc = document.querySelector('.scroll'); if (sc) sc.scrollTop = 0; }
+function go(v) { if (v !== S.view && (v === 'home' || v === 'summary' || v === 'buddy')) S.appear = true; S.view = v; S.sheet = null; render(); const sc = document.querySelector('.scroll'); if (sc) sc.scrollTop = 0; }
 
 /* ================= Bedienung ================= */
 $app.addEventListener('input', (ev) => {
   const t = ev.target;
   if (t.dataset.in) { const d = draft(S.ci, S.date); d[t.dataset.in] = t.value; }
   if (t.dataset.in2 && S.sheet) S.sheet.row[t.dataset.in2] = t.value;
+  if (t.dataset.in4) S.askQ = t.value;
+  if (t.dataset.in5) { S.buddy.name = t.value.slice(0, 20); store.set('lt_buddy', S.buddy); }
 });
+$app.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' && ev.target.id === 'askIn') { ev.preventDefault(); const b = document.querySelector('[data-a=askFree]'); if (b) b.click(); } });
 function newActs(area) {
   const d = draft(area, S.date), saved = {};
   mine(area).forEach((e) => { if (e.d === S.date && e.t === 'Aktivität') saved[e.f] = 1; });
@@ -737,11 +982,22 @@ $app.addEventListener('click', async (ev) => {
     if (changed) { S.busy = true; render(); try { setSum(await api('saveCriteria', { area: 'leben', rows: out })); } catch (e) { toast('Fehler: ' + e.message); } S.busy = false; }
     store.set('lt_onboarded', true); if (!store.get('lt_snap', null)) takeSnap(); go('home'); return;
   }
-  if (a === 'sumDone') { takeSnap(); go('home'); return; }
-  if (a === 'go') { if (v === 'anpassen') anpInit('leben'); go(v); return; }
+  if (a === 'sumDone') { await leaveBud(); takeSnap(); go('home'); return; }
+  if (a === 'openBuddy') { await leaveBud(); if (S.view === 'summary') takeSnap(); go('buddy'); return; }
+  if (a === 'ask' || a === 'askFree') {
+    let id = v, q = (QUESTIONS.find((x) => x[0] === v) || [])[1];
+    if (a === 'askFree') { q = String(S.askQ || '').trim(); if (!q) return; id = routeQuestion(q); S.askQ = ''; }
+    S.chat.push({ from: 'me', html: esc(q) });
+    S.chat.push({ from: 'b', html: id ? answer(id) : 'Das kann ich noch nicht frei beantworten. Tipp eine der Fragen oben an, dazu kenne ich mich aus.' });
+    render(); const sc = document.querySelector('.scroll'); if (sc) sc.scrollTop = sc.scrollHeight; return;
+  }
+  if (a === 'tipOff') { const bb = document.querySelector('.bub'); if (bb && !reduced()) { bb.classList.add('bubOut'); await new Promise((r) => setTimeout(r, 230)); } const all = store.get('lt_tipoff', {}); all[today()] = v; Object.keys(all).forEach((k) => { if (k < addDays(today(), -3)) delete all[k]; }); store.set('lt_tipoff', all); S.keepScroll = true; render(); return; }
+  if (a === 'tipYesterday') { await leaveBud(); if (S.view === 'summary') takeSnap(); S.ci = mine('leben').some((e) => e.d === addDays(today(), -1)) ? 'liebe' : 'leben'; S.date = addDays(today(), -1); S.bridge = null; const sc0 = scoresNow(); S.before = { leben: sc0.leben, liebe: sc0.liebe }; go('checkin'); return; }
+  if (a === 'buddyAnimal') { const defName = { baer: 'Ben', maus: 'Mila' }; if (!S.buddy.name || S.buddy.name === defName[S.buddy.animal]) S.buddy.name = defName[v]; S.buddy.animal = v; store.set('lt_buddy', S.buddy); S.keepScroll = true; render(); return; }
+  if (a === 'go') { if (S.view === 'buddy' || S.view === 'summary') await leaveBud(); if (v === 'anpassen') anpInit('leben'); go(v); return; }
   if (a === 'todo') { const all = store.get('lt_todo', {}); const t = today(); all[t] = all[t] || {}; all[t][v] = !all[t][v]; Object.keys(all).forEach((k) => { if (k < addDays(t, -7)) delete all[k]; }); store.set('lt_todo', all); S.keepScroll = true; render(); return; }
   // Check-in
-  if (a === 'startCheckin') { S.ci = 'leben'; S.date = today(); S.bridge = null; S.done = null; const sc = scoresNow(); S.before = { leben: sc.leben, liebe: sc.liebe }; go('checkin'); return; }
+  if (a === 'startCheckin') { if (S.view === 'summary' || S.view === 'home') await leaveBud(); if (S.view === 'summary') takeSnap(); S.ci = 'leben'; S.date = today(); S.bridge = null; S.done = null; const sc = scoresNow(); S.before = { leben: sc.leben, liebe: sc.liebe }; go('checkin'); return; }
   if (a === 'closeCheckin') { go('home'); return; }
   if (a === 'day') { S.date = addDays(S.date, Number(v)); render(); return; }
   if (a === 'ciBack') { S.ci = 'leben'; go('checkin'); return; }
