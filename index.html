@@ -758,12 +758,12 @@ function tickHtml(it, i, n) {
 let tickT = null;
 function startTicker() {
   clearInterval(tickT);
-  if (S.view !== 'home' || !S.tickItems || S.tickItems.length < 2) return;
+  const ks = Object.keys(S.rot || {}).filter((k) => S.rot[k].items.length > 1);
+  if (!ks.length) return;
   tickT = setInterval(() => {
-    const el = document.getElementById('ticker');
-    if (!el || S.view !== 'home') { clearInterval(tickT); return; }
-    S.tickI = (S.tickI + 1) % S.tickItems.length;
-    el.innerHTML = tickHtml(S.tickItems[S.tickI], S.tickI, S.tickItems.length);
+    let any = false;
+    Object.keys(S.rot || {}).forEach((k) => { const r = S.rot[k], el = document.getElementById(k); if (!el || r.items.length < 2) return; any = true; r.i = (r.i + 1) % r.items.length; el.innerHTML = r.fn(r.items[r.i], r.i, r.items.length); });
+    if (!any) clearInterval(tickT);
   }, 4500);
 }
 function vCapture() {
@@ -890,11 +890,12 @@ function vHome() {
   const sc = scoresNow(), snap = store.get('lt_snap', {}) || {}, T = todos(), tick = store.get('lt_todo', {})[today()] || {};
   const A = analysis(), reco = recommendation(A), V = verdict();
   const behind = goalStatus('leben').concat(goalStatus('liebe')).filter((g) => !g.reached && g.deficit >= 1).sort((a, b) => b.deficit - a.deficit)[0];
-  S.tickItems = tickerItems(); if (S.tickI == null || S.tickI >= S.tickItems.length) S.tickI = 0;
+  const ti = tickerItems(), pi = S.rotPrev && S.rotPrev.ticker ? S.rotPrev.ticker.i : 0;
+  S.rot.ticker = { items: ti, i: pi < ti.length ? pi : 0, fn: tickHtml };
   const allToday = captureTasks().filter((x) => x.grp === 'heute' && !x.done);
   let h = '<div class="scroll"><div class="pad" style="padding-bottom:230px">' +
     '<div class="row"><div class="col" style="gap:2px"><span class="small">' + nice(today()) + ' · KW ' + kw(today()) + '</span><h1>' + greet() + '</h1></div><button class="iconbtn" data-a="go" data-v="anpassen" aria-label="Anpassen">' + svg(P.sliders) + '</button></div>' +
-    '<div id="ticker" aria-live="polite">' + tickHtml(S.tickItems[S.tickI], S.tickI, S.tickItems.length) + '</div>' +
+    '<div id="ticker" aria-live="polite">' + tickHtml(S.rot.ticker.items[S.rot.ticker.i], S.rot.ticker.i, ti.length) + '</div>' +
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">' + scoreCard('leben', sc.leben, deltaPill(sc.leben, snap.leben)) + scoreCard('liebe', sc.liebe, deltaPill(sc.liebe, snap.liebe)) + '</div>';
   if (allToday.length) h += '<button class="btn" data-a="' + allToday[0].act + '">' + ACT_LABEL[allToday[0].act] + ' ' + svg(P.arrow, '#fff', 18, 2.4) + '</button>';
   h += vCapture();
@@ -958,31 +959,211 @@ function vDone() {
     '<div style="margin:-46px 16px 0;border-radius:22px;background:#fff;box-shadow:var(--sh2);padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px">' + box('Leben', '#065F46', D.before && D.before.leben, sc.leben, 'var(--gL)') + box('Liebe · gemeinsam', '#9F1239', D.before && D.before.liebe, sc.liebe, 'var(--gR)') + '</div>' +
     '<div class="pad" style="padding-top:16px">' + why + (items ? '<h2 style="font-size:18px">Dein Feedback</h2>' + items : '') + '<button class="btn" data-a="go" data-v="home">Zur Startseite</button></div></div>';
 }
+/* ================= Verlauf und Analyse (neu) ================= */
+function grainShape(kind, value, size, label) {
+  const v = value == null ? 0 : Math.max(0, Math.min(100, value)), y = 200 - 2 * v, id = kind;
+  const shape = kind === 'heart'
+    ? '<path d="M100 182 C 42 142 10 108 10 68 C 10 36 34 14 62 14 C 80 14 93 24 100 38 C 107 24 120 14 138 14 C 166 14 190 36 190 68 C 190 108 158 142 100 182 Z"/>'
+    : '<circle cx="100" cy="100" r="94"/>';
+  const c = kind === 'heart' ? ['#F43F5E', '#BE123C', '#9F1239', '#FFE4E6'] : ['#3B82F6', '#1D4ED8', '#1E3A8A', '#DBEAFE'];
+  const txt = value == null ? '–' : String(value), dark = v < 52;
+  return '<svg viewBox="0 0 200 200" width="' + size + '" height="' + size + '" role="img" aria-label="' + esc(label) + '" style="overflow:visible;filter:drop-shadow(0 12px 24px ' + (kind === 'heart' ? 'rgba(190,18,60,.28)' : 'rgba(29,78,216,.28)') + ')">' +
+    '<defs><clipPath id="clip' + id + '">' + shape + '</clipPath>' +
+    '<filter id="nW' + id + '" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="3" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1.4 -0.55"/></filter>' +
+    '<filter id="nD' + id + '" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="9" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0.1  0 0 0 1.5 -0.6"/></filter>' +
+    '<linearGradient id="lg' + id + '" x1="0" y1="0" x2="0.4" y2="1"><stop offset="0" stop-color="' + c[0] + '"/><stop offset="0.55" stop-color="' + c[1] + '"/><stop offset="1" stop-color="' + c[2] + '"/></linearGradient></defs>' +
+    '<g clip-path="url(#clip' + id + ')"><rect width="200" height="200" fill="' + c[3] + '"/><rect width="200" height="200" filter="url(#nD' + id + ')" opacity=".25"/>' +
+    '<path d="M0 ' + y + ' Q 25 ' + (y - 6) + ' 50 ' + y + ' T 100 ' + y + ' T 150 ' + y + ' T 200 ' + y + ' V 200 H 0 Z" fill="url(#lg' + id + ')"/>' +
+    '<rect x="0" y="' + (y - 8) + '" width="200" height="' + (208 - y) + '" filter="url(#nW' + id + ')" opacity=".5"/>' +
+    '<rect x="0" y="' + (y - 8) + '" width="200" height="' + (208 - y) + '" filter="url(#nD' + id + ')" opacity=".45"/></g>' +
+    '<g fill="none" stroke="' + c[1] + '" stroke-width="4" opacity=".9">' + shape + '</g>' +
+    '<text x="100" y="' + (kind === 'heart' ? 104 : 112) + '" text-anchor="middle" font-family="Plus Jakarta Sans, Inter, sans-serif" font-weight="800" font-size="' + (kind === 'heart' ? 50 : 58) + '" fill="' + (dark ? c[2] : '#fff') + '" style="paint-order:stroke" stroke="' + (dark ? 'rgba(255,255,255,.85)' : 'rgba(0,0,0,.12)') + '" stroke-width="4">' + txt + '</text></svg>';
+}
+function loveItems() {
+  const sc = scoresNow(), t = today(), mon = monday(t), out = [];
+  if (sc.gap != null) {
+    const near = 100 - sc.gap;
+    out.push(sc.gap < 10 ? { label: 'Nähe im Gefühl', text: 'Ihr fühlt euch diese Woche sehr ähnlich: ' + near + ' % Nähe.' } : sc.gap < 20 ? { label: 'Nähe im Gefühl', text: 'Ihr seid euch nah, nur ' + sc.gap + ' Punkte Abstand im Gefühl.' } : { label: 'Abstand im Gefühl', text: 'Ihr erlebt die Woche unterschiedlich: ' + sc.gap + ' Punkte Abstand. Redet kurz darüber.' });
+  }
+  const fBz = fk('liebe', 'bewusst', 'Bewusste Zeit');
+  const z = mine('liebe').filter((e) => e.t === 'Zeit' && e.f === fBz && e.d >= mon).reduce((a, e) => a + (e.v || 0), 0);
+  out.push({ label: 'Zeit zu zweit', text: z ? fmt(z, 1) + ' Stunden bewusste Zeit ohne Handy diese Woche.' : 'Diese Woche noch keine bewusste Zeit eingetragen.' });
+  const moments = {}; entries('liebe').forEach((e) => { if (e.t === 'Aktivität' && e.d >= mon) moments[e.d + e.f] = 1; });
+  const n = Object.keys(moments).length;
+  out.push({ label: 'Gemeinsame Momente', text: n ? n + (n === 1 ? ' schöner Moment' : ' schöne Momente') + ' diese Woche eingetragen.' : 'Noch keine gemeinsamen Momente diese Woche.' });
+  const h = sc.histR.filter((x) => x != null);
+  if (h.length > 1) out.push({ label: 'Entwicklung', text: 'Euer Score ging in ' + h.length + ' Wochen von ' + h[0] + ' auf ' + h[h.length - 1] + '.' });
+  goalStatus('liebe').filter((g) => g.reached).slice(0, 1).forEach((g) => out.push({ label: 'Geschafft', text: 'Wochenziel „' + g.f + '“ erreicht.' }));
+  return out;
+}
+function loveHtml(it, i, n) {
+  return '<div class="tickIn" style="display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;min-height:74px"><span class="cap" style="color:#BE123C">' + esc(it.label) + '</span><span style="font-size:15px;font-weight:600;line-height:1.45;max-width:300px">' + esc(it.text) + '</span><span style="display:flex;gap:4px">' + Array.from({ length: n }, (_, k) => '<i style="width:' + (k === i ? 14 : 6) + 'px;height:6px;border-radius:3px;background:' + (k === i ? '#BE123C' : '#FECDD3') + '"></i>').join('') + '</span></div>';
+}
+function trendBars(vals, weeks, grad) {
+  return '<div class="trend">' + vals.map((v, i) => '<div><span>' + (v != null ? v : '–') + '</span><i style="height:' + Math.round(((v || 0) / 100) * 80 + 2) + 'px;' + (i === vals.length - 1 ? 'background:' + grad : '') + '"></i><span>' + (weeks[i] ? 'KW' + kw(weeks[i]) : '') + '</span></div>').join('') + '</div>';
+}
+function partBars(rows) { return rows.map(([l, v, g]) => '<div class="col" style="gap:6px"><div class="row" style="font-size:14px"><span style="font-weight:600">' + l + '</span><span class="sub">' + pct(v) + (g ? ' · ' + g : '') + '</span></div><div class="bar"><i style="width:' + Math.round((v || 0) * 100) + '%;background:var(--gX)"></i></div></div>').join(''); }
 function vVerlauf() {
-  const sc = scoresNow();
-  const chart = (vals, grad, label) => { const max = 100; return '<div class="trend">' + vals.map((v, i) => '<div><span>' + (v != null ? v : '–') + '</span><i style="height:' + Math.round(((v || 0) / max) * 80 + 2) + 'px;' + (i === vals.length - 1 ? 'background:' + grad : '') + '"></i><span>' + (sc.weeks[i] ? 'KW' + kw(sc.weeks[i]) : '') + '</span></div>').join('') + '</div>'; };
-  const parts = (d, w, m, label) => [[label, d, '35 %'], ['Wochenziele, anteilig', w, '45 %'], ['Monatsziele', m, '20 %']].map(([l, v, g]) => '<div class="col" style="gap:6px"><div class="row" style="font-size:14px"><span style="font-weight:600">' + l + '</span><span class="sub">' + pct(v) + ' · ' + g + '</span></div><div class="bar"><i style="width:' + Math.round((v || 0) * 100) + '%;background:var(--gX)"></i></div></div>').join('');
-  const goals = (area) => goalStatus(area).map((g) => '<div class="col" style="gap:6px"><div class="row" style="font-size:14px"><span style="font-weight:600">' + esc(g.f) + '</span><span class="sub">' + g.done + ' / ' + g.target + '</span></div><div class="bar"><i style="width:' + Math.min(100, Math.round(g.done / g.target * 100)) + '%;background:' + (area === 'leben' ? 'var(--gL)' : 'var(--gR)') + '"></i></div></div>').join('');
-  let h = '<div class="scroll"><div class="pad"><h1>Verlauf</h1>' +
-    '<div class="card"><div class="row"><h2>Leben</h2><span class="big" style="font-size:26px">' + (sc.leben != null ? sc.leben : '–') + '</span></div>' + chart(sc.histL, 'var(--gL)') + parts(sc.lebenDaily, sc.lebenWk, sc.lebenMo, 'Tagesgefühl') + '</div>' +
-    '<div class="card"><div class="row"><h2>Liebe · gemeinsam</h2><span class="big" style="font-size:26px">' + (sc.liebe != null ? sc.liebe : '–') + '</span></div>' + chart(sc.histR, 'var(--gR)') +
-    '<div class="row" style="gap:8px"><span style="flex:1;padding:10px 12px;border-radius:12px;background:#F1F5F9;font-size:13px">Abstand im Gefühl: <b>' + (sc.gap != null ? sc.gap + ' Pkt.' : '–') + '</b></span></div>' +
-    (sc.gap != null ? '<span class="small">' + (sc.gap >= 20 ? 'Ihr erlebt die Woche unterschiedlich. Guter Anlass für ein Gespräch: Was hat dir gefehlt, was hat dir gutgetan?' : 'Ihr erlebt die Woche ähnlich.') + '</span>' : '') + '</div>';
-  if (S.prefs.personal) h += '<div class="card"><div class="row"><h2>Mein eigener Liebe-Score</h2><span class="big" style="font-size:26px">' + (sc.meScore != null ? sc.meScore : '–') + '</span></div>' + chart(sc.histMe, 'var(--gR)') + '<span class="small">Nur für dich sichtbar. Zum Einordnen, nicht zum Vergleichen.</span></div>';
-  h += '<div class="card"><h2>Wochenziele · KW ' + kw(today()) + '</h2>' + goals('leben') + goals('liebe') + '<span class="small">Im Score zählen Wochenziele anteilig nach den bisherigen Wochentagen. Wer im Plan liegt, bekommt die vollen Punkte.</span></div>';
+  const sc = scoresNow(), open = S.vOpen, li = loveItems();
+  const prevI = S.rotPrev && S.rotPrev.love ? S.rotPrev.love.i : 0;
+  S.rot.love = { items: li, i: prevI < li.length ? prevI : 0, fn: loveHtml };
+  const goals = (area) => goalStatus(area).map((g) => '<div class="col" style="gap:6px"><div class="row" style="font-size:14px"><span style="font-weight:600">' + esc(g.f) + '</span><span class="sub">' + g.done + ' / ' + g.target + (g.reached ? ' · geschafft' : g.deficit < 1 ? ' · im Plan' : '') + '</span></div><div class="bar"><i style="width:' + Math.min(100, Math.round(g.done / g.target * 100)) + '%;background:' + (area === 'leben' ? 'var(--gL)' : 'var(--gR)') + '"></i></div></div>').join('');
+  const ratingRows = (area) => cfg(area).ratings.map((r) => { const n = ratingAvg(area, r.f, monday(today()), addDays(today(), 1), S.sum.me), p = ratingAvg(area, r.f, addDays(monday(today()), -7), monday(today()), S.sum.me); return '<div class="row" style="font-size:14px;padding:4px 0"><span>' + esc(r.f) + '</span><span class="sub">' + (n != null ? fmt(n, 1) : '–') + (n != null && p != null && Math.abs(n - p) >= 0.3 ? (((n > p) !== !!r.inv) ? ' ▲' : ' ▼') : '') + '</span></div>'; }).join('');
+  let h = '<div class="scroll"><div class="pad"><h1>Verlauf</h1>';
+  h += '<button class="card" style="align-items:center;text-align:center;gap:8px" data-a="vOpen" data-v="leben" aria-expanded="' + (open === 'leben') + '">' + grainShape('circle', sc.leben, 190, 'Leben-Score ' + (sc.leben != null ? sc.leben : 'noch offen')) + '<b class="jk" style="font-size:18px;color:#1E3A8A">Leben</b><span class="sub">' + (open === 'leben' ? 'Tippen zum Schließen' : 'Tippen für Details') + '</span></button>';
+  if (open === 'leben') h += '<div class="card">' + partBars([['Gefühlt (Tagesgefühl)', sc.lebenDaily, '35 %'], ['Wochenziele erfüllt', sc.lebenWk, '45 %'], ['Monatsziele erfüllt', sc.lebenMo, '20 %']]) + '<h2 style="margin-top:8px">Wochenziele</h2>' + goals('leben') + '<h2 style="margin-top:8px">Deine Werte diese Woche</h2>' + ratingRows('leben') + '<h2 style="margin-top:8px">8 Wochen</h2>' + trendBars(sc.histL, sc.weeks, 'var(--gL)') + '</div>';
+  h += '<div class="card" style="align-items:center;gap:6px"><button data-a="vOpen" data-v="liebe" aria-expanded="' + (open === 'liebe') + '" style="display:flex;flex-direction:column;align-items:center;gap:8px">' + grainShape('heart', sc.liebe, 200, 'Gemeinsamer Liebe-Score ' + (sc.liebe != null ? sc.liebe : 'noch offen')) + '<b class="jk" style="font-size:18px;color:#9F1239">Liebe · gemeinsam</b></button>' +
+    '<div id="love" aria-live="polite" style="width:100%">' + loveHtml(li[S.rot.love.i], S.rot.love.i, li.length) + '</div><span class="sub">' + (open === 'liebe' ? 'Tippe aufs Herz zum Schließen' : 'Tippe aufs Herz für Details') + '</span></div>';
+  if (open === 'liebe') h += '<div class="card">' + partBars([['Gefühlt (dein Tagesgefühl)', sc.meFeel, null], ['Wochenziele erfüllt', sc.liebeWk, '45 %'], ['Monatsziele erfüllt', sc.liebeMo, '20 %']]) +
+    (S.prefs.personal ? '<div class="row" style="font-size:14px;padding:6px 0"><span>Dein eigener Liebe-Score</span><b>' + (sc.meScore != null ? sc.meScore : '–') + '</b></div>' : '') +
+    '<h2 style="margin-top:8px">Gemeinsame Wochenziele</h2>' + goals('liebe') + '<h2 style="margin-top:8px">Deine Werte diese Woche</h2>' + ratingRows('liebe') + '<h2 style="margin-top:8px">8 Wochen</h2>' + trendBars(sc.histR, sc.weeks, 'var(--gR)') + '</div>';
   return h + '</div></div>' + vTabs('verlauf');
 }
-function vAnalyse() {
-  const A = analysis(), sc = scoresNow(), l = sc.leben, r = sc.liebe, LIM = 50, has = l != null && r != null;
-  const Q = [['Liebe stark · Leben schwach', 'Die Beziehung trägt dich', 'Schau, was dir selbst fehlt.', has && l < LIM && r >= LIM], ['Beides stark', 'Im Fluss', 'Halte, was gerade funktioniert.', has && l >= LIM && r >= LIM], ['Beides schwach', 'Ruhe und Hilfe holen', 'Weniger vornehmen, Schlaf und Unterstützung zuerst.', has && l < LIM && r < LIM], ['Leben stark · Liebe schwach', 'Ihr verliert euch aus den Augen', 'Plant bewusst Zeit zu zweit ein.', has && l >= LIM && r < LIM]];
-  let h = '<div class="scroll"><div class="pad"><h1>Analyse</h1><div class="card"><div class="col" style="gap:2px"><h2>Wo stehst du gerade?</h2><span class="sub">Leben ' + (l != null ? l : '–') + ' · Liebe ' + (r != null ? r : '–') + ' · Grenze bei 50</span></div><div class="quads">' + Q.map(([a, t, x, on]) => '<div class="quad ' + (on ? 'on' : '') + '"><small>' + a + '</small><b>' + t + '</b><span>' + x + '</span></div>').join('') + '</div></div>';
-  h += '<div class="row"><h2 style="font-size:18px">Was dir auffällt</h2><span class="sub">' + A.days + ' Tage mit Einträgen</span></div>' + A.insights.map((i) => i.num != null
-    ? '<div class="ins"><div class="row"><span class="tag" style="background:' + i.c + '">' + i.dir + '</span><b class="jk" style="font-size:20px">' + esc(i.num) + '</b></div><b style="font-size:15px">' + esc(i.head) + '</b><span class="small" style="color:#334155">' + esc(i.text) + '</span><span class="sub">Basis: ' + i.r.nA + ' und ' + i.r.nB + ' ' + (i.r.unit || 'Tage') + '</span></div>'
-    : '<div class="ins wait"><div class="row"><span class="tag" style="background:' + i.c + '">' + i.dir + '</span><span class="sub">noch zu wenig Daten</span></div><b style="font-size:15px">' + esc(i.head) + '</b><span class="small">' + esc(i.text) + '</span><span class="sub">Bisher ' + i.r.nA + ' und ' + i.r.nB + ' ' + (i.r.unit || 'Tage') + ', nötig je ' + i.r.min + '</span></div>').join('');
-  h += '<div class="card"><div class="col" style="gap:2px"><h2>Stärkste Zusammenhänge</h2><span class="sub">Rechts: gehen gemeinsam hoch. Links: gegenläufig. Ab 14 gemeinsamen Tagen.</span></div>' + (A.corr.length ? A.corr.map((c) => '<div class="col" style="gap:5px"><div class="row" style="font-size:13px"><b>' + esc(c.l) + '</b><span class="sub">' + (c.r > 0 ? '+' : '−') + fmt(Math.abs(c.r), 2) + '</span></div><div class="dv"><div><i style="background:#BE185D;width:' + (c.r < 0 ? Math.round(-c.r * 100) : 0) + '%"></i></div><div><i style="background:#1D4ED8;width:' + (c.r > 0 ? Math.round(c.r * 100) : 0) + '%"></i></div></div></div>').join('') : '<span class="small">Noch zu wenig Daten. Nach ein paar Wochen erscheinen hier deine stärksten Zusammenhänge.</span>') + '</div>';
-  h += '<div class="card" style="flex-direction:row;align-items:center;justify-content:space-between"><div class="col" style="gap:4px"><b style="font-size:14px">Stress und Schlaf teilen</b><span class="sub" style="line-height:1.45">Nur der Wochenschnitt, keine Tageswerte. Nötig für gemeinsame Zusammenhänge.</span></div><button class="switch ' + (S.sum.share ? 'on' : '') + '" role="switch" aria-checked="' + !!S.sum.share + '" aria-label="Stress und Schlaf teilen" data-a="share"><span></span></button></div>';
-  return h + '<p class="small" style="margin:0">Das sind Tendenzen aus deinen eigenen Einträgen, keine Beweise für Ursache und Wirkung.</p></div></div>' + vTabs('analyse');
+/* ---- Analyse-Baukasten ---- */
+function featureList() {
+  const F = [];
+  ['leben', 'liebe'].forEach((a) => {
+    const C = cfg(a), p = a === 'leben' ? 'Leben' : 'Liebe';
+    C.ratings.forEach((r) => F.push({ k: a + '|r|' + r.f, label: r.f, group: p + ' · Bewertung', type: 'r' }));
+    C.acts.forEach((f) => F.push({ k: a + '|a|' + f, label: f, group: p + ' · Gewohnheit', type: 'a' }));
+    C.zeit.forEach((z) => F.push({ k: a + '|z|' + z.f, label: z.f, group: p + ' · Zeit', type: 'z' }));
+    C.ctx.forEach((f) => F.push({ k: a + '|c|' + f, label: f, group: p + ' · Kontext', type: 'c' }));
+  });
+  return F;
 }
+function dayMaps() { return { leben: byDay(mine('leben')), liebe: byDay(mine('liebe')), liebeAll: byDay(entries('liebe')) }; }
+function fval(M, key, d) {
+  const [a, t, f] = key.split('|'); const x = (t === 'a' && a === 'liebe' ? M.liebeAll : M[a])[d], own = M[a][d];
+  if (!x && !own) return null;
+  if (t === 'r') return own && own.r[f] != null ? own.r[f] : null;
+  if (t === 'a') return x && x.a[f] ? 1 : 0;
+  if (t === 'c') return own && own.c[f] ? 1 : 0;
+  if (t === 'z') return own ? (own.z[f] != null ? own.z[f] : 0) : null;
+  return null;
+}
+const fLabel = (k) => { const p = k.split('|'); return p.slice(2).join('|'); };
+function allDays(M) { return Array.from(new Set(Object.keys(M.leben).concat(Object.keys(M.liebe)))).sort(); }
+function splitX(t, v) { if (v == null) return null; if (t === 'a' || t === 'c') return v === 1; if (t === 'z') return v >= 1; return v >= 4 ? true : v <= 2 ? false : null; }
+function groupNames(t, f) { return t === 'a' || t === 'c' ? ['mit „' + f + '“', 'ohne „' + f + '“'] : t === 'z' ? ['mit mindestens 1 h ' + f, 'mit weniger ' + f] : ['mit hohem Wert bei „' + f + '“ (4–5)', 'mit niedrigem Wert (1–2)']; }
+function analyzePair(xk, yk, lag) {
+  const M = dayMaps(), days = allDays(M), xt = xk.split('|')[1], yt = yk.split('|')[1], xf = fLabel(xk), yf = fLabel(yk);
+  const A = [], B = [], xs = [], ys = [];
+  days.forEach((d) => { const xv = fval(M, xk, d), yv = fval(M, yk, lag ? addDays(d, 1) : d); if (xv == null || yv == null) return; xs.push(xv); ys.push(yv); const g = splitX(xt, xv); if (g == null) return; (g ? A : B).push(yv); });
+  const r = xs.length >= 10 ? pearson(xs, ys) : null, gn = groupNames(xt, xf), when = lag ? ' am Folgetag' : '';
+  const isRate = yt === 'a' || yt === 'c';
+  const show = (v) => v == null ? '–' : isRate ? Math.round(v * 100) + ' %' : yt === 'z' ? fmt(v, 1) + ' h' : fmt(v, 1);
+  if (A.length < 5 || B.length < 5) return { ok: false, text: 'Dafür habe ich noch zu wenig Daten: bisher ' + A.length + ' Tage ' + gn[0] + ' und ' + B.length + ' Tage ' + gn[1] + '. Ab etwa 5 Tagen je Gruppe kann ich etwas Sinnvolles sagen.', bars: [] };
+  const a = mean(A), b = mean(B), diff = a - b;
+  const strong = isRate ? Math.abs(diff) >= 0.15 : yt === 'z' ? Math.abs(diff) >= 0.5 : Math.abs(diff) >= 0.5;
+  const weak = isRate ? Math.abs(diff) < 0.05 : Math.abs(diff) < 0.2;
+  let text = isRate
+    ? 'An Tagen ' + gn[0] + ' kam „' + yf + '“' + when + ' in ' + show(a) + ' der Fälle vor, an Tagen ' + gn[1] + ' in ' + show(b) + '. '
+    : 'An Tagen ' + gn[0] + ' lag „' + yf + '“' + when + ' im Schnitt bei ' + show(a) + ', an Tagen ' + gn[1] + ' bei ' + show(b) + '. ';
+  text += weak ? 'Das ist kaum ein Unterschied, hier scheint es keinen echten Zusammenhang zu geben.' : strong ? 'Das ist ein deutlicher Unterschied, den solltet ihr im Blick behalten.' : 'Das ist ein leichter Unterschied, eine Tendenz.';
+  if (r != null && Math.abs(r) >= 0.3) text += ' Insgesamt ' + (r > 0 ? 'steigen beide Werte eher gemeinsam' : 'verhalten sich die Werte eher gegenläufig') + '.';
+  return { ok: true, text, bars: [{ l: gn[0], v: a, s: show(a) }, { l: gn[1], v: b, s: show(b) }], max: isRate ? 1 : yt === 'z' ? Math.max(a, b, 1) : 5, base: 'Basis: ' + A.length + ' und ' + B.length + ' Tage' };
+}
+function key(area, k, fb, t) { return area + '|' + (t || 'r') + '|' + fk(area, k, fb); }
+function tagesgefuehl(M, d) { const x = M.leben[d]; if (!x) return null; const R = cfg('leben').ratings.filter((r) => x.r[r.f] != null); if (!R.length) return null; return mean(R.map((r) => (r.inv ? 6 - x.r[r.f] : x.r[r.f]))); }
+function rankBinary(target, lag) { // welche Gewohnheiten/Kontexte unterscheiden sich am stärksten bzgl. Zielwert
+  const M = dayMaps(), days = allDays(M), out = [];
+  featureList().filter((f) => f.type === 'a' || f.type === 'c').forEach((f) => {
+    const A = [], B = [];
+    days.forEach((d) => { const xv = fval(M, f.k, d), yv = target(M, lag ? addDays(d, 1) : d); if (xv == null || yv == null) return; (xv ? A : B).push(yv); });
+    if (A.length >= 5 && B.length >= 5) out.push({ f, a: mean(A), b: mean(B), d: mean(A) - mean(B), n: A.length + B.length });
+  });
+  return out.sort((x, y) => Math.abs(y.d) - Math.abs(x.d));
+}
+const PRESETS = [
+  ['gut', 'Was macht meine guten Tage aus?'],
+  ['verb', 'Was hilft unserer Verbundenheit am meisten?'],
+  ['vorher', 'Woran merke ich, dass ein schwerer Tag kommt?'],
+  ['wtag', 'Welcher Wochentag läuft am besten?'],
+  ['gew', 'Welche Gewohnheit bringt mir am meisten?'],
+  ['stress', 'Wie wirkt sich Stress auf uns aus?']
+];
+function presetResult(id) {
+  const M = dayMaps(), few = (n) => ({ ok: false, text: n < 14 ? 'Dafür brauche ich noch mehr Einträge. Bisher habe ich ' + n + (n === 1 ? ' Tag' : ' Tage') + ', ab etwa 14 Tagen wird es aussagekräftig.' : 'Für diese Frage fehlen mir passende Einträge, zum Beispiel regelmäßige Bewertungen von Stimmung oder Verbundenheit. Sobald die da sind, kann ich antworten.', bars: [] });
+  const nDays = allDays(M).length;
+  if (id === 'gut' || id === 'gew' || id === 'vorher') {
+    const target = id === 'vorher' ? (MM, d) => { const v = fval(MM, key('leben', 'stimmung', 'Stimmung'), d); return v == null ? null : v <= 2 ? 1 : 0; } : (MM, d) => tagesgefuehl(MM, d);
+    const ranked = rankBinary(target, id === 'vorher').filter((x) => id !== 'gew' || (x.f.type === 'a' && x.f.k.indexOf('leben|') === 0));
+    if (!ranked.length) return few(nDays);
+    const top = ranked.slice(0, 3);
+    let text;
+    if (id === 'vorher') { const warnF = top.filter((x) => x.d > 0), safeF = top.filter((x) => x.d < 0); text = (warnF.length ? 'Ein Warnzeichen am Vortag ist bei dir ' + warnF.map((x) => '„' + x.f.label + '“').join(' und ') + ': Danach folgt öfter ein schwerer Tag. ' : 'Ein klares Warnzeichen am Vortag sehe ich noch nicht. ') + (safeF.length ? 'Eher geschützt bist du nach Tagen mit ' + safeF.map((x) => '„' + x.f.label + '“').join(' und ') + '. ' : '') + 'Wenn du so einen Vortag bemerkst, plane am nächsten Tag bewusst etwas Gutes für dich ein.'; }
+    else if (id === 'gew') text = 'Am meisten bringt dir: ' + top.filter((x) => x.d > 0).map((x) => '„' + x.f.label + '“ (+' + fmt(x.d, 1) + ' im Tagesgefühl)').join(', ') + (top.some((x) => x.d <= 0) ? '. Kaum Wirkung zeigt: ' + top.filter((x) => x.d <= 0).map((x) => '„' + x.f.label + '“').join(', ') : '') + '.';
+    else text = 'Deine guten Tage haben vor allem das gemeinsam: ' + top.map((x) => (x.d > 0 ? 'mit ' : 'ohne ') + '„' + x.f.label + '“').join(', ') + '. Dein Tagesgefühl liegt dann im Schnitt ' + fmt(Math.abs(top[0].d), 1) + ' Punkte ' + (top[0].d > 0 ? 'höher' : 'niedriger') + '.';
+    return { ok: true, text: text.replace('Am meisten bringt dir: .', 'Noch keine Gewohnheit zeigt eine klare Wirkung.'), bars: top.map((x) => ({ l: x.f.label, v: Math.abs(x.d), s: (x.d > 0 ? '+' : '−') + (id === 'vorher' ? Math.round(Math.abs(x.d) * 100) + ' %' : fmt(Math.abs(x.d), 1)) })), max: Math.max.apply(null, top.map((x) => Math.abs(x.d)).concat([id === 'vorher' ? 0.3 : 1])), base: 'Basis: ' + nDays + ' Tage' };
+  }
+  if (id === 'verb') {
+    const vk = key('liebe', 'verbundenheit', 'Verbundenheit');
+    const ranked = rankBinary((MM, d) => fval(MM, vk, d), false);
+    const z = analyzePair(key('liebe', 'bewusst', 'Bewusste Zeit', 'z'), vk, false);
+    if (!ranked.length && !z.ok) return few(nDays);
+    const pos = ranked.filter((x) => x.d >= 0.2).slice(0, 3);
+    let text = pos.length ? 'Eure Verbundenheit ist am höchsten an Tagen mit ' + pos.map((x) => '„' + x.f.label + '“ (+' + fmt(x.d, 1) + ')').join(', ') + '. ' : '';
+    if (z.ok) text += 'Und bei der bewussten Zeit gilt: ' + z.text;
+    return { ok: true, text, bars: pos.map((x) => ({ l: x.f.label, v: x.d, s: '+' + fmt(x.d, 1) })), max: Math.max.apply(null, pos.map((x) => x.d).concat([1])), base: 'Basis: ' + nDays + ' Tage' };
+  }
+  if (id === 'wtag') {
+    const sk = key('leben', 'stimmung', 'Stimmung'), vk = key('liebe', 'verbundenheit', 'Verbundenheit'), by = [[], [], [], [], [], [], []], byV = [[], [], [], [], [], [], []];
+    allDays(M).forEach((d) => { const s = fval(M, sk, d), v = fval(M, vk, d), i = dayIdx(d); if (s != null) by[i].push(s); if (v != null) byV[i].push(v); });
+    const names = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag'];
+    const avg = by.map(mean), ok = by.filter((x) => x.length >= 2).length >= 5;
+    if (!ok) return few(nDays);
+    const valid = avg.map((v, i) => ({ v, i })).filter((x) => x.v != null && by[x.i].length >= 2).sort((a, b) => b.v - a.v);
+    const best = valid[0], worst = valid[valid.length - 1];
+    const avgV = byV.map(mean), bestV = avgV.map((v, i) => ({ v, i })).filter((x) => x.v != null && byV[x.i].length >= 2).sort((a, b) => b.v - a.v)[0];
+    return { ok: true, text: 'Dein bester Tag ist der ' + names[best.i] + ' (Stimmung ' + fmt(best.v, 1) + '), am schwersten ist der ' + names[worst.i] + ' (' + fmt(worst.v, 1) + ').' + (bestV ? ' Zu zweit fühlt ihr euch am ' + names[bestV.i] + ' am verbundensten.' : '') + ' Vielleicht lohnt es sich, am ' + names[worst.i] + ' bewusst etwas Schönes einzuplanen.', bars: avg.map((v, i) => ({ l: names[i].slice(0, 2), v: v || 0, s: v != null ? fmt(v, 1) : '–' })), max: 5, base: 'Basis: ' + nDays + ' Tage', compact: true };
+  }
+  if (id === 'stress') {
+    const st = key('leben', 'stress', 'Stress');
+    const a1 = analyzePair(st, key('liebe', 'verbundenheit', 'Verbundenheit'), false), a2 = analyzePair(st, key('liebe', 'konflikt', 'Konflikt gehabt', 'c'), false), a3 = analyzePair(st, key('liebe', 'bewusst', 'Bewusste Zeit', 'z'), false);
+    const parts = [a1, a2, a3].filter((x) => x.ok);
+    if (!parts.length) return few(nDays);
+    return { ok: true, text: parts.map((x) => x.text).join(' '), bars: [].concat(a1.ok ? [{ l: 'Verbundenheit bei hohem Stress', v: a1.bars[0].v, s: a1.bars[0].s }, { l: 'Verbundenheit bei wenig Stress', v: a1.bars[1].v, s: a1.bars[1].s }] : []), max: 5, base: a1.base || '' };
+  }
+  return few(nDays);
+}
+function analysisHints() {
+  const out = [], A = analysis(), M = dayMaps(), days = allDays(M), t = today();
+  if (days.length < 14) out.push({ t: 'Noch ' + (14 - days.length) + ' Tage bis zu zuverlässigen Auswertungen', x: 'Je regelmäßiger ihr eintragt, desto genauer werden die Antworten. Erste Tendenzen siehst du aber schon jetzt.', act: null });
+  A.corr.filter((c) => Math.abs(c.r) >= 0.4).slice(0, 1).forEach((c) => out.push({ t: '„' + c.l + '“ hängen stark zusammen', x: 'Das ist bei euch einer der deutlichsten Zusammenhänge. Schau dir an, was genau dahintersteckt.', act: 'aqOpen', v: c.l.indexOf(fk('liebe', 'verbundenheit', 'Verbundenheit')) >= 0 ? 'verb' : 'gut' }));
+  const last14 = days.filter((d) => d > addDays(t, -14));
+  featureList().filter((f) => f.type === 'c').forEach((f) => { const n = last14.filter((d) => fval(M, f.k, d) === 1).length; if (last14.length >= 7 && n / last14.length >= 0.4) out.push({ t: '„' + f.label + '“ an ' + n + ' von ' + last14.length + ' Tagen', x: 'Das kommt bei dir oft vor. Lohnt sich ein Blick, wie es mit deiner Stimmung zusammenhängt.', act: 'prefill', v: f.k + '>' + key('leben', 'stimmung', 'Stimmung') }); });
+  feedback().warn.filter((w) => / ist gesunken$/.test(w.t)).slice(0, 1).forEach((w) => out.push({ t: w.t, x: (w.s || '') + ' Schau dir an, was dem vorausgeht.', act: 'aqOpen', v: 'vorher' }));
+  return out.slice(0, 3);
+}
+function resultHtml(r) {
+  if (!r) return '';
+  const bars = (r.bars || []).length ? (r.compact ? '<div class="trend" style="height:110px">' + r.bars.map((b) => '<div><span>' + b.s + '</span><i style="height:' + Math.round((b.v / (r.max || 1)) * 70 + 2) + 'px;background:var(--gX)"></i><span>' + esc(b.l) + '</span></div>').join('') + '</div>'
+    : r.bars.map((b) => '<div class="col" style="gap:5px"><div class="row" style="font-size:13px"><span style="font-weight:600">' + esc(b.l) + '</span><span class="sub">' + b.s + '</span></div><div class="bar"><i style="width:' + Math.max(3, Math.round(Math.abs(b.v) / (r.max || 1) * 100)) + '%;background:var(--gX)"></i></div></div>').join('')) : '';
+  return '<div class="tickIn" style="display:flex;flex-direction:column;gap:10px;margin-top:6px;padding:14px;border-radius:16px;background:' + (r.ok ? '#F5F3FF' : '#F8FAFC') + ';border:1px solid ' + (r.ok ? '#DDD6FE' : '#E2E8F0') + '"><span style="font-size:14px;line-height:1.55;color:#1E1B4B">' + esc(r.text) + '</span>' + bars + (r.base ? '<span class="sub">' + r.base + '</span>' : '') + '</div>';
+}
+function vAnalyse() {
+  const A = analysis(), sc = scoresNow(), l = sc.leben, r = sc.liebe, LIM = 50, has = l != null && r != null, F = featureList();
+  if (!S.ax || !F.some((f) => f.k === S.ax)) S.ax = (F.find((f) => f.type === 'r' && f.k.indexOf('leben|') === 0) || F[0] || {}).k;
+  if (!S.ay || !F.some((f) => f.k === S.ay)) S.ay = (F.find((f) => f.type === 'r' && f.k.indexOf('liebe|') === 0) || F[1] || {}).k;
+  const opt = (sel) => { let g = '', o = ''; F.forEach((f) => { if (f.group !== g) { o += (g ? '</optgroup>' : '') + '<optgroup label="' + esc(f.group) + '">'; g = f.group; } o += '<option value="' + esc(f.k) + '"' + (f.k === sel ? ' selected' : '') + '>' + esc(f.label) + '</option>'; }); return o + (g ? '</optgroup>' : ''); };
+  const hints = analysisHints();
+  let h = '<div class="scroll"><div class="pad"><h1>Analyse</h1>';
+  if (hints.length) h += '<div class="col" style="gap:10px"><h2 style="font-size:18px">Worauf du schauen solltest</h2>' + hints.map((x) => '<div style="border-radius:20px;padding:14px 16px;color:#fff;background:linear-gradient(120deg,#1D4ED8 0%,#6D28D9 55%,#BE185D 100%);box-shadow:0 10px 26px rgba(15,23,42,.16);display:flex;flex-direction:column;gap:6px"><b style="font-size:15px">' + esc(x.t) + '</b><span style="font-size:13px;line-height:1.5;opacity:.95">' + esc(x.x) + '</span>' + (x.act ? '<button style="align-self:flex-start;min-height:38px;padding:0 14px;border-radius:12px;background:#fff;color:#4C1D95;font-weight:800;font-size:13px" data-a="' + x.act + '" data-v="' + esc(x.v) + '">Ansehen</button>' : '') + '</div>').join('') + '</div>';
+  h += '<div class="list"><div class="li" style="border:none;padding-bottom:4px"><div class="col"><h2 style="font-size:18px">Fragen an eure Daten</h2><span class="sub">Tippen, um die Auswertung zu sehen</span></div></div>' +
+    PRESETS.map(([id, q]) => '<div class="li" style="flex-direction:column;align-items:stretch;gap:0"><button data-a="aq" data-v="' + id + '" aria-expanded="' + (S.aq === id) + '" style="display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:44px;text-align:left"><b style="font-size:14px">' + q + '</b><span style="flex:none;width:28px;height:28px;border-radius:9px;background:#F5F3FF;color:#6D28D9;display:flex;align-items:center;justify-content:center;font-weight:800">' + (S.aq === id ? '−' : '+') + '</span></button>' + (S.aq === id ? resultHtml(presetResult(id)) : '') + '</div>').join('') + '</div>';
+  h += '<div class="card"><div class="col" style="gap:2px"><h2>Eigene Analyse</h2><span class="sub">Wähle zwei Werte und finde heraus, ob sie zusammenhängen.</span></div>' +
+    '<label class="col" style="gap:4px"><span class="sub" style="font-weight:700">Wirkt …</span><select data-sel="ax" style="min-height:46px;border-radius:14px;border:1px solid var(--bd);padding:0 12px;font-size:15px;background:#fff">' + opt(S.ax) + '</select></label>' +
+    '<label class="col" style="gap:4px"><span class="sub" style="font-weight:700">… auf</span><select data-sel="ay" style="min-height:46px;border-radius:14px;border:1px solid var(--bd);padding:0 12px;font-size:15px;background:#fff">' + opt(S.ay) + '</select></label>' +
+    '<div class="segw" role="group" aria-label="Zeitpunkt" style="box-shadow:none;background:var(--bg)"><button class="' + (!S.alag ? 'on L' : '') + '" data-a="alag" data-v="0">am selben Tag</button><button class="' + (S.alag ? 'on L' : '') + '" data-a="alag" data-v="1">am Folgetag</button></div>' +
+    '<button class="btn" data-a="runCustom">Analysieren</button>' + (S.ares ? resultHtml(S.ares) : '') + '</div>';
+  h += '<div class="card"><div class="col" style="gap:2px"><h2>Wo stehst du gerade?</h2><span class="sub">Leben ' + (l != null ? l : '–') + ' · Liebe ' + (r != null ? r : '–') + '</span></div><div class="quads">' + [['Liebe stark · Leben schwach', 'Die Beziehung trägt dich', has && l < LIM && r >= LIM], ['Beides stark', 'Im Fluss', has && l >= LIM && r >= LIM], ['Beides schwach', 'Ruhe und Hilfe holen', has && l < LIM && r < LIM], ['Leben stark · Liebe schwach', 'Ihr verliert euch aus den Augen', has && l >= LIM && r < LIM]].map(([a, t, on]) => '<div class="quad ' + (on ? 'on' : '') + '" style="min-height:84px"><small>' + a + '</small><b>' + t + '</b></div>').join('') + '</div></div>';
+  const okIns = A.insights.filter((i) => i.num != null);
+  if (okIns.length || A.corr.length) h += '<div class="card"><h2>Erkannte Muster</h2>' + okIns.map((i) => '<div class="row" style="align-items:flex-start;gap:10px;padding:6px 0;border-top:1px solid var(--line)"><span class="tag" style="background:' + i.c + ';flex:none">' + esc(i.num) + '</span><span style="font-size:13px;line-height:1.5">' + esc(i.text) + '</span></div>').join('') +
+    A.corr.slice(0, 3).map((c) => '<div class="col" style="gap:5px;padding-top:6px"><div class="row" style="font-size:13px"><b>' + esc(c.l) + '</b><span class="sub">' + (c.r > 0 ? 'gemeinsam' : 'gegenläufig') + '</span></div><div class="dv"><div><i style="background:#BE185D;width:' + (c.r < 0 ? Math.round(-c.r * 100) : 0) + '%"></i></div><div><i style="background:#1D4ED8;width:' + (c.r > 0 ? Math.round(c.r * 100) : 0) + '%"></i></div></div></div>').join('') + '</div>';
+  h += '<div class="card" style="flex-direction:row;align-items:center;justify-content:space-between"><div class="col" style="gap:4px"><b style="font-size:14px">Stress und Schlaf teilen</b><span class="sub" style="line-height:1.45">Nur der Wochenschnitt. Nötig für gemeinsame Zusammenhänge.</span></div><button class="switch ' + (S.sum.share ? 'on' : '') + '" role="switch" aria-checked="' + !!S.sum.share + '" aria-label="Stress und Schlaf teilen" data-a="share"><span></span></button></div>';
+  return h + '<p class="small" style="margin:0">Alle Auswertungen sind Tendenzen aus euren eigenen Einträgen, keine Beweise für Ursache und Wirkung.</p></div></div>' + vTabs('analyse');
+}
+
 const TYPES = [['Bewertung', 'Bewertung', 'täglich 1 bis 5'], ['Woche', 'Gewohnheit', 'abhaken, mit Wochenziel'], ['Aktivität', 'Gewohnheit', 'abhaken, ohne Ziel'], ['Monat', 'Monatsziel', 'einmal im Monat'], ['Zeit', 'Zeit', 'in Stunden'], ['Kontext', 'Kontext', 'nur für die Analyse']];
 const tname = (t) => (TYPES.find((x) => x[0] === t) || [t, t])[1];
 function anpInit(area) { S.anp = { area, rows: cfgRows(area).map((r) => Object.assign({ orig: r.f }, r)), dirty: false }; }
@@ -1034,6 +1215,7 @@ function vSheet() {
     (!isNew && !r.orig ? '<button class="link" data-a="sheetDel" style="align-self:center;color:#B91C1C">Wieder entfernen</button>' : '') + '</div></div>';
 }
 function render() {
+  S.rotPrev = S.rot || {}; S.rot = {};
   const sc = document.querySelector('.scroll'), top = sc ? sc.scrollTop : 0, fid = document.activeElement && document.activeElement.id;
   let h;
   if (!S.conn || !S.sum) h = vSetup();
@@ -1064,8 +1246,10 @@ $app.addEventListener('input', (ev) => {
   if (t.dataset.in) { const d = draft(S.ci, S.date); d[t.dataset.in] = t.value; }
   if (t.dataset.in2 && S.sheet) S.sheet.row[t.dataset.in2] = t.value;
   if (t.dataset.in4) S.askQ = t.value;
+  if (t.dataset.sel) { S[t.dataset.sel] = t.value; S.ares = null; }
   if (t.dataset.in5) { S.buddy.name = t.value.slice(0, 20); store.set('lt_buddy', S.buddy); }
 });
+$app.addEventListener('change', (ev) => { const t = ev.target; if (t.dataset && t.dataset.sel) { S[t.dataset.sel] = t.value; S.ares = null; } });
 $app.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' && ev.target.id === 'askIn') { ev.preventDefault(); const b = document.querySelector('[data-a=askFree]'); if (b) b.click(); } });
 function newActs(area) {
   const d = draft(area, S.date), saved = {};
@@ -1121,6 +1305,11 @@ $app.addEventListener('click', async (ev) => {
   if (a === 'wcLast') { if (S.view === 'home') await leaveBud(); S.ci = 'leben'; S.date = lastSunday(today()); S.bridge = null; const sc2 = scoresNow(); S.before = { leben: sc2.leben, liebe: sc2.liebe }; go('checkin'); return; }
   if (a === 'startMonthly') { if (S.view === 'home') await leaveBud(); S.ci = 'leben'; S.date = today(); S.bridge = null; const sc3 = scoresNow(); S.before = { leben: sc3.leben, liebe: sc3.liebe }; S.scrollTo = 'monthly'; go('checkin'); return; }
   if (a === 'goVerlauf') { go('verlauf'); return; }
+  if (a === 'vOpen') { S.vOpen = S.vOpen === v ? null : v; S.keepScroll = true; render(); return; }
+  if (a === 'aq' || a === 'aqOpen') { S.aq = a === 'aq' && S.aq === v ? null : v; S.keepScroll = true; render(); if (a === 'aqOpen') { const el = document.querySelector('[data-a=aq][data-v=' + v + ']'); if (el && el.scrollIntoView) el.scrollIntoView({ block: 'center' }); } return; }
+  if (a === 'alag') { S.alag = v === '1'; S.ares = null; S.keepScroll = true; render(); return; }
+  if (a === 'runCustom') { S.ares = analyzePair(S.ax, S.ay, !!S.alag); S.keepScroll = true; render(); return; }
+  if (a === 'prefill') { const p = v.split('>'); S.ax = p[0]; S.ay = p[1]; S.alag = false; S.ares = analyzePair(S.ax, S.ay, false); S.keepScroll = true; render(); const el = document.querySelector('[data-a=runCustom]'); if (el && el.scrollIntoView) el.scrollIntoView({ block: 'center' }); return; }
   if (a === 'tipOff') { S.bubOff = true; const bb = document.querySelector('.bub'); if (bb && !reduced()) { bb.classList.add('bubOut'); await new Promise((r) => setTimeout(r, 230)); } const all = store.get('lt_tipoff', {}); all[today()] = v; Object.keys(all).forEach((k) => { if (k < addDays(today(), -3)) delete all[k]; }); store.set('lt_tipoff', all); S.keepScroll = true; render(); return; }
   if (a === 'tipYesterday') { await leaveBud(); if (S.view === 'summary') takeSnap(); S.ci = mine('leben').some((e) => e.d === addDays(today(), -1)) ? 'liebe' : 'leben'; S.date = addDays(today(), -1); S.bridge = null; const sc0 = scoresNow(); S.before = { leben: sc0.leben, liebe: sc0.liebe }; go('checkin'); return; }
   if (a === 'buddyAnimal') { const defName = { baer: 'Ben', maus: 'Mila' }; if (!S.buddy.name || S.buddy.name === defName[S.buddy.animal]) S.buddy.name = defName[v]; S.buddy.animal = v; store.set('lt_buddy', S.buddy); S.keepScroll = true; render(); return; }
@@ -1222,7 +1411,7 @@ let hiddenAt = 0;
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden') { hiddenAt = Date.now(); return; }
   if (!S.conn) return;
-  if (hiddenAt && Date.now() - hiddenAt > 5 * 60000) { S.bubOff = false; if (S.view === 'home') { S.appear = true; S.tickI = 0; } }
+  if (hiddenAt && Date.now() - hiddenAt > 5 * 60000) { S.bubOff = false; if (S.view === 'home') { S.appear = true; S.rot = {}; } }
   if (S.view === 'home' || S.view === 'summary') refresh(true);
 });
 if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
