@@ -154,7 +154,9 @@ nav.tabs .plus{width:34px;height:34px;border-radius:12px;display:flex;align-item
 .bubOut{animation:bubOut .22s ease-in both}
 @keyframes bubIn{0%{opacity:0;transform:translateY(8px) scale(.96)}100%{opacity:1;transform:none}}
 @keyframes bubOut{100%{opacity:0;transform:translateY(6px) scale(.96)}}
-@media (prefers-reduced-motion: reduce){.bud,.bubIn,.bubOut{animation:none!important}}
+#ticker .tickIn{animation:tickIn .5s ease-out both}
+@keyframes tickIn{0%{opacity:0;transform:translateY(6px)}100%{opacity:1;transform:none}}
+@media (prefers-reduced-motion: reduce){.bud,.bubIn,.bubOut,#ticker .tickIn{animation:none!important}}
 </style>
 </head>
 <body>
@@ -668,8 +670,116 @@ function routeQuestion(q) {
   if (/hinter|rückstand|ziel|offen/.test(s)) return 'hinten';
   return null;
 }
+/* ================= Erfassung: was wann einzutragen ist ================= */
+function firstDay() { const all = mine('leben').concat(mine('liebe')).map((e) => e.d).sort(); return all[0] || today(); }
+function lastSunday(t) { return addDays(t, -(dayIdx(t) + 1)); }
+function wcDone(date) { return mine('leben').some((e) => e.d === date && e.t === 'Wochencheck') || mine('liebe').some((e) => e.d === date && e.t === 'Wochencheck'); }
+function dayDone(area, d) { return mine(area).some((e) => e.d === d && e.t !== 'Monatsziel'); }
+function captureTasks() {
+  const t = today(), h = new Date().getHours(), y = addDays(t, -1), start = firstDay(), out = [];
+  const tL = dayDone('leben', t), tR = dayDone('liebe', t);
+  out.push({ id: 'tL', grp: 'heute', title: 'Leben-Check-in', done: tL, sub: tL ? 'erledigt' : h >= 17 ? 'Am besten jetzt am Abend' : 'Heute Abend, ca. 1 Minute', act: 'startCheckin', prio: tL ? 99 : h >= 20 ? 1 : 5 });
+  out.push({ id: 'tR', grp: 'heute', title: 'Liebe-Check-in', done: tR, sub: tR ? 'erledigt' : 'Direkt nach Leben, ca. 1 Minute', act: tL ? 'startLiebe' : 'startCheckin', prio: tR ? 99 : h >= 20 ? 2 : 6 });
+  const yL = dayDone('leben', y), yR = dayDone('liebe', y);
+  if (y >= start && (!yL || !yR)) out.push({ id: 'y', grp: 'heute', title: 'Gestern nachtragen', done: false, sub: !yL && !yR ? 'Leben und Liebe fehlen' : !yL ? 'Leben fehlt' : 'Liebe fehlt', act: 'tipYesterday', prio: h < 12 ? 0 : 3 });
+  const C = cfg('leben'), isSun = parse(t).getDay() === 0;
+  if (C.wcRate || C.wcText) {
+    if (isSun) { const d = wcDone(t); out.push({ id: 'wc', grp: 'woche', title: 'Wochen-Check', done: d, sub: d ? 'erledigt' : 'Heute ist Sonntag, 1 Minute', act: 'startCheckin', prio: d ? 99 : h >= 17 ? 2 : 7 }); }
+    else { const ls = lastSunday(t); if (ls >= start && dayIdx(t) <= 1 && !wcDone(ls)) out.push({ id: 'wcl', grp: 'woche', title: 'Wochen-Check nachholen', done: false, sub: 'Vom letzten Sonntag', act: 'wcLast', prio: 4 }); }
+  }
+  const gs = goalStatus('leben').concat(goalStatus('liebe')), inPlan = gs.filter((g) => g.reached || g.deficit < 1).length;
+  if (gs.length) out.push({ id: 'wg', grp: 'woche', title: 'Wochenziele', done: inPlan === gs.length, sub: inPlan + ' von ' + gs.length + ' im Plan', act: 'goVerlauf', prio: 99, info: true });
+  const pd = parse(t), dim = new Date(pd.getFullYear(), pd.getMonth() + 1, 0).getDate(), left = dim - pd.getDate(), mon = t.slice(0, 7);
+  const openM = ['leben', 'liebe'].reduce((n, a) => n + cfg(a).monthly.filter((m) => !entries(a).some((e) => e.t === 'Monatsziel' && e.f === m.f && e.d.slice(0, 7) === mon && (a === 'liebe' || e.p === S.sum.me))).length, 0);
+  const totM = cfg('leben').monthly.length + cfg('liebe').monthly.length;
+  if (totM) out.push({ id: 'm', grp: 'monat', title: 'Monatsziele', done: openM === 0, sub: openM === 0 ? 'alle geschafft' : openM + ' von ' + totM + ' offen, noch ' + left + (left === 1 ? ' Tag' : ' Tage'), act: 'startMonthly', prio: openM && left <= 7 ? 3 : 99, openM, left });
+  const recent = []; for (let i = 0; i < 5; i++) recent.push(addDays(t, -i));
+  const lang = [];
+  ['leben', 'liebe'].forEach((a) => {
+    const days = recent.filter((d) => dayDone(a, d)); if (days.length < 2) return;
+    cfg(a).ratings.forEach((r) => {
+      const last = mine(a).filter((e) => e.t === 'Bewertung' && e.f === r.f).map((e) => e.d).sort().pop();
+      const n = last ? Math.round((parse(t) - parse(last)) / 86400000) : null;
+      if (n == null ? days.length >= 3 : n >= 5) lang.push({ id: 'lf-' + a + r.f, grp: 'lang', title: r.f + (n == null ? ' noch nie bewertet' : ' seit ' + n + ' Tagen nicht bewertet'), f: r.f, n, kind: 'rate', done: false, sub: 'Im nächsten Check-in mit dabei', act: a === 'leben' ? 'startCheckin' : 'startLiebe', prio: 6 });
+    });
+  });
+  const rd = recent.filter((d) => dayDone('liebe', d));
+  if (rd.length >= 4 && !mine('liebe').some((e) => e.t === 'Zeit' && e.d >= recent[4])) lang.push({ id: 'lz', grp: 'lang', title: 'Zeit zu zweit seit Tagen nicht eingetragen', kind: 'zeit', done: false, sub: 'Wie viel Zeit hattet ihr füreinander?', act: 'startLiebe', prio: 6 });
+  gs.forEach((g) => {
+    const last = entries(g.area).filter((e) => e.t === 'Aktivität' && e.f === g.f && (g.area === 'liebe' || e.p === S.sum.me)).map((e) => e.d).sort().pop();
+    const n = last ? Math.round((parse(t) - parse(last)) / 86400000) : null;
+    if (n != null && n >= 10) lang.push({ id: 'lh-' + g.f, grp: 'lang', title: '„' + g.f + '“ seit ' + n + ' Tagen nicht', f: g.f, n, kind: 'habit', done: false, sub: 'Passt das Ziel noch? Sonst unter Anpassen ändern', act: g.area === 'leben' ? 'startCheckin' : 'startLiebe', prio: 7 });
+  });
+  return out.concat(lang.slice(0, 3));
+}
+const openTasks = () => captureTasks().filter((x) => !x.done && !x.info).sort((a, b) => a.prio - b.prio);
+const ACT_LABEL = { startCheckin: 'Jetzt einchecken', startLiebe: 'Liebe eintragen', tipYesterday: 'Gestern nachtragen', wcLast: 'Wochen-Check nachholen', startMonthly: 'Monatsziele öffnen', goVerlauf: 'Ansehen' };
+const joinDe = (a) => a.length < 2 ? (a[0] || '') : a.slice(0, -1).join(', ') + ' und ' + a[a.length - 1];
+function taskSentence(x) {
+  if (x.id === 'wc') return 'Heute ist Sonntag, Zeit für deinen kurzen Wochen-Check.';
+  if (x.id === 'wcl') return 'Den Wochen-Check vom Sonntag kannst du noch nachholen.';
+  if (x.id === 'm') return 'Von deinen Monatszielen ' + (x.openM === 1 ? 'ist noch eins' : 'sind noch ' + x.openM) + ' offen, und der Monat hat nur noch ' + (x.left === 1 ? 'einen Tag' : x.left + ' Tage') + '.';
+  if (x.kind === 'rate') return x.n == null ? 'Übrigens hast du „' + x.f + '“ noch nie bewertet.' : 'Übrigens hast du „' + x.f + '“ seit ' + x.n + ' Tagen nicht bewertet.';
+  if (x.kind === 'zeit') return 'Übrigens habt ihr seit ein paar Tagen keine Zeit zu zweit eingetragen.';
+  if (x.kind === 'habit') return '„' + x.f + '“ hast du seit ' + x.n + ' Tagen nicht abgehakt. Passt das Ziel noch zu dir?';
+  if (x.id === 'y') return 'Gestern fehlt noch etwas, das kannst du schnell nachtragen.';
+  return x.title + '.';
+}
+function benNow() {
+  const open = openTasks(), fb = feedback(), mood = buddyMood(), h = new Date().getHours();
+  const opener = h < 11 ? 'Guten Morgen!' : h < 17 ? 'Hallo!' : 'Guten Abend!';
+  const todayOpen = open.filter((x) => x.grp === 'heute');
+  const names = todayOpen.map((x) => x.id === 'tL' ? 'dein Leben-Check-in' : x.id === 'tR' ? 'dein Liebe-Check-in' : 'der Check-in von gestern');
+  let txt = opener + ' ';
+  txt += names.length ? (h < 15 && !todayOpen.some((x) => x.id === 'y') ? 'Heute Abend stehen noch ' + joinDe(names.map((n) => n.replace('dein ', 'dein '))) + ' an. ' : 'Für heute fehlt noch ' + joinDe(names) + '. ') : 'Für heute ist alles eingetragen, super. ';
+  const other = open.find((x) => x.grp !== 'heute');
+  if (other) txt += taskSentence(other) + ' ';
+  const w = fb.warn[0], g = fb.good[0];
+  if (mood === 'sad' && w) txt += 'Mir ist aufgefallen: ' + w.s + ' ' + (w.tip || '');
+  else if (g) txt += g.s + ' Das freut mich.';
+  else if (w) txt += 'Ein Auge hätte ich auf: ' + w.s;
+  if (!open.length && !g && !w) { const tp = buddyTip(); if (tp) return tp; }
+  const top = open[0];
+  return { id: 'now', text: txt.trim(), act: top ? top.act : null, label: top ? ACT_LABEL[top.act] : null };
+}
+function tickerItems() {
+  const items = [], fb = feedback();
+  openTasks().slice(0, 3).forEach((x) => items.push({ label: x.grp === 'heute' ? 'Heute offen' : x.grp === 'woche' ? 'Diese Woche' : x.grp === 'monat' ? 'Diesen Monat' : 'Länger offen', text: x.title + ': ' + x.sub, act: x.act, bg: 'linear-gradient(120deg,#1D4ED8 0%,#6D28D9 55%,#BE185D 100%)' }));
+  if (fb.warn[0]) items.push({ label: 'Achtung', text: fb.warn[0].s || fb.warn[0].t, act: null, bg: 'linear-gradient(120deg,#D97706 0%,#EA580C 55%,#BE123C 100%)' });
+  if (fb.good[0]) items.push({ label: 'Läuft gut', text: fb.good[0].s || fb.good[0].t, act: null, bg: 'linear-gradient(120deg,#047857 0%,#0E7490 55%,#1D4ED8 100%)' });
+  if (!items.length) items.push({ label: 'Alles erledigt', text: 'Heute ist alles eingetragen. Genieß deinen Tag!', act: null, bg: 'linear-gradient(120deg,#047857 0%,#0E7490 55%,#1D4ED8 100%)' });
+  return items;
+}
+function tickHtml(it, i, n) {
+  return '<div class="tickIn" style="border-radius:22px;padding:14px 16px;color:#fff;background:' + it.bg + ';box-shadow:0 10px 26px rgba(15,23,42,.18);display:flex;flex-direction:column;gap:8px;min-height:96px">' +
+    '<div class="row"><span class="cap" style="opacity:.92">' + esc(it.label) + '</span><span style="display:flex;gap:4px">' + Array.from({ length: n }, (_, k) => '<i style="width:' + (k === i ? 16 : 6) + 'px;height:6px;border-radius:3px;background:rgba(255,255,255,' + (k === i ? '.95' : '.45') + ')"></i>').join('') + '</span></div>' +
+    '<div class="row" style="align-items:flex-end"><span style="font-size:16px;font-weight:700;line-height:1.35">' + esc(it.text) + '</span>' + (it.act ? '<button data-a="' + it.act + '" aria-label="' + esc(ACT_LABEL[it.act] || 'Öffnen') + '" style="flex:none;width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center">' + svg(P.arrow, '#fff', 18, 2.4) + '</button>' : '') + '</div></div>';
+}
+let tickT = null;
+function startTicker() {
+  clearInterval(tickT);
+  if (S.view !== 'home' || !S.tickItems || S.tickItems.length < 2) return;
+  tickT = setInterval(() => {
+    const el = document.getElementById('ticker');
+    if (!el || S.view !== 'home') { clearInterval(tickT); return; }
+    S.tickI = (S.tickI + 1) % S.tickItems.length;
+    el.innerHTML = tickHtml(S.tickItems[S.tickI], S.tickI, S.tickItems.length);
+  }, 4500);
+}
+function vCapture() {
+  const all = captureTasks(), groups = [['heute', 'Heute'], ['woche', 'Diese Woche'], ['monat', 'Diesen Monat'], ['lang', 'Länger offen']];
+  const today_ = all.filter((x) => x.grp === 'heute'), doneN = today_.filter((x) => x.done).length;
+  let h = '<div class="card" style="gap:4px"><div class="row" style="margin-bottom:4px"><h2>Was wann eintragen</h2><span class="pill ' + (doneN === today_.length ? 'L' : 'N') + '">Heute ' + doneN + '/' + today_.length + '</span></div>';
+  groups.forEach(([g, label]) => {
+    const rows = all.filter((x) => x.grp === g); if (!rows.length) return;
+    h += '<span class="sub" style="font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-top:8px">' + label + '</span>' + rows.map((x) => '<div class="row" style="padding:8px 0;border-top:1px solid var(--line);gap:10px"><span style="flex:none;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;' + (x.done ? 'background:var(--gL);color:#fff' : g === 'lang' ? 'background:#FEF3C7;color:#B45309' : 'border:2px solid #CBD2E0;color:transparent') + '">' + (x.done ? '✓' : g === 'lang' ? '!' : '') + '</span><div class="col" style="flex:1"><b style="font-size:14px;' + (x.done ? 'color:var(--sub)' : '') + '">' + esc(x.title) + '</b><span class="sub">' + esc(x.sub) + '</span></div>' + (!x.done ? '<button class="ghost" style="width:auto;min-height:38px;padding:0 12px;font-size:13px" data-a="' + x.act + '">' + (x.info ? 'Ansehen' : 'Eintragen') + '</button>' : '') + '</div>').join('');
+  });
+  return h + '<span class="sub" style="margin-top:8px;line-height:1.45">Täglich abends Leben und Liebe, sonntags der Wochen-Check, Monatsziele abhaken, sobald du sie erledigt hast.</span></div>';
+}
+
 function vGreeting() {
-  const mood = buddyMood(), T = bTheme(), g = greetText(mood), tip = buddyTip(), items = dayAhead();
+  const mood = buddyMood(), T = bTheme(), g = greetText(mood), tip = buddyTip();
+  const items = openTasks().slice(0, 3).map((x) => ({ b: x.grp === 'heute' ? (x.id === 'y' ? '↺' : '✎') : x.grp === 'woche' ? 'W' : x.grp === 'monat' ? 'M' : '!', c: x.id === 'tR' ? 'liebe' : x.grp === 'heute' ? 'leben' : 'x', x: x.grp === 'heute' ? (x.id === 'tL' ? 'Dein Leben-Check-in heute, ca. eine Minute.' : x.id === 'tR' ? 'Dein Liebe-Check-in heute, direkt danach.' : taskSentence(x)) : taskSentence(x) })).concat(dayAhead().filter((d) => d.b.indexOf('/') > 0).slice(0, 1));
   const col = (c) => c === 'leben' ? ['#ECFDF5', '#047857'] : c === 'liebe' ? ['#FFF1F2', '#BE123C'] : ['#EFF6FF', '#1D4ED8'];
   const now = new Date();
   return '<div class="scroll" style="background:' + T.bg + '"><div style="min-height:100%;display:flex;flex-direction:column">' +
@@ -678,14 +788,14 @@ function vGreeting() {
     '<div style="flex:1;margin-top:-4px;border-radius:30px 30px 0 0;background:#fff;padding:22px 20px calc(24px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:14px;box-shadow:0 -10px 30px rgba(15,23,42,.18)">' +
     '<div class="col" style="gap:4px"><span class="cap" style="color:' + T.ink + '">' + bName() + ' sagt</span><h1 style="font-size:23px;line-height:1.25">' + greet() + '! ' + g.head + '</h1></div>' +
     '<p style="margin:0;font-size:15px;line-height:1.6;color:#334155">' + g.body + '</p>' +
-    (items.length ? '<div style="border-radius:18px;background:var(--bg);padding:6px 14px"><div style="padding:8px 0 4px;font-size:13px;font-weight:800">Was der Tag noch bringt</div>' + items.map((it) => { const c = col(it.c); return '<div class="row" style="justify-content:flex-start;gap:10px;padding:8px 0;border-top:1px solid #E6E9F2"><span style="flex:none;width:30px;height:28px;border-radius:9px;background:' + c[0] + ';color:' + c[1] + ';display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">' + it.b + '</span><span style="font-size:14px">' + esc(it.x) + '</span></div>'; }).join('') + '</div>' : '') +
+    (items.length ? '<div style="border-radius:18px;background:var(--bg);padding:6px 14px"><div style="padding:8px 0 4px;font-size:13px;font-weight:800">Was heute noch zu tun ist</div>' + items.map((it) => { const c = col(it.c); return '<div class="row" style="justify-content:flex-start;gap:10px;padding:8px 0;border-top:1px solid #E6E9F2"><span style="flex:none;width:30px;height:28px;border-radius:9px;background:' + c[0] + ';color:' + c[1] + ';display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800">' + it.b + '</span><span style="font-size:14px">' + esc(it.x) + '</span></div>'; }).join('') + '</div>' : '') +
     (tip ? '<div class="bub ' + (S.appear ? 'bubIn' : '') + '" style="border-radius:22px;padding:16px 18px;background:' + T.btn + ';color:#fff;box-shadow:0 12px 30px rgba(15,23,42,.22);display:flex;flex-direction:column;gap:10px"><span class="cap" style="opacity:.9">' + bName() + 's Tipp</span><span style="font-size:15px;line-height:1.5;font-weight:500">' + esc(tip.text) + '</span>' + (tip.act ? '<button style="min-height:44px;border-radius:14px;background:#fff;color:' + T.ink + ';font-weight:800;font-size:14px" data-a="' + tip.act + '">' + tip.label + '</button>' : '') + '</div>' : '') +
     '<div class="row" style="gap:10px;margin-top:auto"><button class="ghost" style="flex:1;min-height:52px;color:' + T.ink + ';background:' + T.soft + ';border-color:' + T.line + '" data-a="openBuddy">Frag ' + bName() + '</button><button class="btn" style="flex:1.4;background:' + T.btn + '" data-a="sumDone">Los geht\'s</button></div>' +
     '</div></div></div>';
 }
 function vBuddyPeek() {
-  const tip = buddyTip(), dis = store.get('lt_tipoff', {}), T = bTheme();
-  const showTip = tip && dis[today()] !== tip.id;
+  const tip = benNow(), T = bTheme();
+  const showTip = tip && !S.bubOff;
   return '<div style="position:absolute;left:6px;right:12px;bottom:calc(76px + env(safe-area-inset-bottom));display:flex;align-items:flex-end;gap:4px;pointer-events:none;z-index:5">' +
     '<button data-a="openBuddy" aria-label="' + bName() + ' öffnen" style="pointer-events:auto;flex:none">' + budWrap(figure(S.buddy.animal, buddyMood(), 118)) + '</button>' +
     (showTip ? '<div class="bub ' + (S.appear ? 'bubIn' : '') + '" style="pointer-events:auto;flex:1;margin-bottom:44px;border-radius:24px 24px 24px 6px;padding:16px 18px;background:' + T.btn + ';color:#fff;box-shadow:0 18px 44px rgba(15,23,42,.30);display:flex;flex-direction:column;gap:10px"><span class="cap" style="opacity:.9">' + bName() + '</span><span style="font-size:15px;line-height:1.5;font-weight:500">' + esc(tip.text) + '</span><div class="row" style="gap:8px">' + (tip.act ? '<button style="flex:1;min-height:42px;border-radius:13px;background:#fff;color:' + T.ink + ';font-weight:800;font-size:14px" data-a="' + tip.act + '">' + tip.label + '</button>' : '') + '<button style="' + (tip.act ? 'flex:none;padding:0 16px' : 'flex:1') + ';min-height:42px;border-radius:13px;background:rgba(255,255,255,.2);color:#fff;font-weight:700;font-size:14px" data-a="tipOff" data-v="' + tip.id + '">Okay</button></div></div>' : '') + '</div>';
@@ -778,23 +888,21 @@ function vSummary() {
 }
 function vHome() {
   const sc = scoresNow(), snap = store.get('lt_snap', {}) || {}, T = todos(), tick = store.get('lt_todo', {})[today()] || {};
-  const A = analysis(), reco = recommendation(A), V = verdict(), fb = feedback();
-  const doneL = mine('leben').some((e) => e.d === today()), doneR = mine('liebe').some((e) => e.d === today());
+  const A = analysis(), reco = recommendation(A), V = verdict();
   const behind = goalStatus('leben').concat(goalStatus('liebe')).filter((g) => !g.reached && g.deficit >= 1).sort((a, b) => b.deficit - a.deficit)[0];
-  let h = '<div class="scroll"><div class="pad" style="padding-bottom:210px">' +
+  S.tickItems = tickerItems(); if (S.tickI == null || S.tickI >= S.tickItems.length) S.tickI = 0;
+  const allToday = captureTasks().filter((x) => x.grp === 'heute' && !x.done);
+  let h = '<div class="scroll"><div class="pad" style="padding-bottom:230px">' +
     '<div class="row"><div class="col" style="gap:2px"><span class="small">' + nice(today()) + ' · KW ' + kw(today()) + '</span><h1>' + greet() + '</h1></div><button class="iconbtn" data-a="go" data-v="anpassen" aria-label="Anpassen">' + svg(P.sliders) + '</button></div>' +
+    '<div id="ticker" aria-live="polite">' + tickHtml(S.tickItems[S.tickI], S.tickI, S.tickItems.length) + '</div>' +
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">' + scoreCard('leben', sc.leben, deltaPill(sc.leben, snap.leben)) + scoreCard('liebe', sc.liebe, deltaPill(sc.liebe, snap.liebe)) + '</div>';
-  h += '<div class="card"><div class="row"><h2>Dein Check-in heute</h2><span class="sub">ca. 2 Min.</span></div><div class="row" style="gap:8px">' +
-    '<span style="flex:1;display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:12px;background:#ECFDF5;font-size:13px;font-weight:700;color:#065F46"><span style="width:8px;height:8px;border-radius:50%;background:#047857"></span>Leben ' + (doneL ? 'erledigt' : 'offen') + '</span>' +
-    '<span style="flex:1;display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:12px;background:#FFF1F2;font-size:13px;font-weight:700;color:#9F1239"><span style="width:8px;height:8px;border-radius:50%;background:#BE123C"></span>Liebe ' + (doneR ? 'erledigt' : 'offen') + '</span></div>' +
-    '<button class="btn" data-a="startCheckin">' + (doneL && doneR ? 'Check-in bearbeiten' : 'Check-in starten') + ' ' + svg(P.arrow, '#fff', 18, 2.4) + '</button></div>';
+  if (allToday.length) h += '<button class="btn" data-a="' + allToday[0].act + '">' + ACT_LABEL[allToday[0].act] + ' ' + svg(P.arrow, '#fff', 18, 2.4) + '</button>';
+  h += vCapture();
   h += '<div class="col" style="gap:10px"><div class="row"><h2 style="font-size:18px">Deine To-dos für heute</h2><span class="sub">' + T.filter((t) => tick[t.id]).length + ' von ' + T.length + '</span></div><div class="list">' +
     T.map((t) => '<div class="li" style="align-items:flex-start"><button class="box ' + (tick[t.id] ? 'on' : '') + '" data-a="todo" data-v="' + esc(t.id) + '" aria-pressed="' + !!tick[t.id] + '" aria-label="' + esc(t.t) + ' erledigt">' + (tick[t.id] ? '✓' : '') + '</button><div class="col" style="flex:1;gap:2px"><b style="font-size:14px;' + (tick[t.id] ? 'text-decoration:line-through;color:var(--sub)' : '') + '">' + esc(t.t) + '</b><span class="sub">' + esc(t.x) + '</span></div><span class="pill ' + (t.area === 'leben' ? 'L' : 'R') + '">' + (t.area === 'leben' ? 'Leben' : 'Liebe') + '</span></div>').join('') + '</div></div>';
   h += '<div class="reco"><span class="cap" style="opacity:.92">Empfehlung</span><b class="jk" style="font-size:17px;line-height:1.3">' + esc(reco.t) + '</b><span style="font-size:13px;line-height:1.5">' + esc(reco.x) + '</span></div>';
   if (behind) h += '<div class="behind"><div class="row"><b style="font-size:13px;color:#92400E">Hier hängst du hinterher</b><span class="sub" style="color:#92400E">' + (behind.left ? 'noch ' + behind.left + (behind.left === 1 ? ' Tag' : ' Tage') : 'letzter Tag') + '</span></div><div class="row" style="font-size:14px"><b>' + esc(behind.f) + '</b><span style="color:#78350F">' + behind.done + ' / ' + behind.target + '</span></div><div class="bar" style="background:#FEF3C7"><i style="width:' + Math.max(4, Math.round(behind.done / behind.target * 100)) + '%;background:#D97706"></i></div><span class="sub" style="color:#78350F">' + (behind.impossible ? 'Diese Woche wird knapp. Jedes Mal zählt trotzdem anteilig.' : 'Plan es dir fest ein, dann ist es gut machbar.') + '</span></div>';
-  else h += '<div class="good"><span class="ic">✓</span><div class="col" style="gap:2px"><b style="font-size:14px">Alle Wochenziele im Plan</b><span>Gemessen an den bisherigen Wochentagen liegst du überall gut.</span></div></div>';
-  h += '<div class="card"><div class="row"><h2>Dein Verlauf</h2><span class="sub">' + (V.weeks ? V.weeks + (V.weeks === 1 ? ' Woche' : ' Wochen') + ' Daten' : 'gerade gestartet') + '</span></div><span style="font-size:14px;line-height:1.5">' + esc(V.text) + '</span>' +
-    '<div class="row" style="gap:8px;align-items:stretch">' + (fb.good[0] ? '<span style="flex:1;padding:8px 10px;border-radius:12px;background:#ECFDF5;font-size:12px;color:#065F46"><b>Gut:</b> ' + esc(fb.good[0].t) + '</span>' : '') + (fb.warn[0] ? '<span style="flex:1;padding:8px 10px;border-radius:12px;background:#FFF1F2;font-size:12px;color:#9F1239"><b>Achtung:</b> ' + esc(fb.warn[0].t) + '</span>' : '') + '</div></div>';
+  h += '<div class="card"><div class="row"><h2>Dein Verlauf</h2><span class="sub">' + (V.weeks ? V.weeks + (V.weeks === 1 ? ' Woche' : ' Wochen') + ' Daten' : 'gerade gestartet') + '</span></div><span style="font-size:14px;line-height:1.5">' + esc(V.text) + '</span></div>';
   const q = store.get('lt_queue', []);
   if (q.length) h += '<p class="small" style="margin:0">' + q.length + ' Check-in(s) warten auf Übertragung.</p>';
   return h + '</div></div>' + vBuddyPeek() + vTabs('home');
@@ -811,6 +919,8 @@ function vCheckin() {
     '<span style="font-size:13px;font-weight:700;min-width:44px;text-align:right">' + (L ? '1' : '2') + ' / 2</span></div>' +
     '<div class="prog"><i class="on"></i><i class="' + (L ? '' : 'on') + '"></i></div><div class="col" style="gap:2px"><h1>' + (L ? 'Erst du: Leben' : 'Dann ihr: Liebe') + '</h1><span style="font-size:13px;opacity:.92">' + (L ? 'Privat, nur in deinem eigenen Sheet' : 'Geteilt mit ' + esc(S.sum.partner)) + '</span></div></div>';
   h += '<div class="scroll"><div class="pad" style="padding-top:16px">';
+  const yd = addDays(today(), -1);
+  if (S.date === today() && yd >= firstDay() && !dayDone(area, yd)) h += '<button class="card" style="flex-direction:row;align-items:center;gap:12px;background:#FFFBEB;border:1px solid #FDE68A;box-shadow:none;text-align:left" data-a="day" data-v="-1"><span style="flex:none;width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#D97706,#BE123C);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800">↺</span><div class="col"><b style="font-size:14px;color:#92400E">Gestern fehlt noch</b><span style="font-size:13px;color:#78350F">Tippen, um gestern zuerst nachzutragen</span></div></button>';
   if (!L && S.bridge && S.bridge.length) h += S.bridge.map((b, i) => '<div class="card" style="background:linear-gradient(135deg,#EFF6FF,#F5F3FF 50%,#FDF2F8);border:1px solid #DDD6FE;box-shadow:none"><div class="row" style="justify-content:flex-start;gap:8px"><span class="tag" style="background:var(--gL)">Aus Leben</span>' + svg(P.arrow, '#6D28D9', 16, 2.4) + '<span class="tag" style="background:var(--gR)">in Liebe</span></div><span style="font-size:14px;line-height:1.45;color:#2E1065">' + b.text + '</span><div class="row" style="gap:8px"><button class="btn" style="min-height:42px;font-size:13px;background:#6D28D9;box-shadow:none" data-a="bridgeKeep" data-v="' + i + '">Als To-do merken</button><button class="ghost" style="min-height:42px;font-size:13px;border-color:#DDD6FE;color:#4C1D95" data-a="bridgeDrop" data-v="' + i + '">Nicht nötig</button></div></div>').join('');
   const showWc = (C.wcRate || C.wcText) && (parse(S.date).getDay() === 0 || d.wcRate || d.wcText);
   if (showWc) {
@@ -832,9 +942,10 @@ function vCheckin() {
     h += d.ctxOpen ? '<div class="card"><div class="row"><h2>Kontext</h2><button class="link" data-a="ctxToggle">Schließen</button></div><span class="sub">Zählt nicht in den Score, hilft bei den Zusammenhängen.</span><div class="chips">' + C.ctx.map((f) => '<button class="chip ctx ' + (d.ctx[f] ? 'on' : '') + '" data-a="ctx" data-f="' + esc(f) + '" aria-pressed="' + !!d.ctx[f] + '">' + esc(f) + '</button>').join('') + '</div></div>'
       : '<button class="card" style="flex-direction:row;align-items:center;justify-content:space-between;border:1px dashed #B8C1D3;box-shadow:none;text-align:left" data-a="ctxToggle"><div class="col"><b style="font-size:14px">Kontext hinzufügen</b><span class="sub">' + (sel.length ? esc(sel.join(', ')) : 'z. B. ' + esc(C.ctx.slice(0, 2).join(', '))) + '</span></div><span style="width:32px;height:32px;border-radius:10px;background:#EEF1F6;display:flex;align-items:center;justify-content:center;font-weight:800">+</span></button>';
   }
-  if (C.monthly.length && S.date === today()) h += '<div class="list"><div class="li" style="border:none;padding-bottom:2px"><h2>Monatsziele · ' + MON[parse(S.date).getMonth()] + '</h2></div>' + C.monthly.map((m) => { const other = !L && entries('liebe').find((e) => e.t === 'Monatsziel' && e.f === m.f && e.p !== S.sum.me && e.d.slice(0, 7) === S.date.slice(0, 7)); return '<div class="li"><button class="box ' + (d.monthly[m.f] ? 'on' : '') + '" data-a="month" data-f="' + esc(m.f) + '" aria-pressed="' + !!d.monthly[m.f] + '" aria-label="' + esc(m.f) + '">' + (d.monthly[m.f] ? '✓' : '') + '</button><div class="col" style="flex:1"><span style="font-size:14px;font-weight:600">' + esc(m.f) + '</span>' + (other ? '<span class="sub">erledigt von ' + esc(other.p) + '</span>' : '') + '</div></div>'; }).join('') + '</div>';
+  if (C.monthly.length && S.date === today()) h += '<div class="list" id="monthly"><div class="li" style="border:none;padding-bottom:2px"><h2>Monatsziele · ' + MON[parse(S.date).getMonth()] + '</h2></div>' + C.monthly.map((m) => { const other = !L && entries('liebe').find((e) => e.t === 'Monatsziel' && e.f === m.f && e.p !== S.sum.me && e.d.slice(0, 7) === S.date.slice(0, 7)); return '<div class="li"><button class="box ' + (d.monthly[m.f] ? 'on' : '') + '" data-a="month" data-f="' + esc(m.f) + '" aria-pressed="' + !!d.monthly[m.f] + '" aria-label="' + esc(m.f) + '">' + (d.monthly[m.f] ? '✓' : '') + '</button><div class="col" style="flex:1"><span style="font-size:14px;font-weight:600">' + esc(m.f) + '</span>' + (other ? '<span class="sub">erledigt von ' + esc(other.p) + '</span>' : '') + '</div></div>'; }).join('') + '</div>';
   h += '<label class="col" style="gap:8px"><b class="jk" style="font-size:17px">' + (L ? 'Eine Sache, für die ich dankbar bin' : 'Was ich heute an dir geschätzt habe') + '</b><textarea id="note" rows="2" data-in="note" placeholder="Optional">' + esc(d.note) + '</textarea></label>';
-  h += '</div></div><div class="foot"><button class="btn ' + (L ? '' : 'R') + '" data-a="' + (L ? 'ciNext' : 'ciFinish') + '" ' + (S.busy ? 'disabled' : '') + '>' + (S.busy ? 'Speichert …' : L ? 'Weiter zu Liebe ' + svg(P.arrow, '#fff', 18, 2.4) : 'Check-in abschließen') + '</button>' + (L ? '<button class="link" data-a="ciOnlyLeben" style="align-self:center">Nur Leben speichern</button>' : '') + '</div>';
+  const miss = C.ratings.filter((r) => !d.ratings[r.f]).map((r) => r.f);
+  h += '</div></div><div class="foot">' + (miss.length ? '<div class="row" style="justify-content:flex-start;gap:6px;flex-wrap:wrap"><span class="sub" style="font-weight:700;color:#B45309">Noch offen:</span>' + miss.map((f) => '<span class="pill" style="background:#FEF3C7;color:#92400E">' + esc(f) + '</span>').join('') + '</div>' : '') + '<button class="btn ' + (L ? '' : 'R') + '" data-a="' + (L ? 'ciNext' : 'ciFinish') + '" ' + (S.busy ? 'disabled' : '') + '>' + (S.busy ? 'Speichert …' : L ? 'Weiter zu Liebe ' + svg(P.arrow, '#fff', 18, 2.4) : 'Check-in abschließen') + '</button>' + (L ? '<button class="link" data-a="ciOnlyLeben" style="align-self:center">Nur Leben speichern</button>' : '') + '</div>';
   return h;
 }
 function vDone() {
@@ -941,6 +1052,8 @@ function render() {
   const sc2 = document.querySelector('.scroll'); if (sc2 && S.keepScroll) sc2.scrollTop = top;
   S.keepScroll = false;
   S.appear = false;
+  if (S.scrollTo) { const el = document.getElementById(S.scrollTo); if (el && el.scrollIntoView) el.scrollIntoView({ block: 'center' }); S.scrollTo = null; }
+  startTicker();
   if (fid) { const el = document.getElementById(fid); if (el && (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT')) { el.focus(); try { el.setSelectionRange(el.value.length, el.value.length); } catch (e) { /* type=url */ } } }
 }
 function go(v) { if (v !== S.view && (v === 'home' || v === 'summary' || v === 'buddy')) S.appear = true; S.view = v; S.sheet = null; render(); const sc = document.querySelector('.scroll'); if (sc) sc.scrollTop = 0; }
@@ -1004,7 +1117,11 @@ $app.addEventListener('click', async (ev) => {
     S.chat.push({ from: 'b', html: id ? answer(id) : 'Das kann ich leider noch nicht frei beantworten. Probier gern eine der Fragen oben, da kenne ich mich richtig gut aus.' });
     render(); const sc = document.querySelector('.scroll'); if (sc) sc.scrollTop = sc.scrollHeight; return;
   }
-  if (a === 'tipOff') { const bb = document.querySelector('.bub'); if (bb && !reduced()) { bb.classList.add('bubOut'); await new Promise((r) => setTimeout(r, 230)); } const all = store.get('lt_tipoff', {}); all[today()] = v; Object.keys(all).forEach((k) => { if (k < addDays(today(), -3)) delete all[k]; }); store.set('lt_tipoff', all); S.keepScroll = true; render(); return; }
+  if (a === 'startLiebe') { if (S.view === 'home') await leaveBud(); S.ci = 'liebe'; S.date = today(); S.bridge = null; const sc1 = scoresNow(); S.before = { leben: sc1.leben, liebe: sc1.liebe }; S.done = null; go('checkin'); return; }
+  if (a === 'wcLast') { if (S.view === 'home') await leaveBud(); S.ci = 'leben'; S.date = lastSunday(today()); S.bridge = null; const sc2 = scoresNow(); S.before = { leben: sc2.leben, liebe: sc2.liebe }; go('checkin'); return; }
+  if (a === 'startMonthly') { if (S.view === 'home') await leaveBud(); S.ci = 'leben'; S.date = today(); S.bridge = null; const sc3 = scoresNow(); S.before = { leben: sc3.leben, liebe: sc3.liebe }; S.scrollTo = 'monthly'; go('checkin'); return; }
+  if (a === 'goVerlauf') { go('verlauf'); return; }
+  if (a === 'tipOff') { S.bubOff = true; const bb = document.querySelector('.bub'); if (bb && !reduced()) { bb.classList.add('bubOut'); await new Promise((r) => setTimeout(r, 230)); } const all = store.get('lt_tipoff', {}); all[today()] = v; Object.keys(all).forEach((k) => { if (k < addDays(today(), -3)) delete all[k]; }); store.set('lt_tipoff', all); S.keepScroll = true; render(); return; }
   if (a === 'tipYesterday') { await leaveBud(); if (S.view === 'summary') takeSnap(); S.ci = mine('leben').some((e) => e.d === addDays(today(), -1)) ? 'liebe' : 'leben'; S.date = addDays(today(), -1); S.bridge = null; const sc0 = scoresNow(); S.before = { leben: sc0.leben, liebe: sc0.liebe }; go('checkin'); return; }
   if (a === 'buddyAnimal') { const defName = { baer: 'Ben', maus: 'Mila' }; if (!S.buddy.name || S.buddy.name === defName[S.buddy.animal]) S.buddy.name = defName[v]; S.buddy.animal = v; store.set('lt_buddy', S.buddy); S.keepScroll = true; render(); return; }
   if (a === 'go') { if (S.view === 'buddy' || S.view === 'summary') await leaveBud(); if (v === 'anpassen') anpInit('leben'); go(v); return; }
@@ -1101,8 +1218,11 @@ $app.addEventListener('click', async (ev) => {
   S.keepScroll = true; render();
 });
 window.addEventListener('online', () => refresh(true));
+let hiddenAt = 0;
 document.addEventListener('visibilitychange', () => {
-  if (document.visibilityState !== 'visible' || !S.conn) return;
+  if (document.visibilityState === 'hidden') { hiddenAt = Date.now(); return; }
+  if (!S.conn) return;
+  if (hiddenAt && Date.now() - hiddenAt > 5 * 60000) { S.bubOff = false; if (S.view === 'home') { S.appear = true; S.tickI = 0; } }
   if (S.view === 'home' || S.view === 'summary') refresh(true);
 });
 if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
