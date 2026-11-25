@@ -1015,38 +1015,38 @@ function grainDefs(id) {
   return '<filter id="gw' + id + '" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="1.05" numOctaves="2" seed="2" stitchTiles="stitch"><animate attributeName="seed" values="1;2;3;4;5;6" dur="1.2s" repeatCount="indefinite"/></feTurbulence><feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1.6 -0.62"/></filter>' +
     '<filter id="gd' + id + '" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" seed="7" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0.12  0 0 0 1.5 -0.6"/></filter>';
 }
+const SHAPE_P = { circle: 'M100 6 A94 94 0 1 1 99.9 6 Z', heart: 'M100 186 C 42 146 6 110 6 68 C 6 34 31 12 60 12 C 78 12 92 22 100 38 C 108 22 122 12 140 12 C 169 12 194 34 194 68 C 194 110 158 146 100 186 Z' };
+function shapeDefs(id) {
+  return grainDefs(id) + '<filter id="bl' + id + '" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="9"/></filter><filter id="sh' + id + '" x="-30%" y="-30%" width="160%" height="170%"><feGaussianBlur stdDeviation="12"/></filter>';
+}
+function shapeFrame(id, p, deep, mid, inner, size, label, extra, shadowY) { // satte Variante: ohne Rand, Licht und Schatten innen, weicher Schatten außen
+  return '<svg viewBox="0 0 200 216" width="' + size + '" height="' + Math.round(size * 1.08) + '" role="img" aria-label="' + esc(label) + '" style="overflow:visible">' +
+    '<defs><clipPath id="clip' + id + '"><path d="' + p + '"/></clipPath>' + shapeDefs(id) + (extra || '') + '</defs>' +
+    '<ellipse cx="100" cy="' + shadowY + '" rx="62" ry="8" fill="' + deep + '" opacity=".22" filter="url(#sh' + id + ')"/><path d="' + p + '" fill="' + mid + '" opacity=".35" filter="url(#sh' + id + ')" transform="translate(0 8)"/>' +
+    '<g clip-path="url(#clip' + id + ')">' + inner +
+    '<rect width="200" height="200" filter="url(#gw' + id + ')" opacity=".4"/><rect width="200" height="200" filter="url(#gd' + id + ')" opacity=".32"/>' +
+    '<path d="' + p + '" fill="none" stroke="' + deep + '" stroke-width="26" opacity=".35" filter="url(#bl' + id + ')" transform="translate(-8 -10)"/><path d="' + p + '" fill="none" stroke="#fff" stroke-width="14" opacity=".35" filter="url(#bl' + id + ')" transform="translate(7 9)"/></g>';
+}
 function grainShape(kind, value, size, label) {
-  const v = value == null ? 0 : Math.max(0, Math.min(100, value)), id = kind, y = 196 - 1.9 * v;
-  const shape = kind === 'heart'
-    ? '<path d="M100 182 C 42 142 10 108 10 68 C 10 36 34 14 62 14 C 80 14 93 24 100 38 C 107 24 120 14 138 14 C 166 14 190 36 190 68 C 190 108 158 142 100 182 Z"/>'
-    : '<circle cx="100" cy="100" r="94"/>';
-  const c = kind === 'heart' ? ['#FB7185', '#E11D48', '#9F1239', '#FFF1F2', '#FDA4AF'] : ['#60A5FA', '#2563EB', '#1E3A8A', '#EFF6FF', '#93C5FD'];
-  const txt = value == null ? '–' : String(value), dark = v < 50;
-  const ty = kind === 'heart' ? 104 : 114;
-  return '<svg viewBox="0 0 200 200" width="' + size + '" height="' + size + '" role="img" aria-label="' + esc(label) + '" style="overflow:visible">' +
-    '<defs><clipPath id="clip' + id + '">' + shape + '</clipPath>' + grainDefs(id) +
-    '<linearGradient id="lg' + id + '" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0" stop-color="' + c[0] + '"/><stop offset="0.5" stop-color="' + c[1] + '"/><stop offset="1" stop-color="' + c[2] + '"/></linearGradient></defs>' +
-    '<g clip-path="url(#clip' + id + ')"><rect width="200" height="200" fill="' + c[3] + '"/><rect width="200" height="200" filter="url(#gd' + id + ')" opacity=".18"/>' +
-    (value != null ? '<g><path d="' + wavePath(y - 4, 5) + '" fill="' + c[4] + '" opacity=".75"><animateTransform attributeName="transform" type="translate" values="0 0;-100 0" dur="6.5s" repeatCount="indefinite"/></path>' +
-      '<path d="' + wavePath(y, 7) + '" fill="url(#lg' + id + ')"><animateTransform attributeName="transform" type="translate" values="0 0;100 0" dur="4.2s" repeatCount="indefinite"/></path>' +
-      '<animateTransform attributeName="transform" type="translate" values="0 0;0 3;0 0" dur="3.6s" repeatCount="indefinite"/></g>' +
-      '<rect width="200" height="200" filter="url(#gw' + id + ')" opacity=".42"/><rect width="200" height="200" filter="url(#gd' + id + ')" opacity=".35"/>' : '') +
-    '</g><g fill="none" stroke="' + c[1] + '" stroke-width="3" opacity=".85">' + shape + '</g>' +
-    '<text x="100" y="' + ty + '" text-anchor="middle" font-family="Plus Jakarta Sans, Inter, sans-serif" font-weight="800" font-size="' + (kind === 'heart' ? 50 : 58) + '" fill="' + (dark ? c[2] : '#fff') + '" style="paint-order:stroke" stroke="' + (dark ? 'rgba(255,255,255,.85)' : 'rgba(0,0,0,.10)') + '" stroke-width="4">' + txt + '</text></svg>';
+  const v = value == null ? 0 : Math.max(0, Math.min(100, value)), id = kind, y = 196 - 1.9 * v, p = SHAPE_P[kind];
+  const c = kind === 'heart' ? ['#FDA4AF', '#E11D48', '#881337'] : ['#7DD3FC', '#2563EB', '#1E3A8A'];
+  const ty = kind === 'heart' ? 100 : 112;
+  const inner = '<path d="' + p + '" fill="url(#bg' + id + ')"/>' + (value != null ? '<g><path d="' + wavePath(y - 5, 5) + '" fill="' + c[1] + '" opacity=".55"><animateTransform attributeName="transform" type="translate" values="0 0;-100 0" dur="6.5s" repeatCount="indefinite"/></path>' +
+    '<path d="' + wavePath(y, 7) + '" fill="url(#lg' + id + ')"><animateTransform attributeName="transform" type="translate" values="0 0;100 0" dur="4.2s" repeatCount="indefinite"/></path>' +
+    '<animateTransform attributeName="transform" type="translate" values="0 0;0 3;0 0" dur="3.6s" repeatCount="indefinite"/></g>' : '');
+  const grads = '<radialGradient id="bg' + id + '" cx=".35" cy=".3" r=".85"><stop offset="0" stop-color="' + c[0] + '"/><stop offset="1" stop-color="' + c[1] + '"/></radialGradient><linearGradient id="lg' + id + '" x1="0" y1="0" x2=".2" y2="1"><stop offset="0" stop-color="' + c[1] + '"/><stop offset="1" stop-color="' + c[2] + '"/></linearGradient>';
+  return shapeFrame(id, p, c[2], c[1], inner, size, label, grads, kind === 'heart' ? 198 : 204) +
+    '<text x="100" y="' + ty + '" text-anchor="middle" font-family="Plus Jakarta Sans, Inter, sans-serif" font-weight="800" font-size="' + (kind === 'heart' ? 54 : 60) + '" fill="#fff" letter-spacing="-2" style="paint-order:stroke" stroke="rgba(0,0,0,.08)" stroke-width="3">' + (value == null ? '–' : value) + '</text>' +
+    '<text x="100" y="' + (ty + 24) + '" text-anchor="middle" font-family="Inter, sans-serif" font-weight="800" font-size="11" letter-spacing="3" fill="#fff" opacity=".85">' + (kind === 'heart' ? 'LIEBE' : 'LEBEN') + '</text></svg>';
 }
 function balanceShape(share, size, label) {
-  const id = 'bal', x = Math.round(20 + 160 * (share == null ? 0.5 : share));
+  const id = 'bal', x = Math.round(20 + 160 * (share == null ? 0.5 : share)), p = SHAPE_P.circle;
   let d = 'M-20 -120 H' + x + ' Q ' + (x + 9) + ' -95 ' + x + ' -70';
   for (let yy = -20; yy <= 330; yy += 50) d += ' T ' + x + ' ' + yy;
   d += ' H -20 Z';
-  return '<svg viewBox="0 0 200 200" width="' + size + '" height="' + size + '" role="img" aria-label="' + esc(label) + '" style="overflow:visible">' +
-    '<defs><clipPath id="clip' + id + '"><circle cx="100" cy="100" r="94"/></clipPath>' + grainDefs(id) +
-    '<linearGradient id="lr' + id + '" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0" stop-color="#FB7185"/><stop offset="1" stop-color="#BE123C"/></linearGradient>' +
-    '<linearGradient id="lb' + id + '" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0" stop-color="#60A5FA"/><stop offset="1" stop-color="#1D4ED8"/></linearGradient></defs>' +
-    '<g clip-path="url(#clip' + id + ')"><rect width="200" height="200" fill="url(#lr' + id + ')"/>' +
-    '<path d="' + d + '" fill="url(#lb' + id + ')"><animateTransform attributeName="transform" type="translate" values="0 0;0 100" dur="5s" repeatCount="indefinite"/></path>' +
-    '<rect width="200" height="200" filter="url(#gw' + id + ')" opacity=".42"/><rect width="200" height="200" filter="url(#gd' + id + ')" opacity=".35"/></g>' +
-    '<circle cx="100" cy="100" r="94" fill="none" stroke="#6D28D9" stroke-width="3" opacity=".55"/></svg>';
+  const grads = '<radialGradient id="lr' + id + '" cx=".7" cy=".3" r=".85"><stop offset="0" stop-color="#FDA4AF"/><stop offset="1" stop-color="#BE123C"/></radialGradient><radialGradient id="lb' + id + '" cx=".3" cy=".3" r=".85"><stop offset="0" stop-color="#7DD3FC"/><stop offset="1" stop-color="#1D4ED8"/></radialGradient>';
+  const inner = '<rect width="200" height="200" fill="url(#lr' + id + ')"/><path d="' + d + '" fill="url(#lb' + id + ')"><animateTransform attributeName="transform" type="translate" values="0 0;0 100" dur="5s" repeatCount="indefinite"/></path>';
+  return shapeFrame(id, p, '#3B0764', '#7C3AED', inner, size, label, grads, 204) + '</svg>';
 }
 function sparkline(vals, color) {
   const xs = vals.map((v, i) => [i, v]).filter((p) => p[1] != null); if (xs.length < 2) return '<span class="sub">Noch zu wenige Wochen</span>';
@@ -1196,7 +1196,7 @@ function vAlltagVerlauf() {
   const w = alltagWeek(monday(today())), me = S.sum.me, pa = S.sum.partner, tot = w.cnt[me] + w.cnt[pa], share = tot ? w.cnt[me] / tot : 0.5;
   const dev = Math.abs(share - 0.5), word = !tot ? 'Diese Woche noch offen' : dev < 0.1 ? 'Gut ausgewogen' : dev < 0.2 ? 'Fast ausgewogen' : (share > 0.5 ? 'Du' : pa) + ' trägt gerade mehr';
   const open = S.vOpen === 'alltag';
-  let h = '<button class="card" style="align-items:center;text-align:center;gap:8px;background:transparent;box-shadow:none" data-a="vOpen" data-v="alltag" aria-expanded="' + open + '">' + balanceShape(share, 200, 'Aufteilung diese Woche: ' + word) +
+  let h = '<button class="card" style="align-items:center;text-align:center;gap:8px;background:transparent;box-shadow:none" data-a="vOpen" data-v="alltag" aria-expanded="' + open + '">' + balanceShape(share, 240, 'Aufteilung diese Woche: ' + word) +
     '<b class="jk" style="font-size:20px">' + esc(word) + '</b><span class="sub">' + (open ? 'Tippen zum Schließen' : 'Tippen, um zu sehen, wer was trägt') + '</span></button>';
   if (open) h += popsHtml(alltagPops(w), S.popAnim, '#334155');
   h += '<div class="card" style="gap:10px"><div class="row"><h2>Diese Woche</h2><span class="sub">blau du · rot ' + esc(pa) + '</span></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">' +
@@ -1242,9 +1242,9 @@ function vVerlauf() {
   if (tab === 'alltag') h += vAlltagVerlauf();
   else {
     S.rot.love = { items: li, i: prevI < li.length ? prevI : 0, fn: loveHtml };
-    h += '<button class="card" style="align-items:center;text-align:center;gap:6px;background:transparent;box-shadow:none" data-a="vOpen" data-v="leben" aria-expanded="' + (open === 'leben') + '">' + grainShape('circle', sc.leben, 190, 'Leben-Score ' + (sc.leben != null ? sc.leben : 'noch offen')) + '<b class="jk" style="font-size:18px;color:#1E3A8A">Leben</b><span class="sub">' + (open === 'leben' ? 'Tippen zum Schließen' : 'Tippen für Details') + '</span></button>';
+    h += '<button class="card" style="align-items:center;text-align:center;gap:6px;background:transparent;box-shadow:none" data-a="vOpen" data-v="leben" aria-expanded="' + (open === 'leben') + '">' + grainShape('circle', sc.leben, 250, 'Leben-Score ' + (sc.leben != null ? sc.leben : 'noch offen')) + '<b class="jk" style="font-size:18px;color:#1E3A8A">Leben</b><span class="sub">' + (open === 'leben' ? 'Tippen zum Schließen' : 'Tippen für Details') + '</span></button>';
     if (open === 'leben') h += popsHtml(lebenPops(sc), S.popAnim, '#1D4ED8');
-    h += '<div class="card" style="align-items:center;gap:6px;background:transparent;box-shadow:none"><button data-a="vOpen" data-v="liebe" aria-expanded="' + (open === 'liebe') + '" style="display:flex;flex-direction:column;align-items:center;gap:6px">' + grainShape('heart', sc.liebe, 200, 'Gemeinsamer Liebe-Score ' + (sc.liebe != null ? sc.liebe : 'noch offen')) + '<b class="jk" style="font-size:18px;color:#9F1239">Liebe · gemeinsam</b></button>' +
+    h += '<div class="card" style="align-items:center;gap:6px;background:transparent;box-shadow:none"><button data-a="vOpen" data-v="liebe" aria-expanded="' + (open === 'liebe') + '" style="display:flex;flex-direction:column;align-items:center;gap:6px">' + grainShape('heart', sc.liebe, 262, 'Gemeinsamer Liebe-Score ' + (sc.liebe != null ? sc.liebe : 'noch offen')) + '<b class="jk" style="font-size:18px;color:#9F1239">Liebe · gemeinsam</b></button>' +
       '<div id="love" aria-live="polite" style="width:100%">' + loveHtml(li[S.rot.love.i], S.rot.love.i, li.length) + '</div><span class="sub">' + (open === 'liebe' ? 'Tippe aufs Herz zum Schließen' : 'Tippe aufs Herz für Details') + '</span></div>';
     if (open === 'liebe') h += popsHtml(liebePops(sc), S.popAnim, '#BE123C');
   }
