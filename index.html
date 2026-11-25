@@ -157,10 +157,56 @@ nav.tabs .plus{width:34px;height:34px;border-radius:12px;display:flex;align-item
 #ticker .tickIn{animation:tickIn .5s ease-out both}
 @keyframes tickIn{0%{opacity:0;transform:translateY(6px)}100%{opacity:1;transform:none}}
 @media (prefers-reduced-motion: reduce){.bud,.bubIn,.bubOut,#ticker .tickIn{animation:none!important}}
+/* Overlays: Ben groß, Danke-Blasen, Pop-ups */
+#ov{position:fixed;inset:0;z-index:40;pointer-events:none}
+#ov .ovw{position:absolute;inset:0;max-width:560px;margin:0 auto;pointer-events:auto;overflow:hidden}
+.ovbg{position:absolute;inset:0;background:rgba(11,18,32,.42);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);animation:fadeIn .35s ease-out both}
+.ovbg.out{animation:fadeOut .3s ease-in both}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes fadeOut{to{opacity:0}}
+.benFig{position:absolute;bottom:calc(-6px + env(safe-area-inset-bottom));pointer-events:none}
+.benFig.R{right:-30px}.benFig.L{left:-30px}
+.flyR{animation:flyR .95s cubic-bezier(.3,1.25,.5,1) both}.flyL{animation:flyL .95s cubic-bezier(.3,1.25,.5,1) both}.dropT{animation:dropT .9s cubic-bezier(.3,1.3,.5,1) both}
+@keyframes flyR{0%{transform:translateX(130%) rotate(22deg)}65%{transform:translateX(-6%) rotate(-6deg)}100%{transform:none}}
+@keyframes flyL{0%{transform:translateX(-130%) rotate(-22deg)}65%{transform:translateX(6%) rotate(6deg)}100%{transform:none}}
+@keyframes dropT{0%{transform:translateY(-120vh)}70%{transform:translateY(4%) scaleY(.94)}100%{transform:none}}
+.outR{animation:outR .45s ease-in both}.outL{animation:outL .45s ease-in both}.outD{animation:outD .45s ease-in both}
+@keyframes outR{to{transform:translateX(140%) rotate(18deg)}}@keyframes outL{to{transform:translateX(-140%) rotate(-18deg)}}@keyframes outD{to{transform:translateY(130%)}}
+.bob{animation:bob 3.2s 1s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.benCard{position:absolute;left:14px;right:14px;top:calc(16px + env(safe-area-inset-top));border-radius:28px;padding:20px;color:#fff;box-shadow:0 24px 60px rgba(2,6,23,.4);display:flex;flex-direction:column;gap:12px;max-height:calc(100% - 230px - env(safe-area-inset-top) - env(safe-area-inset-bottom));overflow-y:auto;animation:cardPop .55s .45s cubic-bezier(.2,1.3,.4,1) both;transform-origin:70% 100%}
+.benCard.out,.dCard.out{animation:cardOut .3s ease-in both}
+@keyframes cardPop{0%{opacity:0;transform:scale(.4) translateY(30px)}100%{opacity:1;transform:none}}
+@keyframes cardOut{from{opacity:1}to{opacity:0;transform:scale(.85) translateY(20px)}}
+.dBub{position:absolute;left:0;top:0;animation:bubFly 2.6s cubic-bezier(.45,.05,.55,.95) both}
+@keyframes bubFly{0%{transform:translate(var(--x0),var(--y0)) scale(.45);opacity:0}12%{opacity:1}50%{transform:translate(var(--x1),var(--y1)) scale(1)}88%{transform:translate(var(--x2),var(--y2)) scale(1.04);opacity:1}100%{transform:translate(var(--x2),var(--y2)) scale(1.7);opacity:0}}
+.wob{animation:wob 1.3s ease-in-out infinite}
+@keyframes wob{0%,100%{transform:scale(1,1)}25%{transform:scale(1.06,.95)}50%{transform:scale(.96,1.05)}75%{transform:scale(1.03,.98)}}
+.hTrail{position:absolute;color:#FDA4AF;animation:hRise 1.8s ease-out infinite}
+@keyframes hRise{0%{transform:translate(0,0) scale(.6);opacity:0}15%{opacity:1}100%{transform:translate(var(--sx),-160px) scale(1.1);opacity:0}}
+.hBurst{position:absolute;left:0;top:0;opacity:0;animation:hBurst 1.3s ease-out both}
+@keyframes hBurst{0%{transform:translate(var(--cx),var(--cy)) scale(.3);opacity:0}15%{opacity:1}100%{transform:translate(calc(var(--cx) + var(--dx)),calc(var(--cy) + var(--dy))) scale(1.1);opacity:0}}
+.dCard{position:absolute;left:18px;right:18px;top:24%;border-radius:28px;padding:20px 20px 16px;background:#fff;box-shadow:0 30px 70px rgba(76,5,25,.35);display:flex;flex-direction:column;gap:6px;animation:cardPop .55s 2.45s cubic-bezier(.2,1.3,.4,1) both}
+.popIn{animation:popIn .45s cubic-bezier(.2,1.3,.4,1) both}
+@keyframes popIn{0%{opacity:0;transform:scale(.6) translateY(10px)}100%{opacity:1;transform:none}}
+.pops{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%}
+.popc{border-radius:18px;padding:12px 14px;background:#fff;box-shadow:0 10px 26px rgba(15,23,42,.10);display:flex;flex-direction:column;gap:4px;text-align:left}
+.popc b{font-size:15px;line-height:1.3}.popc span{font-size:12px;color:var(--sub);line-height:1.4}
+.trow{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--line)}
+.ticon{flex:none;width:40px;height:40px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:20px;background:linear-gradient(135deg,#EFF6FF,#FDF2F8)}
+.tbtn{flex:none;width:40px;height:40px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px}
+.tbtn.add{background:var(--gL);color:#fff;box-shadow:0 4px 12px rgba(29,78,216,.25)}.tbtn.done{background:var(--gL);color:#fff}.tbtn.minus{background:var(--bg);color:#334155;width:34px;height:34px;font-size:16px}
+.resp{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.resp button{min-height:56px;border-radius:14px;border:1px solid var(--bd);padding:8px 10px;text-align:left;display:flex;flex-direction:column;justify-content:center}
+.resp button b{font-size:13px}.resp button span{font-size:11px;color:var(--sub)}
+.resp button.on{border:2px solid #1D4ED8;background:#EFF6FF}
+.seg3{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;border-radius:14px;background:var(--bg)}
+.seg3 button{min-height:40px;border-radius:10px;font-size:13px;font-weight:700;color:var(--sub)}.seg3 button.on{background:var(--gL);color:#fff;font-weight:800}
+@media (prefers-reduced-motion: reduce){.flyR,.flyL,.dropT,.benCard,.dBub,.hBurst,.dCard,.popIn,.bob,.wob,.hTrail,.ovbg{animation:none!important}}
 </style>
 </head>
 <body>
 <div id="app"></div>
+<div id="ov"></div>
 <script>
 'use strict';
 /* ================= Hilfen ================= */
@@ -220,14 +266,15 @@ async function api(action, payload) {
 function setSum(d) { S.sum = d; store.set('lt_sum', d); S.drafts = {}; }
 async function flushQueue() {
   const q = store.get('lt_queue', []);
-  while (q.length) { setSum(await api('saveDay', q[0])); q.shift(); store.set('lt_queue', q); }
+  while (q.length) { const it = q[0]; setSum(await api(it.action || 'saveDay', it.action ? it.payload : it)); q.shift(); store.set('lt_queue', q); }
 }
 async function refresh(silent) {
   if (!S.conn) return;
   try { await flushQueue(); setSum(await api('summary')); if (!silent) toast('Aktualisiert'); }
   catch (e) { if (!silent) toast(navigator.onLine ? 'Fehler: ' + e.message : 'Offline – gespeicherte Daten'); }
-  if (S.view === 'home' && needSummary()) { S.view = 'summary'; S.appear = true; }
+  if (S.view === 'summary') S.view = 'home';
   render();
+  checkOv();
 }
 
 /* ================= Konfiguration ================= */
@@ -291,7 +338,7 @@ async function saveArea(area, date) {
   try { setSum(await api('saveDay', p)); return true; }
   catch (e) {
     if (!navigator.onLine || e instanceof TypeError) {
-      const q = store.get('lt_queue', []).filter((x) => !(x.area === p.area && x.date === p.date));
+      const q = store.get('lt_queue', []).filter((x) => x.action || !(x.area === p.area && x.date === p.date));
       q.push(p); store.set('lt_queue', q);
       toast('Offline gespeichert, wird später übertragen');
       return true;
@@ -680,6 +727,7 @@ function captureTasks() {
   const tL = dayDone('leben', t), tR = dayDone('liebe', t);
   out.push({ id: 'tL', grp: 'heute', title: 'Leben-Check-in', done: tL, sub: tL ? 'erledigt' : h >= 17 ? 'Am besten jetzt am Abend' : 'Heute Abend, ca. 1 Minute', act: 'startCheckin', prio: tL ? 99 : h >= 20 ? 1 : 5 });
   out.push({ id: 'tR', grp: 'heute', title: 'Liebe-Check-in', done: tR, sub: tR ? 'erledigt' : 'Direkt nach Leben, ca. 1 Minute', act: tL ? 'startLiebe' : 'startCheckin', prio: tR ? 99 : h >= 20 ? 2 : 6 });
+  if (AL() && tasksAct().length) { const due = myDue(t); out.push({ id: 'al', grp: 'heute', title: 'Alltag abhaken', done: !due.length, sub: due.length ? joinDe(due.slice(0, 3).map((s) => s.t.name)) + ' offen' : 'alles erledigt', act: 'goAlltag', prio: due.length ? (h >= 17 ? 2 : 4) : 99 }); }
   const yL = dayDone('leben', y), yR = dayDone('liebe', y);
   if (y >= start && (!yL || !yR)) out.push({ id: 'y', grp: 'heute', title: 'Gestern nachtragen', done: false, sub: !yL && !yR ? 'Leben und Liebe fehlen' : !yL ? 'Leben fehlt' : 'Liebe fehlt', act: 'tipYesterday', prio: h < 12 ? 0 : 3 });
   const C = cfg('leben'), isSun = parse(t).getDay() === 0;
@@ -713,7 +761,7 @@ function captureTasks() {
   return out.concat(lang.slice(0, 3));
 }
 const openTasks = () => captureTasks().filter((x) => !x.done && !x.info).sort((a, b) => a.prio - b.prio);
-const ACT_LABEL = { startCheckin: 'Jetzt einchecken', startLiebe: 'Liebe eintragen', tipYesterday: 'Gestern nachtragen', wcLast: 'Wochen-Check nachholen', startMonthly: 'Monatsziele öffnen', goVerlauf: 'Ansehen' };
+const ACT_LABEL = { startCheckin: 'Jetzt einchecken', startLiebe: 'Liebe eintragen', tipYesterday: 'Gestern nachtragen', wcLast: 'Wochen-Check nachholen', startMonthly: 'Monatsziele öffnen', goVerlauf: 'Ansehen', goAlltag: 'Alltag öffnen', thank: 'Danke sagen' };
 const joinDe = (a) => a.length < 2 ? (a[0] || '') : a.slice(0, -1).join(', ') + ' und ' + a[a.length - 1];
 function taskSentence(x) {
   if (x.id === 'wc') return 'Heute ist Sonntag, Zeit für deinen kurzen Wochen-Check.';
@@ -723,23 +771,34 @@ function taskSentence(x) {
   if (x.kind === 'zeit') return 'Übrigens habt ihr seit ein paar Tagen keine Zeit zu zweit eingetragen.';
   if (x.kind === 'habit') return '„' + x.f + '“ hast du seit ' + x.n + ' Tagen nicht abgehakt. Passt das Ziel noch zu dir?';
   if (x.id === 'y') return 'Gestern fehlt noch etwas, das kannst du schnell nachtragen.';
+  if (x.id === 'al') return 'Im Alltag ist noch ' + x.sub + '.';
   return x.title + '.';
 }
 function benNow() {
   const open = openTasks(), fb = feedback(), mood = buddyMood(), h = new Date().getHours();
   const opener = h < 11 ? 'Guten Morgen!' : h < 17 ? 'Hallo!' : 'Guten Abend!';
-  const todayOpen = open.filter((x) => x.grp === 'heute');
+  const todayOpen = open.filter((x) => x.grp === 'heute' && x.id !== 'al');
   const names = todayOpen.map((x) => x.id === 'tL' ? 'dein Leben-Check-in' : x.id === 'tR' ? 'dein Liebe-Check-in' : 'der Check-in von gestern');
   let txt = opener + ' ';
-  txt += names.length ? (h < 15 && !todayOpen.some((x) => x.id === 'y') ? 'Heute Abend stehen noch ' + joinDe(names.map((n) => n.replace('dein ', 'dein '))) + ' an. ' : 'Für heute fehlt noch ' + joinDe(names) + '. ') : 'Für heute ist alles eingetragen, super. ';
-  const other = open.find((x) => x.grp !== 'heute');
-  if (other) txt += taskSentence(other) + ' ';
+  txt += names.length ? (h < 15 && !todayOpen.some((x) => x.id === 'y') ? 'Heute Abend stehen noch ' + joinDe(names.map((n) => n.replace('dein ', 'dein '))) + ' an. ' : 'Für heute ' + (names.length > 1 ? 'fehlen' : 'fehlt') + ' noch ' + joinDe(names) + '. ') : 'Für heute ist alles eingetragen, super. ';
+  const due = myDue(today()), th = thankable()[0], pi = pendingInfo(), extra = [];
+  if (pi && !pi.mine) extra.push(S.sum.partner + ' möchte eure Aufgabenliste ändern, schau bitte kurz drüber.');
+  const mineD = due.filter((s) => s.mineResp), poolD = due.filter((s) => s.pool);
+  if (mineD.length) extra.push('Im Alltag ist noch ' + joinDe(mineD.slice(0, 2).map((s) => '„' + s.t.name + '“')) + ' offen, da bist du dran.');
+  else if (poolD.length) extra.push('Aus dem Pool wartet „' + poolD[0].t.name + '“' + (poolD[0].since != null && poolD[0].since > 1 ? ', zuletzt vor ' + poolD[0].since + ' Tagen' : '') + '.');
+  if (th) extra.push(S.sum.partner + ' hat ' + whenText(th.d) + ' „' + th.name + '“ erledigt. Magst du Danke sagen?');
+  const other = open.find((x) => x.grp !== 'heute' && x.id !== 'al');
+  if (other) extra.push(taskSentence(other));
+  txt += extra.slice(0, 2).join(' ') + ' ';
   const w = fb.warn[0], g = fb.good[0];
-  if (mood === 'sad' && w) txt += 'Mir ist aufgefallen: ' + w.s + ' ' + (w.tip || '');
-  else if (g) txt += g.s + ' Das freut mich.';
-  else if (w) txt += 'Ein Auge hätte ich auf: ' + w.s;
-  if (!open.length && !g && !w) { const tp = buddyTip(); if (tp) return tp; }
+  if (extra.length < 2) {
+    if (mood === 'sad' && w) txt += 'Mir ist aufgefallen: ' + w.s + ' ' + (w.tip || '');
+    else if (g) txt += g.s + ' Das freut mich.';
+    else if (w) txt += 'Ein Auge hätte ich auf: ' + w.s;
+  }
+  if (!open.length && !g && !w && !due.length && !th) { const tp = buddyTip(); if (tp) return tp; }
   const top = open[0];
+  if (!top && th) return { id: 'now', text: txt.trim(), act: 'thank', v: th.id, d: th.d, label: '♥ Danke sagen' };
   return { id: 'now', text: txt.trim(), act: top ? top.act : null, label: top ? ACT_LABEL[top.act] : null };
 }
 function tickerItems() {
@@ -796,9 +855,11 @@ function vGreeting() {
 function vBuddyPeek() {
   const tip = benNow(), T = bTheme();
   const showTip = tip && !S.bubOff;
-  return '<div style="position:absolute;left:6px;right:12px;bottom:calc(76px + env(safe-area-inset-bottom));display:flex;align-items:flex-end;gap:4px;pointer-events:none;z-index:5">' +
-    '<button data-a="openBuddy" aria-label="' + bName() + ' öffnen" style="pointer-events:auto;flex:none">' + budWrap(figure(S.buddy.animal, buddyMood(), 118)) + '</button>' +
-    (showTip ? '<div class="bub ' + (S.appear ? 'bubIn' : '') + '" style="pointer-events:auto;flex:1;margin-bottom:44px;border-radius:24px 24px 24px 6px;padding:16px 18px;background:' + T.btn + ';color:#fff;box-shadow:0 18px 44px rgba(15,23,42,.30);display:flex;flex-direction:column;gap:10px"><span class="cap" style="opacity:.9">' + bName() + '</span><span style="font-size:15px;line-height:1.5;font-weight:500">' + esc(tip.text) + '</span><div class="row" style="gap:8px">' + (tip.act ? '<button style="flex:1;min-height:42px;border-radius:13px;background:#fff;color:' + T.ink + ';font-weight:800;font-size:14px" data-a="' + tip.act + '">' + tip.label + '</button>' : '') + '<button style="' + (tip.act ? 'flex:none;padding:0 16px' : 'flex:1') + ';min-height:42px;border-radius:13px;background:rgba(255,255,255,.2);color:#fff;font-weight:700;font-size:14px" data-a="tipOff" data-v="' + tip.id + '">Okay</button></div></div>' : '') + '</div>';
+  if (!showTip) return '<div style="position:absolute;right:4px;bottom:calc(74px + env(safe-area-inset-bottom));z-index:5"><button data-a="openBuddy" aria-label="' + bName() + ' öffnen">' + budWrap(figure(S.buddy.animal, buddyMood(), 96)) + '</button></div>';
+  const fly = S.appear && !reduced();
+  return '<div style="position:absolute;left:12px;right:0;bottom:calc(70px + env(safe-area-inset-bottom));pointer-events:none;z-index:5">' +
+    '<div class="bub ' + (S.appear ? 'bubIn' : '') + '" style="pointer-events:auto;margin:0 14px 150px 0;border-radius:26px 26px 8px 26px;padding:18px 18px 16px;background:' + T.btn + ';color:#fff;box-shadow:0 20px 50px rgba(15,23,42,.35);display:flex;flex-direction:column;gap:10px' + (fly ? ';animation-delay:.55s' : '') + '"><span class="cap" style="opacity:.9">' + bName() + ' sagt</span><span style="font-size:16px;line-height:1.5;font-weight:600">' + esc(tip.text) + '</span><div class="row" style="gap:8px">' + (tip.act ? '<button style="flex:1;min-height:46px;border-radius:14px;background:#fff;color:' + T.ink + ';font-weight:800;font-size:14px" data-a="' + tip.act + '"' + (tip.v ? ' data-v="' + esc(tip.v) + '" data-d="' + esc(tip.d || '') + '"' : '') + '>' + tip.label + '</button>' : '') + '<button style="' + (tip.act ? 'flex:none;padding:0 18px' : 'flex:1') + ';min-height:46px;border-radius:14px;background:rgba(255,255,255,.2);color:#fff;font-weight:700;font-size:14px" data-a="tipOff" data-v="' + tip.id + '">Okay</button></div></div>' +
+    '<button data-a="openBuddy" aria-label="' + bName() + ' öffnen" style="pointer-events:auto;position:absolute;right:-22px;bottom:-14px"><span class="bud" style="display:inline-block"><span class="' + (fly ? pick(['flyR', 'dropT']) : '') + '" style="display:inline-block"><span class="bob" style="display:inline-block">' + figure(S.buddy.animal, buddyMood(), 170) + '</span></span></span></button></div>';
 }
 function vBuddy() {
   const T = bTheme();
@@ -819,6 +880,409 @@ function vBuddySettings(inOnboarding) {
     '<div class="segw" role="group" aria-label="Tier" style="box-shadow:none;background:var(--bg)"><button class="' + (a === 'baer' ? 'on L' : '') + '" data-a="buddyAnimal" data-v="baer">Bär</button><button class="' + (a === 'maus' ? 'on R' : '') + '" data-a="buddyAnimal" data-v="maus">Maus</button></div>' +
     '<label class="col" style="gap:6px"><b style="font-size:13px">Name</b><input id="buddyName" type="text" maxlength="20" value="' + esc(S.buddy.name) + '" data-in5="name"></label>' +
     (inOnboarding ? '' : '<span class="sub">Er begrüßt dich einmal am Tag und gibt Tipps je nach Uhrzeit.</span>') + '</div>';
+}
+
+/* ================= Alltag: Aufgaben, Erledigt, Danke ================= */
+const AL = () => (S.sum && S.sum.alltag) || null;
+const tasksAll = () => (AL() ? AL().tasks : []);
+const tasksAct = () => tasksAll().filter((t) => t.act);
+const names2 = () => (S.sum.names && S.sum.names.length === 2 ? S.sum.names : [S.sum.me, S.sum.partner]);
+const ICONS = [[/gassi|hund/i, '🐕'], [/einkauf/i, '🛒'], [/koch/i, '🍳'], [/bad|dusche|klo|wc/i, '🛁'], [/putz|wisch/i, '🧽'], [/saug/i, '🧹'], [/wäsche|waesche|bügel/i, '🧺'], [/müll|muell/i, '🗑️'], [/spül|geschirr/i, '🍽️'], [/termin|plan|orga|liste/i, '📅'], [/pflanz|blume|gieß/i, '🪴'], [/rechnung|post|papier/i, '📬'], [/katze/i, '🐈'], [/auto/i, '🚗'], [/bett/i, '🛏️']];
+const tIcon = (n) => { const m = ICONS.find(([r]) => r.test(n)); return m ? m[1] : '✨'; };
+const rhythmText = (t) => t.r === 'Tag' ? (t.n === 1 ? 'täglich' : t.n + '× täglich') : t.r === 'Woche' ? t.n + '× pro Woche' : t.n + '× pro Monat';
+const respText = (t) => t.resp === 'Pool' ? 'Pool, wer Zeit hat' : t.resp === 'Abwechselnd' ? 'abwechselnd' : t.resp === S.sum.me ? 'deine Aufgabe' : 'Aufgabe von ' + t.resp;
+const whenText = (d) => d === today() ? 'heute' : d === addDays(today(), -1) ? 'gestern' : d === addDays(today(), -2) ? 'vorgestern' : 'am ' + short(d);
+function turnOf(t) {
+  const n = names2(), rows = AL().done.filter((d) => d.id === t.id).sort((a, b) => (a.d < b.d ? -1 : a.d > b.d ? 1 : 0));
+  const last = rows[rows.length - 1];
+  return !last ? n[0] : last.p === n[0] ? n[1] : n[0];
+}
+function periodOf(t, date) {
+  if (t.r === 'Tag') return [date, addDays(date, 1)];
+  if (t.r === 'Woche') { const m = monday(date); return [m, addDays(m, 7)]; }
+  const p = parse(date); return [date.slice(0, 7) + '-01', iso(new Date(p.getFullYear(), p.getMonth() + 1, 1))];
+}
+function taskState(t, date) {
+  date = date || today();
+  const [from, to] = periodOf(t, date), me = S.sum.me, all = AL().done.filter((d) => d.id === t.id);
+  const rows = all.filter((d) => d.d >= from && d.d < to);
+  const who = t.resp === 'Abwechselnd' ? turnOf(t) : t.resp;
+  const left = Math.max(0, t.n - rows.length);
+  let plan = t.n;
+  if (t.r === 'Woche') plan = Math.floor(t.n * (dayIdx(date) + 1) / 7 + 0.3);
+  if (t.r === 'Monat') { const p = parse(date), dim = new Date(p.getFullYear(), p.getMonth() + 1, 0).getDate(); plan = Math.floor(t.n * p.getDate() / dim + 0.3); }
+  const last = all.filter((d) => d.d <= date).map((d) => d.d).sort().pop();
+  return { t, done: rows.length, rows, left, plan, due: left > 0 && rows.length < plan,
+    mineToday: all.filter((d) => d.d === date && d.p === me).length, otherToday: all.filter((d) => d.d === date && d.p !== me).length,
+    mineResp: t.resp === me || (t.resp === 'Abwechselnd' && who === me), partnerResp: t.resp === S.sum.partner || (t.resp === 'Abwechselnd' && who !== me),
+    pool: t.resp === 'Pool', alt: t.resp === 'Abwechselnd', who, last, since: last ? Math.round((parse(date) - parse(last)) / 86400000) : null };
+}
+const myDue = (date) => (AL() ? tasksAct().map((t) => taskState(t, date)).filter((s) => s.due && (s.mineResp || s.pool)) : []);
+/* gleiche Rechnung wie im Script (alltagWeek_) */
+function alltagWeek(wStart, todayS) {
+  todayS = todayS || today();
+  if (!AL() || !wStart || wStart > todayS) return null;
+  const wEnd = addDays(wStart, 7), days = Math.min(7, Math.max(1, Math.round((parse(todayS) - parse(wStart)) / 86400000) + 1));
+  const [A, B] = names2(), comp = [], zExp = { [A]: 0, [B]: 0 }, zDone = { [A]: 0, [B]: 0 }, pool = { [A]: 0, [B]: 0 }, cnt = { [A]: 0, [B]: 0 };
+  AL().done.forEach((d) => { if (d.d >= wStart && d.d < wEnd && d.d <= todayS && cnt[d.p] != null) cnt[d.p]++; });
+  tasksAct().forEach((t) => {
+    let exp, rows;
+    if (t.r === 'Monat') {
+      const ref = todayS < wEnd ? todayS : addDays(wEnd, -1), m0 = ref.slice(0, 7) + '-01', p = parse(ref), dim = new Date(p.getFullYear(), p.getMonth() + 1, 0).getDate();
+      exp = t.n * p.getDate() / dim; rows = AL().done.filter((d) => d.id === t.id && d.d >= m0 && d.d <= ref);
+    } else { exp = (t.r === 'Tag' ? t.n * 7 : t.n) * days / 7; rows = AL().done.filter((d) => d.id === t.id && d.d >= wStart && d.d < wEnd && d.d <= todayS); }
+    if (exp <= 0) return;
+    comp.push(Math.min(1, rows.length / exp));
+    const by = { [A]: 0, [B]: 0 }; rows.forEach((d) => { if (by[d.p] != null) by[d.p]++; });
+    if (t.resp === A || t.resp === B) { zExp[t.resp] += exp; zDone[t.resp] += Math.min(by[t.resp], exp); }
+    else if (t.resp === 'Abwechselnd') [A, B].forEach((p) => { zExp[p] += exp / 2; zDone[p] += Math.min(by[p], exp / 2); });
+    else { pool[A] += by[A]; pool[B] += by[B]; }
+  });
+  if (!comp.length) return { score: null, cnt, zusage: {}, pool, completion: null, fairness: null };
+  const completion = mean(comp), fair = [], zusage = {};
+  [A, B].forEach((p) => { if (zExp[p] > 0) { zusage[p] = Math.min(1, zDone[p] / zExp[p]); fair.push(zusage[p]); } });
+  const pt = pool[A] + pool[B]; if (pt > 0) fair.push(1 - Math.max(0, Math.abs(pool[A] - pool[B]) - 1) / pt);
+  const fairness = fair.length ? mean(fair) : null;
+  return { score: fairness == null ? completion : 0.5 * completion + 0.5 * fairness, completion, fairness, zusage, pool, cnt };
+}
+function thanked(id, d) { return (AL().danke || []).some((x) => x.from === S.sum.me && x.id === id && x.for === d); }
+function thankable() { // Erledigtes vom Partner der letzten 3 Tage, für das noch kein Danke kam
+  if (!AL()) return [];
+  const seen = {}, out = [];
+  AL().done.filter((d) => d.p === S.sum.partner && d.d >= addDays(today(), -2)).sort((a, b) => (a.d < b.d ? 1 : -1)).forEach((d) => {
+    const k = d.id + d.d; if (seen[k] || thanked(d.id, d.d)) return; seen[k] = 1;
+    const t = tasksAll().find((x) => x.id === d.id); if (t) out.push({ id: d.id, d: d.d, name: t.name });
+  });
+  return out;
+}
+const dankeToday = () => (AL() ? (AL().danke || []).filter((x) => x.to === S.sum.me && x.from !== S.sum.me && x.d === today()) : []);
+function newDanke() {
+  if (!AL()) return [];
+  const seen = store.get('lt_dseen', {});
+  return (AL().danke || []).filter((x) => x.to === S.sum.me && x.from !== S.sum.me && !seen[x.ts + x.from] && x.d >= addDays(today(), -3));
+}
+function markDankeSeen(list) { const seen = store.get('lt_dseen', {}); list.forEach((x) => { seen[x.ts + x.from] = x.d; }); Object.keys(seen).forEach((k) => { if (seen[k] < addDays(today(), -10)) delete seen[k]; }); store.set('lt_dseen', seen); }
+function pendingInfo() {
+  const p = AL() && AL().pending; if (!p) return null;
+  const cur = {}; tasksAll().forEach((t) => { cur[t.id] = t; });
+  const lines = [];
+  p.tasks.forEach((t) => {
+    const o = cur[t.id];
+    if (!o) { if (t.act) lines.push('Neu: „' + t.name + '“, ' + rhythmText(t) + ', ' + (t.resp === 'Pool' ? 'Pool' : t.resp === 'Abwechselnd' ? 'abwechselnd' : t.resp)); return; }
+    if (o.act && !t.act) { lines.push('„' + o.name + '“ entfernen'); return; }
+    if (!o.act && t.act) { lines.push('„' + t.name + '“ wieder aufnehmen'); return; }
+    if (o.name !== t.name) lines.push('„' + o.name + '“ heißt jetzt „' + t.name + '“');
+    if (o.r !== t.r || o.n !== t.n) lines.push('„' + t.name + '“: ' + rhythmText(o) + ' → ' + rhythmText(t));
+    if (o.resp !== t.resp) lines.push('„' + t.name + '“: ' + (o.resp === 'Pool' ? 'Pool' : o.resp) + ' → ' + (t.resp === 'Pool' ? 'Pool' : t.resp));
+  });
+  return { p, lines, mine: p.from === S.sum.me };
+}
+
+/* ---- Senden ohne Warten (Abhaken, Danke) ---- */
+let apiChain = Promise.resolve(), apiPending = 0;
+function send(action, payload, local) {
+  if (local) local();
+  apiPending++;
+  apiChain = apiChain.then(async () => {
+    try {
+      const d = await api(action, payload); apiPending--;
+      if (!apiPending) { const keep = S.drafts; setSum(d); S.drafts = keep; S.keepScroll = true; render(); }
+    } catch (e) {
+      apiPending--;
+      if (!navigator.onLine || e instanceof TypeError) { const q = store.get('lt_queue', []); q.push({ action, payload }); store.set('lt_queue', q); toast('Offline gespeichert, wird später übertragen'); }
+      else { toast('Fehler: ' + e.message); if (!apiPending) refresh(true); }
+    }
+  });
+  return apiChain;
+}
+function doneAdd(id, date) { send('doneAdd', { id, date }, () => { AL().done.push({ d: date, p: S.sum.me, id }); }); }
+function doneDel(id, date) {
+  send('doneDel', { id, date }, () => { const L = AL().done; for (let k = L.length - 1; k >= 0; k--) if (L[k].id === id && L[k].d === date && L[k].p === S.sum.me) { L.splice(k, 1); break; } });
+}
+function thank(id, name, d) {
+  const now = new Date();
+  send('thank', { id, name, d }, () => { AL().danke.push({ ts: iso(now) + 'T' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds()), d: iso(now), from: S.sum.me, to: S.sum.partner, id, name, for: d || '' }); });
+  toast('Danke ist unterwegs ♥');
+}
+
+/* ================= Formen: flach, körnig, bewegt wie Wasser ================= */
+function wavePath(y, amp) {
+  let d = 'M-200 ' + y + ' Q -175 ' + (y - amp) + ' -150 ' + y;
+  for (let x = -100; x <= 400; x += 50) d += ' T ' + x + ' ' + y;
+  return d + ' V 240 H -200 Z';
+}
+function grainDefs(id) {
+  return '<filter id="gw' + id + '" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="1.05" numOctaves="2" seed="2" stitchTiles="stitch"><animate attributeName="seed" values="1;2;3;4;5;6" dur="1.2s" repeatCount="indefinite"/></feTurbulence><feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1.6 -0.62"/></filter>' +
+    '<filter id="gd' + id + '" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="2" seed="7" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0.12  0 0 0 1.5 -0.6"/></filter>';
+}
+function grainShape(kind, value, size, label) {
+  const v = value == null ? 0 : Math.max(0, Math.min(100, value)), id = kind, y = 196 - 1.9 * v;
+  const shape = kind === 'heart'
+    ? '<path d="M100 182 C 42 142 10 108 10 68 C 10 36 34 14 62 14 C 80 14 93 24 100 38 C 107 24 120 14 138 14 C 166 14 190 36 190 68 C 190 108 158 142 100 182 Z"/>'
+    : '<circle cx="100" cy="100" r="94"/>';
+  const c = kind === 'heart' ? ['#FB7185', '#E11D48', '#9F1239', '#FFF1F2', '#FDA4AF'] : ['#60A5FA', '#2563EB', '#1E3A8A', '#EFF6FF', '#93C5FD'];
+  const txt = value == null ? '–' : String(value), dark = v < 50;
+  const ty = kind === 'heart' ? 104 : 114;
+  return '<svg viewBox="0 0 200 200" width="' + size + '" height="' + size + '" role="img" aria-label="' + esc(label) + '" style="overflow:visible">' +
+    '<defs><clipPath id="clip' + id + '">' + shape + '</clipPath>' + grainDefs(id) +
+    '<linearGradient id="lg' + id + '" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0" stop-color="' + c[0] + '"/><stop offset="0.5" stop-color="' + c[1] + '"/><stop offset="1" stop-color="' + c[2] + '"/></linearGradient></defs>' +
+    '<g clip-path="url(#clip' + id + ')"><rect width="200" height="200" fill="' + c[3] + '"/><rect width="200" height="200" filter="url(#gd' + id + ')" opacity=".18"/>' +
+    (value != null ? '<g><path d="' + wavePath(y - 4, 5) + '" fill="' + c[4] + '" opacity=".75"><animateTransform attributeName="transform" type="translate" values="0 0;-100 0" dur="6.5s" repeatCount="indefinite"/></path>' +
+      '<path d="' + wavePath(y, 7) + '" fill="url(#lg' + id + ')"><animateTransform attributeName="transform" type="translate" values="0 0;100 0" dur="4.2s" repeatCount="indefinite"/></path>' +
+      '<animateTransform attributeName="transform" type="translate" values="0 0;0 3;0 0" dur="3.6s" repeatCount="indefinite"/></g>' +
+      '<rect width="200" height="200" filter="url(#gw' + id + ')" opacity=".42"/><rect width="200" height="200" filter="url(#gd' + id + ')" opacity=".35"/>' : '') +
+    '</g><g fill="none" stroke="' + c[1] + '" stroke-width="3" opacity=".85">' + shape + '</g>' +
+    '<text x="100" y="' + ty + '" text-anchor="middle" font-family="Plus Jakarta Sans, Inter, sans-serif" font-weight="800" font-size="' + (kind === 'heart' ? 50 : 58) + '" fill="' + (dark ? c[2] : '#fff') + '" style="paint-order:stroke" stroke="' + (dark ? 'rgba(255,255,255,.85)' : 'rgba(0,0,0,.10)') + '" stroke-width="4">' + txt + '</text></svg>';
+}
+function balanceShape(share, size, label) {
+  const id = 'bal', x = Math.round(20 + 160 * (share == null ? 0.5 : share));
+  let d = 'M-20 -120 H' + x + ' Q ' + (x + 9) + ' -95 ' + x + ' -70';
+  for (let yy = -20; yy <= 330; yy += 50) d += ' T ' + x + ' ' + yy;
+  d += ' H -20 Z';
+  return '<svg viewBox="0 0 200 200" width="' + size + '" height="' + size + '" role="img" aria-label="' + esc(label) + '" style="overflow:visible">' +
+    '<defs><clipPath id="clip' + id + '"><circle cx="100" cy="100" r="94"/></clipPath>' + grainDefs(id) +
+    '<linearGradient id="lr' + id + '" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0" stop-color="#FB7185"/><stop offset="1" stop-color="#BE123C"/></linearGradient>' +
+    '<linearGradient id="lb' + id + '" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0" stop-color="#60A5FA"/><stop offset="1" stop-color="#1D4ED8"/></linearGradient></defs>' +
+    '<g clip-path="url(#clip' + id + ')"><rect width="200" height="200" fill="url(#lr' + id + ')"/>' +
+    '<path d="' + d + '" fill="url(#lb' + id + ')"><animateTransform attributeName="transform" type="translate" values="0 0;0 100" dur="5s" repeatCount="indefinite"/></path>' +
+    '<rect width="200" height="200" filter="url(#gw' + id + ')" opacity=".42"/><rect width="200" height="200" filter="url(#gd' + id + ')" opacity=".35"/></g>' +
+    '<circle cx="100" cy="100" r="94" fill="none" stroke="#6D28D9" stroke-width="3" opacity=".55"/></svg>';
+}
+function sparkline(vals, color) {
+  const xs = vals.map((v, i) => [i, v]).filter((p) => p[1] != null); if (xs.length < 2) return '<span class="sub">Noch zu wenige Wochen</span>';
+  const n = vals.length - 1 || 1, pts = xs.map(([i, v]) => (i / n * 140 + 4).toFixed(1) + ',' + (38 - v / 100 * 32).toFixed(1)).join(' ');
+  const lastP = xs[xs.length - 1];
+  return '<svg width="100%" height="44" viewBox="0 0 148 44" preserveAspectRatio="none" aria-hidden="true"><polyline points="' + pts + '" fill="none" stroke="' + color + '" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/><circle cx="' + (lastP[0] / n * 140 + 4).toFixed(1) + '" cy="' + (38 - lastP[1] / 100 * 32).toFixed(1) + '" r="3.2" fill="' + color + '"/></svg>';
+}
+function popsHtml(items, anim, color) {
+  return '<div class="pops">' + items.map((it, k) => '<div class="popc ' + (anim ? 'popIn' : '') + '" style="' + (it.wide ? 'grid-column:1/-1;' : '') + (anim ? 'animation-delay:' + (k * 90) + 'ms' : '') + '"><span class="cap" style="color:' + (it.c || color) + '">' + esc(it.l) + '</span>' + (it.html || '<b>' + esc(it.b) + '</b>') + (it.x ? '<span>' + esc(it.x) + '</span>' : '') + '</div>').join('') + '</div>';
+}
+
+/* ================= Overlays: Danke-Blasen und Ben groß ================= */
+const $ov = document.getElementById('ov');
+S.ov = null; S.ovQ = [];
+function bubbleSvg(k, size) {
+  return '<svg width="' + size + '" height="' + size + '" viewBox="0 0 200 200" style="overflow:visible" aria-hidden="true"><defs>' +
+    '<radialGradient id="bf' + k + '" cx="0.5" cy="0.5" r="0.5"><stop offset="0.55" stop-color="#fff" stop-opacity="0.05"/><stop offset="0.86" stop-color="#FCE7F3" stop-opacity="0.25"/><stop offset="1" stop-color="#fff" stop-opacity="0.6"/></radialGradient>' +
+    '<linearGradient id="bi' + k + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#67E8F9"/><stop offset="0.3" stop-color="#F0ABFC"/><stop offset="0.55" stop-color="#FDE68A"/><stop offset="0.8" stop-color="#A78BFA"/><stop offset="1" stop-color="#67E8F9"/><animateTransform attributeName="gradientTransform" type="rotate" values="0 .5 .5;360 .5 .5" dur="4s" repeatCount="indefinite"/></linearGradient>' +
+    '<linearGradient id="bh' + k + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FDA4AF"/><stop offset="1" stop-color="#BE123C"/></linearGradient>' +
+    '<filter id="bb' + k + '" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="3"/></filter></defs>' +
+    '<circle cx="100" cy="100" r="96" fill="url(#bf' + k + ')"/><circle cx="100" cy="100" r="95" fill="none" stroke="url(#bi' + k + ')" stroke-width="5" opacity="0.55" filter="url(#bb' + k + ')"/><circle cx="100" cy="100" r="96" fill="none" stroke="url(#bi' + k + ')" stroke-width="1.5" opacity="0.9"/>' +
+    '<path transform="translate(100 90) scale(0.36) translate(-100 -100)" d="M100 186 C 42 146 6 110 6 68 C 6 34 31 12 60 12 C 78 12 92 22 100 38 C 108 22 122 12 140 12 C 169 12 194 34 194 68 C 194 110 158 146 100 186 Z" fill="url(#bh' + k + ')"/>' +
+    '<text x="100" y="146" text-anchor="middle" font-family="Plus Jakarta Sans, Inter, sans-serif" font-weight="800" font-size="30" fill="#fff" style="paint-order:stroke" stroke="rgba(159,18,57,.35)" stroke-width="3">Danke</text>' +
+    '<path d="M42 70 A64 64 0 0 1 84 34" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" opacity="0.75" filter="url(#bb' + k + ')"/><ellipse cx="58" cy="58" rx="9" ry="5" fill="#fff" opacity="0.9" transform="rotate(-40 58 58)"/></svg>';
+}
+function vDankeOv(o) {
+  const list = o.list, W = Math.min(window.innerWidth || 390, 560), H = window.innerHeight || 800, n = Math.min(list.length, 4), red = reduced();
+  const ends = [[0.42, 0.36], [0.62, 0.46], [0.36, 0.52], [0.6, 0.3]];
+  let bubbles = '', bursts = '';
+  if (!red) for (let k = 0; k < n; k++) {
+    const sz = k === 0 ? 170 : 130, ex = W * ends[k][0] - sz / 2, ey = H * ends[k][1] - sz / 2, left = k % 2 === 0;
+    const x0 = left ? -sz - 20 : W + 20, y0 = H * (0.85 + k * 0.05), x1 = left ? W * 0.12 : W * 0.7 - sz / 2, y1 = H * (0.62 - k * 0.04);
+    bubbles += '<div class="dBub" style="--x0:' + x0 + 'px;--y0:' + y0 + 'px;--x1:' + x1 + 'px;--y1:' + y1 + 'px;--x2:' + ex + 'px;--y2:' + ey + 'px;animation-delay:' + (k * 0.12) + 's"><div class="wob" style="position:relative;animation-delay:' + (k * 0.2) + 's">' + bubbleSvg('d' + k, sz) +
+      [0, 1, 2, 3].map((j) => '<span class="hTrail" style="left:' + (sz * 0.3 + j * 14) + 'px;top:' + (sz * 0.75) + 'px;font-size:' + (11 + j * 3) + 'px;--sx:' + ((j % 2 ? 1 : -1) * 16) + 'px;animation-delay:' + (j * 0.35) + 's">♥</span>').join('') + '</div></div>';
+    for (let j = 0; j < 10; j++) {
+      const a = 2 * Math.PI * j / 10 + k * 0.3, r = 80 + (j % 3) * 22;
+      bursts += '<span class="hBurst" style="--cx:' + (ex + sz / 2 - 8) + 'px;--cy:' + (ey + sz / 2 - 10) + 'px;--dx:' + Math.round(r * Math.cos(a)) + 'px;--dy:' + Math.round(r * Math.sin(a) - 30) + 'px;animation-delay:' + (2.28 + k * 0.12) + 's;font-size:' + (14 + (j % 3) * 6) + 'px;color:' + ['#FB7185', '#F0ABFC', '#FDA4AF', '#E11D48'][j % 4] + '">♥</span>';
+    }
+  }
+  const rows = list.slice(0, 4).map((x) => '<div class="row" style="justify-content:flex-start;gap:12px;padding:10px 0;border-top:1px solid #FCE7F3"><span class="ticon" style="background:linear-gradient(135deg,#FFF1F2,#FDF4FF)">' + (x.id ? tIcon(x.name) : '♥') + '</span><div class="col"><b style="font-size:15px">' + (x.id ? 'Für „' + esc(x.name) + '“' : 'Einfach so') + '</b><span style="font-size:12px;color:#9F1239">' + (x.for ? 'erledigt ' + whenText(x.for) : whenText(x.d)) + '</span></div></div>').join('');
+  return '<div class="ovw"><div class="ovbg" style="background:rgba(80,7,36,.30)"></div>' + bubbles + bursts +
+    '<div class="dCard" role="dialog" aria-label="Danke von ' + esc(S.sum.partner) + '"' + (red ? ' style="animation:none"' : '') + '><div class="row" style="justify-content:flex-start;gap:8px"><span style="font-size:22px;color:#E11D48">♥</span><b class="jk" style="font-size:21px">' + esc(S.sum.partner) + ' sagt Danke</b></div>' + rows +
+    (list.length > 4 ? '<span class="sub">und ' + (list.length - 4) + ' weitere</span>' : '') +
+    '<div style="display:grid;grid-template-columns:1fr 1.4fr;gap:10px;margin-top:8px"><button class="ghost" style="min-height:50px;border:none;background:var(--bg)" data-a="ovClose">Schön</button><button class="btn R" style="min-height:50px" data-a="thankBack">♥ Zurück-Danke</button></div></div></div>';
+}
+const BEN_IN = [['flyR', 'R', 'outR'], ['flyL', 'L', 'outL'], ['dropT', 'R', 'outD']];
+function greetItems() {
+  const items = openTasks().filter((x) => x.id !== 'al').slice(0, 3).map((x) => (x.id === 'tL' ? 'Dein Leben-Check-in heute, ca. eine Minute.' : x.id === 'tR' ? 'Dein Liebe-Check-in heute, direkt danach.' : taskSentence(x)));
+  const due = myDue(today());
+  if (due.length) items.push('Im Alltag ist noch ' + joinDe(due.slice(0, 3).map((s) => '„' + s.t.name + '“')) + ' offen' + (due.some((s) => s.mineResp) ? ', da bist du dran.' : '.'));
+  const pi = pendingInfo(); if (pi && !pi.mine) items.unshift(S.sum.partner + ' möchte eure Aufgabenliste ändern und wartet auf deine Bestätigung.');
+  return items.slice(0, 4);
+}
+function vBenOv(o) {
+  const T = bTheme(), mood = buddyMood(), g = greetText(mood), tip = buddyTip(), items = greetItems(), an = o.anim;
+  const fig = '<div class="benFig ' + an[1] + ' ' + (o.leaving ? an[2] : an[0]) + '"><div class="bob">' + figure(S.buddy.animal, mood, 230) + '</div></div>';
+  return '<div class="ovw"><div class="ovbg ' + (o.leaving ? 'out' : '') + '" data-a="ovClose"></div>' + fig +
+    '<div class="benCard ' + (o.leaving ? 'out' : '') + '" role="dialog" aria-label="' + bName() + ' sagt" style="background:' + T.btn + '">' +
+    '<span class="cap" style="opacity:.92">' + bName() + ' sagt</span><b class="jk" style="font-size:23px;line-height:1.25">' + greet() + '! ' + g.head + '</b>' +
+    '<p style="margin:0;font-size:15px;line-height:1.55;opacity:.97">' + g.body + '</p>' +
+    (items.length ? '<div style="border-radius:18px;background:rgba(255,255,255,.16);padding:4px 14px">' + items.map((x, k) => '<div style="display:flex;gap:10px;align-items:flex-start;padding:9px 0;' + (k ? 'border-top:1px solid rgba(255,255,255,.22)' : '') + '"><span style="flex:none;width:8px;height:8px;border-radius:4px;background:#fff;margin-top:7px"></span><span style="font-size:14px;line-height:1.45">' + esc(x) + '</span></div>').join('') + '</div>' : '') +
+    (tip ? '<div style="border-radius:18px;background:#fff;color:' + T.ink + ';padding:12px 14px;font-size:14px;line-height:1.5;font-weight:600">' + esc(tip.text) + '</div>' : '') +
+    '<div class="row" style="gap:10px;margin-top:2px"><button style="flex:1;min-height:50px;border-radius:16px;background:rgba(255,255,255,.2);color:#fff;font-weight:700;font-size:14px" data-a="ovBuddy">Frag ' + bName() + '</button>' +
+    '<button style="flex:1.4;min-height:50px;border-radius:16px;background:#fff;color:' + T.ink + ';font-weight:800;font-size:15px" data-a="' + (tip && tip.act ? tip.act : 'ovClose') + '">' + (tip && tip.act ? tip.label : 'Los geht\'s') + '</button></div></div></div>';
+}
+function renderOv() {
+  const o = S.ov;
+  $ov.innerHTML = !o ? '' : o.type === 'danke' ? vDankeOv(o) : vBenOv(o);
+}
+function checkOv() {
+  if (!S.sum || !S.conn || !store.get('lt_onboarded', false) || S.view === 'onboarding' || S.view === 'checkin') return;
+  const nd = newDanke(), q = [];
+  if (nd.length && !(S.ov && S.ov.type === 'danke') && !S.ovQ.some((x) => x.type === 'danke')) q.push({ type: 'danke', list: nd });
+  if (needSummary() && !(S.ov && S.ov.type === 'ben') && !S.ovQ.some((x) => x.type === 'ben')) q.push({ type: 'ben', anim: pick(BEN_IN) });
+  if (!q.length) return;
+  if (S.ov) { S.ovQ = S.ovQ.concat(q); return; }
+  S.ov = q.shift(); S.ovQ = q; renderOv();
+}
+async function closeOv(fast) {
+  const o = S.ov; if (!o) return;
+  if (o.type === 'danke') markDankeSeen(o.list);
+  if (o.type === 'ben') { takeSnap(); S.bubOff = true; }
+  if (!fast && !reduced()) {
+    if (o.type === 'ben') { o.leaving = true; renderOv(); }
+    else { const c = $ov.querySelector('.dCard'), bg = $ov.querySelector('.ovbg'); if (c) c.classList.add('out'); if (bg) bg.classList.add('out'); }
+    await new Promise((r) => setTimeout(r, 420));
+  }
+  S.ov = S.ovQ.shift() || null; renderOv();
+  if (!S.ov) { S.keepScroll = true; render(); }
+}
+
+/* ================= Alltag-Ansichten ================= */
+function taskRow(s, date, compact) {
+  const t = s.t, mineN = s.mineToday, tag = s.mineResp && s.due ? '<span class="pill" style="background:#FEF3C7;color:#92400E">' + (s.alt ? 'Du bist dran' : 'Heute') + '</span>' : '';
+  const status = t.r === 'Tag' ? s.done + ' von ' + t.n + ' heute' : t.r === 'Woche' ? s.done + ' von ' + t.n + ' diese Woche' : s.done + ' von ' + t.n + ' diesen Monat';
+  const extra = s.otherToday && !mineN ? ' · heute von ' + esc(S.sum.partner) : s.alt && !s.mineResp ? ' · ' + esc(S.sum.partner) + ' ist dran' : '';
+  return '<div class="trow"><span class="ticon">' + tIcon(t.name) + '</span><div class="col" style="flex:1;gap:1px;min-width:0"><b style="font-size:14px">' + esc(t.name) + '</b><span class="sub">' + status + extra + '</span></div>' + (compact ? '' : tag) +
+    (mineN ? '<button class="tbtn minus" data-a="alDel" data-v="' + esc(t.id) + '" data-d="' + date + '" aria-label="' + esc(t.name) + ' einmal zurücknehmen">−</button>' : '') +
+    '<button class="tbtn ' + (mineN ? 'done' : 'add') + '" data-a="alAdd" data-v="' + esc(t.id) + '" data-d="' + date + '" aria-label="' + esc(t.name) + ' erledigt">' + (mineN ? (mineN > 1 ? mineN + '×' : '✓') : '+') + '</button></div>';
+}
+function vAlltagCheckin(date) {
+  if (!AL() || !tasksAct().length) return '';
+  const st = tasksAct().map((t) => taskState(t, date));
+  const grp = [['Deine Aufgaben', st.filter((s) => s.t.resp === S.sum.me)], ['Abwechselnd', st.filter((s) => s.alt)], ['Pool, wer Zeit hat', st.filter((s) => s.pool)], ['Bei ' + S.sum.partner, st.filter((s) => s.t.resp === S.sum.partner)]];
+  const w = alltagWeek(monday(date), date), z = w && w.zusage[S.sum.me];
+  return '<div class="card" style="gap:2px"><div class="row" style="margin-bottom:4px"><h2>Heute für euren Alltag</h2>' + (z != null ? '<span class="pill L">Zusagen ' + Math.round(z * 100) + ' %</span>' : '') + '</div>' +
+    grp.filter((g) => g[1].length).map(([l, rows]) => '<span class="sub" style="font-weight:800;letter-spacing:.05em;text-transform:uppercase;margin-top:8px">' + esc(l) + '</span>' + rows.map((s) => taskRow(s, date)).join('')).join('') +
+    '<span class="sub" style="margin-top:6px">Wird sofort gespeichert und ist für euch beide sichtbar.</span></div>';
+}
+function vAlltagHome() {
+  if (!AL()) return '';
+  let h = '';
+  const pi = pendingInfo();
+  if (pi && !pi.mine) h += '<div class="card" style="background:var(--dots),var(--gR);color:#fff;box-shadow:0 12px 28px rgba(190,24,93,.3)"><span class="cap" style="opacity:.92">Euer Alltag · bitte bestätigen</span><b class="jk" style="font-size:18px;line-height:1.3">' + esc(S.sum.partner) + ' möchte eure Aufgabenliste ändern</b>' +
+    '<div style="border-radius:16px;background:rgba(255,255,255,.16);padding:6px 12px">' + (pi.lines.length ? pi.lines.slice(0, 5).map((l, k) => '<div style="font-size:13px;line-height:1.45;padding:6px 0;' + (k ? 'border-top:1px solid rgba(255,255,255,.2)' : '') + '">' + esc(l) + '</div>').join('') : '<div style="font-size:13px;padding:6px 0">Kleine Änderungen an der Liste</div>') + '</div>' +
+    (pi.p.note ? '<span style="font-size:13px;line-height:1.45;opacity:.95">💬 „' + esc(pi.p.note) + '“</span>' : '') +
+    '<div class="row" style="gap:10px"><button style="flex:1;min-height:46px;border-radius:14px;background:rgba(255,255,255,.2);color:#fff;font-weight:700" data-a="propNo" data-v="' + esc(pi.p.id) + '">Ablehnen</button><button style="flex:1.5;min-height:46px;border-radius:14px;background:#fff;color:#BE185D;font-weight:800" data-a="propYes" data-v="' + esc(pi.p.id) + '">Bestätigen</button></div></div>';
+  else if (pi && pi.mine) h += '<div class="card" style="flex-direction:row;align-items:center;gap:12px;border:1px dashed #F9A8D4;box-shadow:none;background:#FDF2F8"><div class="col" style="flex:1"><b style="font-size:14px;color:#9D174D">Wartet auf ' + esc(S.sum.partner) + '</b><span class="sub">Deine Änderung an den Aufgaben gilt nach der Bestätigung.</span></div><button class="link" style="color:#9D174D" data-a="propBack" data-v="' + esc(pi.p.id) + '">Zurückziehen</button></div>';
+  const dt = dankeToday();
+  if (dt.length) h += '<div style="position:relative;overflow:hidden;border-radius:24px;padding:16px 18px;color:#fff;background:var(--dots),linear-gradient(135deg,#FB7185 0%,#BE185D 55%,#A21CAF 100%);box-shadow:0 12px 28px rgba(190,24,93,.32);display:flex;flex-direction:column;gap:10px">' +
+    [0, 1, 2, 3, 4].map((j) => '<span class="hTrail" style="left:' + (60 + j * 17) + '%;top:80%;color:rgba(255,255,255,.7);font-size:' + (12 + (j % 3) * 4) + 'px;--sx:' + (j % 2 ? 10 : -10) + 'px;animation-duration:' + (2.6 + j * 0.4) + 's;animation-delay:' + (j * 0.5) + 's">♥</span>').join('') +
+    '<div class="row" style="justify-content:flex-start;gap:12px;position:relative"><b class="jk" style="font-size:36px;line-height:1">' + dt.length + '×</b><div class="col"><b class="jk" style="font-size:18px">Danke heute</b><span style="font-size:12px;opacity:.92">von ' + esc(S.sum.partner) + '</span></div></div>' +
+    '<div class="chips" style="position:relative">' + dt.map((x) => '<span style="padding:7px 12px;border-radius:14px;background:rgba(255,255,255,.2);font-size:13px;font-weight:700">' + (x.id ? tIcon(x.name) + ' ' + esc(x.name) : '♥ einfach so') + '</span>').join('') + '</div></div>';
+  if (tasksAct().length) {
+    const due = myDue(today()), th = thankable()[0];
+    h += '<div class="card" style="gap:2px"><div class="row" style="margin-bottom:2px"><h2>Euer Alltag heute</h2><button class="link" style="min-height:32px;color:#1D4ED8" data-a="goAlltag">Alles ansehen</button></div>' +
+      (due.length ? due.slice(0, 4).map((s) => taskRow(s, today(), true)).join('') : '<span class="small" style="padding:6px 0">Für dich ist heute nichts mehr offen. Stark!</span>') +
+      (th ? '<div class="trow"><span class="ticon" style="background:#FFF1F2">♥</span><span style="flex:1;font-size:13px;line-height:1.4">' + esc(S.sum.partner) + ' hat ' + whenText(th.d) + ' „' + esc(th.name) + '“ erledigt.</span><button style="flex:none;min-height:38px;padding:0 14px;border-radius:12px;background:var(--gR);color:#fff;font-weight:800;font-size:13px" data-a="thank" data-v="' + esc(th.id) + '" data-d="' + th.d + '">Danke</button></div>' : '') + '</div>';
+  } else if (!pi) h += '<button class="card" style="flex-direction:row;align-items:center;gap:12px;border:1px dashed #B8C1D3;box-shadow:none;text-align:left" data-a="anpAlltag"><span class="ticon">🏡</span><div class="col" style="flex:1"><b style="font-size:14px">Euren Alltag aufteilen</b><span class="sub">Einkaufen, Gassi, Putzen: wer macht was, wie oft?</span></div><span style="font-weight:800;color:#1D4ED8">+</span></button>';
+  return h;
+}
+function alltagPops(w) {
+  const me = S.sum.me, pa = S.sum.partner, wt = (S.sum.weights && S.sum.weights.alltag) || 0.2;
+  const z = (p) => (w.zusage[p] != null ? 'Zusagen ' + Math.round(w.zusage[p] * 100) + ' % gehalten' : 'keine festen Aufgaben');
+  const pt = w.pool[me] + w.pool[pa];
+  return [
+    { l: 'Du · blau', c: '#1D4ED8', b: w.cnt[me] + (w.cnt[me] === 1 ? ' Aufgabe' : ' Aufgaben') + ' erledigt', x: z(me) },
+    { l: pa + ' · rot', c: '#BE123C', b: w.cnt[pa] + (w.cnt[pa] === 1 ? ' Aufgabe' : ' Aufgaben') + ' erledigt', x: z(pa) },
+    { l: 'Pool', c: '#334155', b: pt ? 'Du ' + w.pool[me] + ', ' + pa + ' ' + w.pool[pa] : 'Noch nichts aus dem Pool', x: pt ? (Math.abs(w.pool[me] - w.pool[pa]) <= 1 ? 'Gleicht sich gut aus.' : (w.pool[me] > w.pool[pa] ? 'Du' : pa) + ' übernimmt gerade mehr.') : 'Wer Zeit hat, macht es.' },
+    { l: 'Im Liebe-Score', c: '#6D28D9', b: w.score != null ? Math.round(w.score * 100) + ' von 100' : 'noch offen', x: 'Alltag zählt ' + Math.round(wt * 100) + ' % in euren gemeinsamen Score.' }
+  ];
+}
+function vAlltagVerlauf() {
+  if (!AL()) return '<div class="card"><h2>Alltag</h2><span class="small">Für diesen Bereich muss das Script auf Version 3 aktualisiert werden. Die Anleitung steht in der Nachricht von Claude.</span></div>';
+  const tasks = tasksAct();
+  if (!tasks.length) return '<div class="card" style="align-items:center;text-align:center;gap:10px"><span style="font-size:40px">🏡</span><h2>Noch keine Aufgaben</h2><span class="small">Legt fest, wer was im Haushalt übernimmt, wie oft es ansteht und was in den Pool kommt.</span><button class="btn L" data-a="anpAlltag">Aufgaben anlegen</button></div>';
+  const w = alltagWeek(monday(today())), me = S.sum.me, pa = S.sum.partner, tot = w.cnt[me] + w.cnt[pa], share = tot ? w.cnt[me] / tot : 0.5;
+  const dev = Math.abs(share - 0.5), word = !tot ? 'Diese Woche noch offen' : dev < 0.1 ? 'Gut ausgewogen' : dev < 0.2 ? 'Fast ausgewogen' : (share > 0.5 ? 'Du' : pa) + ' trägt gerade mehr';
+  const open = S.vOpen === 'alltag';
+  let h = '<button class="card" style="align-items:center;text-align:center;gap:8px;background:transparent;box-shadow:none" data-a="vOpen" data-v="alltag" aria-expanded="' + open + '">' + balanceShape(share, 200, 'Aufteilung diese Woche: ' + word) +
+    '<b class="jk" style="font-size:20px">' + esc(word) + '</b><span class="sub">' + (open ? 'Tippen zum Schließen' : 'Tippen, um zu sehen, wer was trägt') + '</span></button>';
+  if (open) h += popsHtml(alltagPops(w), S.popAnim, '#334155');
+  h += '<div class="card" style="gap:10px"><div class="row"><h2>Diese Woche</h2><span class="sub">blau du · rot ' + esc(pa) + '</span></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">' +
+    tasks.map((t) => {
+      const s = taskState(t, today()), segs = s.rows.map((d) => '<i style="flex:1;height:6px;border-radius:3px;background:' + (d.p === me ? '#2563EB' : '#E11D48') + '"></i>').join('') + Array.from({ length: Math.max(0, t.n - s.rows.length) }, () => '<i style="flex:1;height:6px;border-radius:3px;background:#E6EAF3"></i>').join('');
+      return '<div style="border-radius:16px;background:var(--bg);padding:10px 12px;display:flex;flex-direction:column;gap:6px"><div class="row" style="gap:6px"><span style="font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + tIcon(t.name) + ' ' + esc(t.name) + '</span><span class="sub" style="flex:none">' + s.done + '/' + t.n + '</span></div><div style="display:flex;gap:3px">' + segs + '</div></div>';
+    }).join('') + '</div><span class="sub">Zählt je nach Rhythmus pro Tag, Woche oder Monat.</span></div>';
+  const th = thankable();
+  if (th.length) h += '<div class="card" style="gap:2px"><h2 style="margin-bottom:4px">Danke sagen</h2>' + th.slice(0, 3).map((x) => '<div class="trow"><span class="ticon" style="background:#FFF1F2">' + tIcon(x.name) + '</span><span style="flex:1;font-size:14px">„' + esc(x.name) + '“ <span class="sub">' + whenText(x.d) + '</span></span><button style="flex:none;min-height:38px;padding:0 14px;border-radius:12px;background:var(--gR);color:#fff;font-weight:800;font-size:13px" data-a="thank" data-v="' + esc(x.id) + '" data-d="' + x.d + '">♥ Danke</button></div>').join('') + '</div>';
+  return h + '<button class="ghost" data-a="anpAlltag">Aufgaben verwalten</button>';
+}
+
+function lebenPops(sc) {
+  const gs = goalStatus('leben'), inPlan = gs.filter((g) => g.reached || g.deficit < 1).length, t = today(), mon = monday(t);
+  let big = null;
+  cfg('leben').ratings.forEach((r) => { const n = ratingAvg('leben', r.f, mon, addDays(t, 1), S.sum.me), p = ratingAvg('leben', r.f, addDays(mon, -7), mon, S.sum.me); if (n == null || p == null) return; const d = (n - p) * (r.inv ? -1 : 1); if (!big || Math.abs(d) > Math.abs(big.d)) big = { f: r.f, d, n }; });
+  const mm = t.slice(0, 7), M = cfg('leben').monthly, mDone = M.filter((m) => mine('leben').some((e) => e.t === 'Monatsziel' && e.f === m.f && e.d.slice(0, 7) === mm)).length;
+  return [
+    { l: 'Tagesgefühl', b: sc.lebenDaily != null ? pct(sc.lebenDaily) : 'noch offen', x: sc.lebenDaily == null ? 'Bewerte deinen Tag im Check-in.' : sc.lebenDaily >= 0.7 ? 'Du fühlst dich gut diese Woche.' : sc.lebenDaily >= 0.5 ? 'Solide Woche.' : 'Eher eine schwere Woche.' },
+    { l: 'Wochenziele', b: gs.length ? inPlan + ' von ' + gs.length + ' im Plan' : 'keine', x: gs.filter((g) => g.reached).length ? gs.filter((g) => g.reached).length + ' schon geschafft' : 'Zählen anteilig nach Wochentag.' },
+    { l: big && big.d < -0.2 ? 'Gesunken' : 'Verändert', c: big && big.d < -0.2 ? '#BE123C' : '#047857', b: big ? big.f + (Math.abs(big.d) < 0.2 ? ' stabil' : big.d > 0 ? ' ▲' : ' ▼') : 'noch kein Vergleich', x: big ? 'Schnitt diese Woche ' + fmt(big.n, 1) : 'Ab der zweiten Woche.' },
+    { l: 'Monatsziele', b: M.length ? mDone + ' von ' + M.length : 'keine', x: M.length ? (mDone === M.length ? 'Alle geschafft.' : 'Noch Zeit bis Monatsende.') : 'Unter Anpassen anlegbar.' },
+    { l: '8 Wochen', wide: true, html: sparkline(sc.histL, '#2563EB') }
+  ];
+}
+function liebePops(sc) {
+  const t = today(), mon = monday(t), gs = goalStatus('liebe'), inPlan = gs.filter((g) => g.reached || g.deficit < 1).length;
+  const fBz = fk('liebe', 'bewusst', 'Bewusste Zeit'), z = mine('liebe').filter((e) => e.t === 'Zeit' && e.f === fBz && e.d >= mon).reduce((a, e) => a + (e.v || 0), 0);
+  const w = AL() ? alltagWeek(mon) : null, out = [
+    { l: sc.gap != null && sc.gap >= 20 ? 'Abstand im Gefühl' : 'Nähe im Gefühl', b: sc.gap == null ? 'noch offen' : sc.gap < 10 ? 'Ihr fühlt sehr ähnlich' : sc.gap < 20 ? 'Ihr seid euch nah' : sc.gap + ' Punkte Abstand', x: sc.gap != null && sc.gap >= 20 ? 'Redet kurz darüber, wie es euch geht.' : 'Wie ähnlich ihr die Woche erlebt.' },
+    { l: 'Zeit zu zweit', b: z ? fmt(z, 1) + ' Stunden' : 'noch keine', x: 'Bewusst und ohne Handy, diese Woche.' },
+    { l: 'Gemeinsame Ziele', b: gs.length ? inPlan + ' von ' + gs.length + ' im Plan' : 'keine', x: gs.filter((g) => g.reached).length ? gs.filter((g) => g.reached).length + ' schon geschafft' : 'Zählen anteilig nach Wochentag.' },
+    { l: 'Alltag', b: w && w.score != null ? Math.round(w.score * 100) + ' von 100' : 'noch offen', x: w && w.score != null ? 'Erledigt und fair verteilt.' : 'Legt eure Aufgaben an.' }
+  ];
+  if (S.prefs.personal) out.push({ l: 'Nur für dich', b: 'Dein Liebe-Score ' + (sc.meScore != null ? sc.meScore : '–'), x: 'Siehst nur du.' });
+  out.push({ l: '8 Wochen', wide: true, html: sparkline(sc.histR, '#E11D48') });
+  return out;
+}
+function vVerlauf() {
+  const sc = scoresNow(), open = S.vOpen, li = loveItems(), tab = S.vTab || 'main';
+  const prevI = S.rotPrev && S.rotPrev.love ? S.rotPrev.love.i : 0;
+  let h = '<div class="scroll"><div class="pad"><h1>Verlauf</h1><div class="segw" role="group" aria-label="Ansicht"><button class="' + (tab === 'main' ? 'on L' : '') + '" data-a="vTab" data-v="main">Leben & Liebe</button><button class="' + (tab === 'alltag' ? 'on R' : '') + '" data-a="vTab" data-v="alltag">Alltag</button></div>';
+  if (tab === 'alltag') h += vAlltagVerlauf();
+  else {
+    S.rot.love = { items: li, i: prevI < li.length ? prevI : 0, fn: loveHtml };
+    h += '<button class="card" style="align-items:center;text-align:center;gap:6px;background:transparent;box-shadow:none" data-a="vOpen" data-v="leben" aria-expanded="' + (open === 'leben') + '">' + grainShape('circle', sc.leben, 190, 'Leben-Score ' + (sc.leben != null ? sc.leben : 'noch offen')) + '<b class="jk" style="font-size:18px;color:#1E3A8A">Leben</b><span class="sub">' + (open === 'leben' ? 'Tippen zum Schließen' : 'Tippen für Details') + '</span></button>';
+    if (open === 'leben') h += popsHtml(lebenPops(sc), S.popAnim, '#1D4ED8');
+    h += '<div class="card" style="align-items:center;gap:6px;background:transparent;box-shadow:none"><button data-a="vOpen" data-v="liebe" aria-expanded="' + (open === 'liebe') + '" style="display:flex;flex-direction:column;align-items:center;gap:6px">' + grainShape('heart', sc.liebe, 200, 'Gemeinsamer Liebe-Score ' + (sc.liebe != null ? sc.liebe : 'noch offen')) + '<b class="jk" style="font-size:18px;color:#9F1239">Liebe · gemeinsam</b></button>' +
+      '<div id="love" aria-live="polite" style="width:100%">' + loveHtml(li[S.rot.love.i], S.rot.love.i, li.length) + '</div><span class="sub">' + (open === 'liebe' ? 'Tippe aufs Herz zum Schließen' : 'Tippe aufs Herz für Details') + '</span></div>';
+    if (open === 'liebe') h += popsHtml(liebePops(sc), S.popAnim, '#BE123C');
+  }
+  return h + '</div></div>' + vTabs('verlauf');
+}
+/* ---- Anpassen: Alltag ---- */
+function alInit() { S.anp = { area: 'alltag', tasks: tasksAll().map((t) => Object.assign({}, t)), note: '', dirty: false }; }
+function vAnpAlltag() {
+  const A = S.anp, pi = pendingInfo(), first = !tasksAll().length && !pi;
+  let h = '';
+  if (!AL()) return '<div class="card"><span class="small">Für den Alltag muss das Script auf Version 3 aktualisiert werden.</span></div>';
+  if (pi) h += '<div class="warn" style="padding:12px 14px"><span style="font-size:13px">' + (pi.mine ? 'Deine letzte Änderung wartet noch auf ' + esc(S.sum.partner) + '. Eine neue Änderung ersetzt sie.' : esc(S.sum.partner) + ' hat eine Änderung vorgeschlagen. Bitte bestätige sie auf der Startseite, bevor du selbst etwas änderst.') + '</span></div>';
+  const grp = [['Täglich', 'Tag'], ['Pro Woche', 'Woche'], ['Pro Monat', 'Monat']];
+  grp.forEach(([l, r]) => {
+    const rows = A.tasks.map((t, i) => Object.assign({ i }, t)).filter((t) => t.r === r);
+    if (!rows.length) return;
+    h += '<div class="list"><div class="li" style="border:none;padding-bottom:4px"><h2 style="font-size:16px">' + l + '</h2></div>' + rows.map((t) => '<div class="li"><span class="ticon" style="' + (t.act ? '' : 'opacity:.45') + '">' + tIcon(t.name) + '</span><button data-a="tEdit" data-i="' + t.i + '" style="flex:1;text-align:left;display:flex;flex-direction:column;gap:2px;min-height:40px;justify-content:center"><span style="font-size:14px;font-weight:700;' + (t.act ? '' : 'color:var(--sub);text-decoration:line-through') + '">' + esc(t.name) + '</span><span class="sub">' + rhythmText(t) + ' · ' + esc(t.resp === S.sum.me ? 'du' : t.resp === 'Pool' ? 'Pool' : t.resp === 'Abwechselnd' ? 'abwechselnd' : t.resp) + (t.act ? '' : ' · wird entfernt') + '</span></button></div>').join('') + '</div>';
+  });
+  h += '<button class="ghost" style="border:2px dashed #94A3B8;color:#1D4ED8;min-height:52px;font-size:15px" data-a="tNew">+ Aufgabe hinzufügen</button>';
+  if (!first) h += '<label class="col" style="gap:6px"><b style="font-size:13px">Kurze Begründung für ' + esc(S.sum.partner) + ' (optional)</b><textarea id="tNote" rows="2" data-in7="note" placeholder="z. B. Kochen bleibt sonst an mir hängen">' + esc(A.note) + '</textarea></label>';
+  h += '<p class="small" style="margin:0">' + (first ? 'Die erste Liste gilt sofort. Danach muss ' + esc(S.sum.partner) + ' jede Änderung bestätigen.' : 'Jede Änderung muss ' + esc(S.sum.partner) + ' bestätigen. Bis dahin gilt die alte Liste. Entfernte Aufgaben behalten ihren Verlauf.') + '</p>';
+  return h;
+}
+function vTaskSheet() {
+  const s = S.tsheet; if (!s) return '';
+  const t = s.row, isNew = s.i == null, me = S.sum.me, pa = S.sum.partner;
+  const resp = [[me, 'Du', 'fest bei dir'], [pa, pa, 'fest bei ' + pa], ['Abwechselnd', 'Abwechselnd', 'ihr wechselt euch ab'], ['Pool', 'Pool', 'wer Zeit hat']];
+  const max = t.r === 'Tag' ? 6 : 31;
+  return '<div class="sheet"><button style="flex:1" data-a="tClose" aria-label="Schließen"></button><div class="panel" role="dialog" aria-label="' + (isNew ? 'Neue Aufgabe' : 'Aufgabe bearbeiten') + '"><div class="grab"></div>' +
+    '<div class="row"><h1 style="font-size:22px">' + (isNew ? 'Neue Aufgabe' : 'Aufgabe bearbeiten') + '</h1><span class="ticon">' + tIcon(t.name || '') + '</span></div>' +
+    '<label class="col" style="gap:6px"><b style="font-size:13px">Was</b><input id="tName" type="text" data-in6="name" value="' + esc(t.name) + '" maxlength="60" placeholder="z. B. Einkaufen"></label>' +
+    (isNew ? '<div class="chips">' + ['Einkaufen', 'Gassi', 'Kochen', 'Putzen', 'Wäsche', 'Müll', 'Termine planen'].map((x) => '<button class="chip" style="min-height:34px;font-size:12px" data-a="tPick" data-v="' + x + '">' + x + '</button>').join('') + '</div>' : '') +
+    '<div class="col" style="gap:6px"><b style="font-size:13px">Wie oft</b><div class="seg3">' + [['Tag', 'Täglich'], ['Woche', 'Pro Woche'], ['Monat', 'Pro Monat']].map(([r, l]) => '<button class="' + (t.r === r ? 'on' : '') + '" data-a="tR" data-v="' + r + '">' + l + '</button>').join('') + '</div>' +
+    '<div class="row" style="margin-top:6px"><span style="font-size:14px;font-weight:600">' + (t.r === 'Tag' ? 'Mal pro Tag' : t.r === 'Woche' ? 'Mal pro Woche' : 'Mal pro Monat') + '</span><div class="stepper" style="gap:10px"><button data-a="tN" data-v="-1" aria-label="weniger">−</button><b>' + Math.min(max, t.n) + '×</b><button data-a="tN" data-v="1" aria-label="mehr">+</button></div></div></div>' +
+    '<div class="col" style="gap:6px"><b style="font-size:13px">Wer ist zuständig</b><div class="resp">' + resp.map(([v, l, x]) => '<button class="' + (t.resp === v ? 'on' : '') + '" data-a="tResp" data-v="' + esc(v) + '"><b>' + esc(l) + '</b><span>' + esc(x) + '</span></button>').join('') + '</div></div>' +
+    (s.err ? '<p class="err" style="margin:0">' + esc(s.err) + '</p>' : '') +
+    '<button class="btn L" data-a="tOk">' + (isNew ? 'Hinzufügen' : 'Übernehmen') + '</button>' +
+    (!isNew ? '<button class="link" data-a="tAct" style="align-self:center;color:' + (t.act ? '#B91C1C' : '#047857') + '">' + (t.act ? 'Aufgabe entfernen' : 'Wieder aufnehmen') + '</button>' : '') + '</div></div>';
 }
 
 /* ================= Ansichten ================= */
@@ -893,10 +1357,11 @@ function vHome() {
   const ti = tickerItems(), pi = S.rotPrev && S.rotPrev.ticker ? S.rotPrev.ticker.i : 0;
   S.rot.ticker = { items: ti, i: pi < ti.length ? pi : 0, fn: tickHtml };
   const allToday = captureTasks().filter((x) => x.grp === 'heute' && !x.done);
-  let h = '<div class="scroll"><div class="pad" style="padding-bottom:230px">' +
+  let h = '<div class="scroll"><div class="pad" style="padding-bottom:' + (benNow() && !S.bubOff ? 380 : 150) + 'px">' +
     '<div class="row"><div class="col" style="gap:2px"><span class="small">' + nice(today()) + ' · KW ' + kw(today()) + '</span><h1>' + greet() + '</h1></div><button class="iconbtn" data-a="go" data-v="anpassen" aria-label="Anpassen">' + svg(P.sliders) + '</button></div>' +
     '<div id="ticker" aria-live="polite">' + tickHtml(S.rot.ticker.items[S.rot.ticker.i], S.rot.ticker.i, ti.length) + '</div>' +
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">' + scoreCard('leben', sc.leben, deltaPill(sc.leben, snap.leben)) + scoreCard('liebe', sc.liebe, deltaPill(sc.liebe, snap.liebe)) + '</div>';
+  h += vAlltagHome();
   if (allToday.length) h += '<button class="btn" data-a="' + allToday[0].act + '">' + ACT_LABEL[allToday[0].act] + ' ' + svg(P.arrow, '#fff', 18, 2.4) + '</button>';
   h += vCapture();
   h += '<div class="col" style="gap:10px"><div class="row"><h2 style="font-size:18px">Deine To-dos für heute</h2><span class="sub">' + T.filter((t) => tick[t.id]).length + ' von ' + T.length + '</span></div><div class="list">' +
@@ -938,6 +1403,7 @@ function vCheckin() {
   h += '<div class="card"><h2>' + (L ? 'Was hast du heute für dich getan?' : 'Was habt ihr füreinander getan?') + '</h2><div class="chips">' +
     C.acts.map((f) => '<button class="chip ' + cls + ' ' + (d.acts[f] ? 'on' : '') + '" data-a="act" data-f="' + esc(f) + '" aria-pressed="' + !!d.acts[f] + '">' + esc(f) + (wmap[f] ? ' <small>' + weekCount(area, f, S.date) + '/' + wmap[f] + '</small>' : '') + '</button>').join('') +
     '<button class="chip add" data-a="newCrit" data-v="' + area + '">+ Neu</button></div>' + (C.weekly.length ? '<span class="sub">Die Zahl zeigt deinen Wochenstand' + (L ? '' : ', gemeinsam gezählt') + '.</span>' : '') + '</div>';
+  if (L) h += vAlltagCheckin(S.date);
   if (C.ctx.length) {
     const sel = C.ctx.filter((f) => d.ctx[f]);
     h += d.ctxOpen ? '<div class="card"><div class="row"><h2>Kontext</h2><button class="link" data-a="ctxToggle">Schließen</button></div><span class="sub">Zählt nicht in den Score, hilft bei den Zusammenhängen.</span><div class="chips">' + C.ctx.map((f) => '<button class="chip ctx ' + (d.ctx[f] ? 'on' : '') + '" data-a="ctx" data-f="' + esc(f) + '" aria-pressed="' + !!d.ctx[f] + '">' + esc(f) + '</button>').join('') + '</div></div>'
@@ -960,25 +1426,6 @@ function vDone() {
     '<div class="pad" style="padding-top:16px">' + why + (items ? '<h2 style="font-size:18px">Dein Feedback</h2>' + items : '') + '<button class="btn" data-a="go" data-v="home">Zur Startseite</button></div></div>';
 }
 /* ================= Verlauf und Analyse (neu) ================= */
-function grainShape(kind, value, size, label) {
-  const v = value == null ? 0 : Math.max(0, Math.min(100, value)), y = 200 - 2 * v, id = kind;
-  const shape = kind === 'heart'
-    ? '<path d="M100 182 C 42 142 10 108 10 68 C 10 36 34 14 62 14 C 80 14 93 24 100 38 C 107 24 120 14 138 14 C 166 14 190 36 190 68 C 190 108 158 142 100 182 Z"/>'
-    : '<circle cx="100" cy="100" r="94"/>';
-  const c = kind === 'heart' ? ['#F43F5E', '#BE123C', '#9F1239', '#FFE4E6'] : ['#3B82F6', '#1D4ED8', '#1E3A8A', '#DBEAFE'];
-  const txt = value == null ? '–' : String(value), dark = v < 52;
-  return '<svg viewBox="0 0 200 200" width="' + size + '" height="' + size + '" role="img" aria-label="' + esc(label) + '" style="overflow:visible;filter:drop-shadow(0 12px 24px ' + (kind === 'heart' ? 'rgba(190,18,60,.28)' : 'rgba(29,78,216,.28)') + ')">' +
-    '<defs><clipPath id="clip' + id + '">' + shape + '</clipPath>' +
-    '<filter id="nW' + id + '" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="3" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 1.4 -0.55"/></filter>' +
-    '<filter id="nD' + id + '" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="9" stitchTiles="stitch"/><feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0.1  0 0 0 1.5 -0.6"/></filter>' +
-    '<linearGradient id="lg' + id + '" x1="0" y1="0" x2="0.4" y2="1"><stop offset="0" stop-color="' + c[0] + '"/><stop offset="0.55" stop-color="' + c[1] + '"/><stop offset="1" stop-color="' + c[2] + '"/></linearGradient></defs>' +
-    '<g clip-path="url(#clip' + id + ')"><rect width="200" height="200" fill="' + c[3] + '"/><rect width="200" height="200" filter="url(#nD' + id + ')" opacity=".25"/>' +
-    '<path d="M0 ' + y + ' Q 25 ' + (y - 6) + ' 50 ' + y + ' T 100 ' + y + ' T 150 ' + y + ' T 200 ' + y + ' V 200 H 0 Z" fill="url(#lg' + id + ')"/>' +
-    '<rect x="0" y="' + (y - 8) + '" width="200" height="' + (208 - y) + '" filter="url(#nW' + id + ')" opacity=".5"/>' +
-    '<rect x="0" y="' + (y - 8) + '" width="200" height="' + (208 - y) + '" filter="url(#nD' + id + ')" opacity=".45"/></g>' +
-    '<g fill="none" stroke="' + c[1] + '" stroke-width="4" opacity=".9">' + shape + '</g>' +
-    '<text x="100" y="' + (kind === 'heart' ? 104 : 112) + '" text-anchor="middle" font-family="Plus Jakarta Sans, Inter, sans-serif" font-weight="800" font-size="' + (kind === 'heart' ? 50 : 58) + '" fill="' + (dark ? c[2] : '#fff') + '" style="paint-order:stroke" stroke="' + (dark ? 'rgba(255,255,255,.85)' : 'rgba(0,0,0,.12)') + '" stroke-width="4">' + txt + '</text></svg>';
-}
 function loveItems() {
   const sc = scoresNow(), t = today(), mon = monday(t), out = [];
   if (sc.gap != null) {
@@ -1003,22 +1450,6 @@ function trendBars(vals, weeks, grad) {
   return '<div class="trend">' + vals.map((v, i) => '<div><span>' + (v != null ? v : '–') + '</span><i style="height:' + Math.round(((v || 0) / 100) * 80 + 2) + 'px;' + (i === vals.length - 1 ? 'background:' + grad : '') + '"></i><span>' + (weeks[i] ? 'KW' + kw(weeks[i]) : '') + '</span></div>').join('') + '</div>';
 }
 function partBars(rows) { return rows.map(([l, v, g]) => '<div class="col" style="gap:6px"><div class="row" style="font-size:14px"><span style="font-weight:600">' + l + '</span><span class="sub">' + pct(v) + (g ? ' · ' + g : '') + '</span></div><div class="bar"><i style="width:' + Math.round((v || 0) * 100) + '%;background:var(--gX)"></i></div></div>').join(''); }
-function vVerlauf() {
-  const sc = scoresNow(), open = S.vOpen, li = loveItems();
-  const prevI = S.rotPrev && S.rotPrev.love ? S.rotPrev.love.i : 0;
-  S.rot.love = { items: li, i: prevI < li.length ? prevI : 0, fn: loveHtml };
-  const goals = (area) => goalStatus(area).map((g) => '<div class="col" style="gap:6px"><div class="row" style="font-size:14px"><span style="font-weight:600">' + esc(g.f) + '</span><span class="sub">' + g.done + ' / ' + g.target + (g.reached ? ' · geschafft' : g.deficit < 1 ? ' · im Plan' : '') + '</span></div><div class="bar"><i style="width:' + Math.min(100, Math.round(g.done / g.target * 100)) + '%;background:' + (area === 'leben' ? 'var(--gL)' : 'var(--gR)') + '"></i></div></div>').join('');
-  const ratingRows = (area) => cfg(area).ratings.map((r) => { const n = ratingAvg(area, r.f, monday(today()), addDays(today(), 1), S.sum.me), p = ratingAvg(area, r.f, addDays(monday(today()), -7), monday(today()), S.sum.me); return '<div class="row" style="font-size:14px;padding:4px 0"><span>' + esc(r.f) + '</span><span class="sub">' + (n != null ? fmt(n, 1) : '–') + (n != null && p != null && Math.abs(n - p) >= 0.3 ? (((n > p) !== !!r.inv) ? ' ▲' : ' ▼') : '') + '</span></div>'; }).join('');
-  let h = '<div class="scroll"><div class="pad"><h1>Verlauf</h1>';
-  h += '<button class="card" style="align-items:center;text-align:center;gap:8px" data-a="vOpen" data-v="leben" aria-expanded="' + (open === 'leben') + '">' + grainShape('circle', sc.leben, 190, 'Leben-Score ' + (sc.leben != null ? sc.leben : 'noch offen')) + '<b class="jk" style="font-size:18px;color:#1E3A8A">Leben</b><span class="sub">' + (open === 'leben' ? 'Tippen zum Schließen' : 'Tippen für Details') + '</span></button>';
-  if (open === 'leben') h += '<div class="card">' + partBars([['Gefühlt (Tagesgefühl)', sc.lebenDaily, '35 %'], ['Wochenziele erfüllt', sc.lebenWk, '45 %'], ['Monatsziele erfüllt', sc.lebenMo, '20 %']]) + '<h2 style="margin-top:8px">Wochenziele</h2>' + goals('leben') + '<h2 style="margin-top:8px">Deine Werte diese Woche</h2>' + ratingRows('leben') + '<h2 style="margin-top:8px">8 Wochen</h2>' + trendBars(sc.histL, sc.weeks, 'var(--gL)') + '</div>';
-  h += '<div class="card" style="align-items:center;gap:6px"><button data-a="vOpen" data-v="liebe" aria-expanded="' + (open === 'liebe') + '" style="display:flex;flex-direction:column;align-items:center;gap:8px">' + grainShape('heart', sc.liebe, 200, 'Gemeinsamer Liebe-Score ' + (sc.liebe != null ? sc.liebe : 'noch offen')) + '<b class="jk" style="font-size:18px;color:#9F1239">Liebe · gemeinsam</b></button>' +
-    '<div id="love" aria-live="polite" style="width:100%">' + loveHtml(li[S.rot.love.i], S.rot.love.i, li.length) + '</div><span class="sub">' + (open === 'liebe' ? 'Tippe aufs Herz zum Schließen' : 'Tippe aufs Herz für Details') + '</span></div>';
-  if (open === 'liebe') h += '<div class="card">' + partBars([['Gefühlt (dein Tagesgefühl)', sc.meFeel, null], ['Wochenziele erfüllt', sc.liebeWk, '45 %'], ['Monatsziele erfüllt', sc.liebeMo, '20 %']]) +
-    (S.prefs.personal ? '<div class="row" style="font-size:14px;padding:6px 0"><span>Dein eigener Liebe-Score</span><b>' + (sc.meScore != null ? sc.meScore : '–') + '</b></div>' : '') +
-    '<h2 style="margin-top:8px">Gemeinsame Wochenziele</h2>' + goals('liebe') + '<h2 style="margin-top:8px">Deine Werte diese Woche</h2>' + ratingRows('liebe') + '<h2 style="margin-top:8px">8 Wochen</h2>' + trendBars(sc.histR, sc.weeks, 'var(--gR)') + '</div>';
-  return h + '</div></div>' + vTabs('verlauf');
-}
 /* ---- Analyse-Baukasten ---- */
 function featureList() {
   const F = [];
@@ -1080,7 +1511,8 @@ const PRESETS = [
   ['vorher', 'Woran merke ich, dass ein schwerer Tag kommt?'],
   ['wtag', 'Welcher Wochentag läuft am besten?'],
   ['gew', 'Welche Gewohnheit bringt mir am meisten?'],
-  ['stress', 'Wie wirkt sich Stress auf uns aus?']
+  ['stress', 'Wie wirkt sich Stress auf uns aus?'],
+  ['alltag', 'Wie wirkt sich unsere Aufgabenteilung aus?']
 ];
 function presetResult(id) {
   const M = dayMaps(), few = (n) => ({ ok: false, text: n < 14 ? 'Dafür brauche ich noch mehr Einträge. Bisher habe ich ' + n + (n === 1 ? ' Tag' : ' Tage') + ', ab etwa 14 Tagen wird es aussagekräftig.' : 'Für diese Frage fehlen mir passende Einträge, zum Beispiel regelmäßige Bewertungen von Stimmung oder Verbundenheit. Sobald die da sind, kann ich antworten.', bars: [] });
@@ -1123,6 +1555,20 @@ function presetResult(id) {
     const parts = [a1, a2, a3].filter((x) => x.ok);
     if (!parts.length) return few(nDays);
     return { ok: true, text: parts.map((x) => x.text).join(' '), bars: [].concat(a1.ok ? [{ l: 'Verbundenheit bei hohem Stress', v: a1.bars[0].v, s: a1.bars[0].s }, { l: 'Verbundenheit bei wenig Stress', v: a1.bars[1].v, s: a1.bars[1].s }] : []), max: 5, base: a1.base || '' };
+  }
+  if (id === 'alltag') {
+    if (!AL() || !tasksAct().length) return { ok: false, text: 'Dafür braucht ihr zuerst eure Aufgaben unter Anpassen → Alltag und ein paar Wochen Einträge.', bars: [] };
+    const vk = key('liebe', 'verbundenheit', 'Verbundenheit'), pd = {}, thx = {}, days = allDays(M);
+    AL().done.forEach((x) => { if (x.p === S.sum.partner) pd[x.d] = 1; });
+    (AL().danke || []).forEach((x) => { if (x.to === S.sum.me) thx[x.d] = 1; });
+    const has = (d) => fval(M, vk, d) != null;
+    const r1 = compare(days, (d) => (has(d) ? !!pd[d] : null), (d) => fval(M, vk, d), 0, 5), r2 = compare(days, (d) => (has(d) ? !!thx[d] : null), (d) => fval(M, vk, d), 0, 5);
+    if (!r1.ok && !r2.ok) return few(nDays);
+    let text = '';
+    if (r1.ok) text += 'An Tagen, an denen ' + S.sum.partner + ' etwas im Haushalt erledigt hat, liegt deine Verbundenheit bei ' + fmt(r1.a, 1) + ', sonst bei ' + fmt(r1.b, 1) + '. ';
+    if (r2.ok) text += 'An Tagen mit einem Danke für dich liegt sie bei ' + fmt(r2.a, 1) + ', ohne bei ' + fmt(r2.b, 1) + '. ';
+    text += (r1.ok && r1.diff >= 0.3) || (r2.ok && r2.diff >= 0.3) ? 'Geteilte Arbeit und Wertschätzung tun euch sichtbar gut.' : 'Ein klarer Zusammenhang zeigt sich bisher nicht.';
+    return { ok: true, text, bars: [].concat(r1.ok ? [{ l: 'Partner hat mitgemacht', v: r1.a, s: fmt(r1.a, 1) }, { l: 'Partner nichts erledigt', v: r1.b, s: fmt(r1.b, 1) }] : [], r2.ok ? [{ l: 'Mit Danke', v: r2.a, s: fmt(r2.a, 1) }, { l: 'Ohne Danke', v: r2.b, s: fmt(r2.b, 1) }] : []), max: 5, base: 'Basis: ' + nDays + ' Tage' };
   }
   return few(nDays);
 }
@@ -1169,11 +1615,16 @@ const tname = (t) => (TYPES.find((x) => x[0] === t) || [t, t])[1];
 function anpInit(area) { S.anp = { area, rows: cfgRows(area).map((r) => Object.assign({ orig: r.f }, r)), dirty: false }; }
 function vAnpassen() {
   if (!S.anp) anpInit('leben');
-  const A = S.anp, L = A.area === 'leben';
+  const A = S.anp, L = A.area === 'leben', AT = A.area === 'alltag';
   const groups = [['Bewertung', 'Täglich bewerten'], ['Woche', 'Wochenziele'], ['Aktivität', 'Gewohnheiten ohne Ziel'], ['Monat', 'Monatsziele'], ['Zeit', 'Zeit'], ['Kontext', 'Kontext'], ['Wochencheck', 'Wochen-Check (sonntags)']];
   let h = '<div class="scroll"><div class="pad"><div class="row" style="justify-content:flex-start;gap:12px"><button class="iconbtn" data-a="anpBack" aria-label="Zurück">' + svg(P.back) + '</button><h1>Anpassen</h1></div>' +
-    '<div class="segw" role="group" aria-label="Bereich"><button class="' + (L ? 'on L' : '') + '" data-a="anpArea" data-v="leben">Leben</button><button class="' + (!L ? 'on R' : '') + '" data-a="anpArea" data-v="liebe">Liebe</button></div>' +
-    (!L ? '<div class="warn" style="padding:10px 14px"><span style="font-size:13px">Änderungen bei Liebe gelten für euch beide.</span></div>' : '');
+    '<div class="segw" role="group" aria-label="Bereich" style="grid-template-columns:1fr 1fr 1fr"><button class="' + (L ? 'on L' : '') + '" data-a="anpArea" data-v="leben">Leben</button><button class="' + (A.area === 'liebe' ? 'on R' : '') + '" data-a="anpArea" data-v="liebe">Liebe</button><button class="' + (AT ? 'on L' : '') + '" data-a="anpArea" data-v="alltag">Alltag</button></div>' +
+    (A.area === 'liebe' ? '<div class="warn" style="padding:10px 14px"><span style="font-size:13px">Änderungen bei Liebe gelten für euch beide.</span></div>' : '');
+  if (AT) {
+    h += vAnpAlltag() + '</div></div>';
+    const first = !tasksAll().length && !pendingInfo(), blocked = pendingInfo() && !pendingInfo().mine;
+    return h + '<div class="foot"><button class="btn L" data-a="anpSave" ' + (!A.dirty || S.busy || blocked ? 'disabled' : '') + '>' + (S.busy ? 'Sendet …' : !A.dirty ? 'Keine Änderungen' : first ? 'Aufgaben speichern' : 'Zur Bestätigung senden') + '</button></div>';
+  }
   groups.forEach(([t, label]) => {
     const rows = A.rows.map((r, i) => Object.assign({ i }, r)).filter((r) => r.t === t);
     if (!rows.length) return;
@@ -1186,7 +1637,8 @@ function vAnpassen() {
       }).join('') + '</div>';
   });
   h += '<button class="ghost" style="border:2px dashed #94A3B8;color:#1D4ED8;min-height:52px;font-size:15px" data-a="newCrit" data-v="' + A.area + '">+ Kriterium hinzufügen</button>';
-  h += '<div class="card"><h2>So zählt der Score</h2><div style="display:flex;height:14px;border-radius:7px;overflow:hidden"><div style="width:35%;background:#047857"></div><div style="width:45%;background:#1D4ED8"></div><div style="width:20%;background:#6D28D9"></div></div><div class="row" style="font-size:12px"><span><b>35 %</b> Tagesgefühl</span><span><b>45 %</b> Wochenziele</span><span><b>20 %</b> Monat</span></div><span class="sub">Die Gewichte änderst du im Sheet unter „Einstellungen“.</span></div>';
+  const W = !L && S.sum.weights && S.sum.weights.alltag != null ? [[S.sum.weights.daily, 'Tagesgefühl', '#BE123C'], [S.sum.weights.wk, 'Wochenziele', '#BE185D'], [S.sum.weights.mo, 'Monat', '#A21CAF'], [S.sum.weights.alltag, 'Alltag', '#6D28D9']] : [[0.35, 'Tagesgefühl', '#047857'], [0.45, 'Wochenziele', '#1D4ED8'], [0.2, 'Monat', '#6D28D9']];
+  h += '<div class="card"><h2>So zählt der Score</h2><div style="display:flex;height:14px;border-radius:7px;overflow:hidden;gap:2px">' + W.map(([w, l, c]) => '<div style="width:' + Math.round((w || 0) * 100) + '%;background:' + c + '"></div>').join('') + '</div><div class="row" style="font-size:12px;flex-wrap:wrap">' + W.map(([w, l]) => '<span><b>' + Math.round((w || 0) * 100) + ' %</b> ' + l + '</span>').join('') + '</div><span class="sub">Die Gewichte änderst du im ' + (L ? 'Leben' : 'Liebe') + '-Sheet unter „Einstellungen“.</span></div>';
   h += vBuddySettings(false);
   h += '<div class="list"><div class="li" style="border:none;padding-bottom:4px"><h2 style="font-size:16px">Einstellungen</h2></div>' +
     '<div class="li"><div class="col" style="flex:1"><b style="font-size:14px">Meinen eigenen Liebe-Score zeigen</b><span class="sub">Nur für dich, im Verlauf</span></div><button class="switch ' + (S.prefs.personal ? 'on R' : '') + '" role="switch" aria-checked="' + !!S.prefs.personal + '" aria-label="Eigenen Liebe-Score zeigen" data-a="prefPersonal"><span></span></button></div>' +
@@ -1220,7 +1672,7 @@ function render() {
   let h;
   if (!S.conn || !S.sum) h = vSetup();
   else if (S.view === 'onboarding') h = vOnboarding();
-  else if (S.view === 'summary') h = vGreeting();
+  else if (S.view === 'summary') { S.view = 'home'; h = vHome(); }
   else if (S.view === 'buddy') h = vBuddy();
   else if (S.view === 'checkin') h = vCheckin();
   else if (S.view === 'done') h = vDone();
@@ -1228,17 +1680,17 @@ function render() {
   else if (S.view === 'analyse') h = vAnalyse();
   else if (S.view === 'anpassen') h = vAnpassen();
   else h = vHome();
-  h += vSheet();
+  h += vSheet() + vTaskSheet();
   if (S.toast) h += '<div class="toast" role="status">' + esc(S.toast) + '</div>';
   $app.innerHTML = h;
   const sc2 = document.querySelector('.scroll'); if (sc2 && S.keepScroll) sc2.scrollTop = top;
   S.keepScroll = false;
-  S.appear = false;
+  S.appear = false; S.popAnim = false;
   if (S.scrollTo) { const el = document.getElementById(S.scrollTo); if (el && el.scrollIntoView) el.scrollIntoView({ block: 'center' }); S.scrollTo = null; }
   startTicker();
   if (fid) { const el = document.getElementById(fid); if (el && (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT')) { el.focus(); try { el.setSelectionRange(el.value.length, el.value.length); } catch (e) { /* type=url */ } } }
 }
-function go(v) { if (v !== S.view && (v === 'home' || v === 'summary' || v === 'buddy')) S.appear = true; S.view = v; S.sheet = null; render(); const sc = document.querySelector('.scroll'); if (sc) sc.scrollTop = 0; }
+function go(v) { if (v !== S.view && (v === 'home' || v === 'summary' || v === 'buddy')) S.appear = true; S.view = v; S.sheet = null; S.tsheet = null; render(); const sc = document.querySelector('.scroll'); if (sc) sc.scrollTop = 0; }
 
 /* ================= Bedienung ================= */
 $app.addEventListener('input', (ev) => {
@@ -1247,6 +1699,8 @@ $app.addEventListener('input', (ev) => {
   if (t.dataset.in2 && S.sheet) S.sheet.row[t.dataset.in2] = t.value;
   if (t.dataset.in4) S.askQ = t.value;
   if (t.dataset.sel) { S[t.dataset.sel] = t.value; S.ares = null; }
+  if (t.dataset.in6 && S.tsheet) S.tsheet.row.name = t.value.slice(0, 60);
+  if (t.dataset.in7 && S.anp) { S.anp.note = t.value.slice(0, 300); if (S.anp.area === 'alltag' && !S.anp.dirty && t.value) { S.anp.dirty = true; const bt = document.querySelector('[data-a=anpSave]'); if (bt) { bt.disabled = false; bt.textContent = 'Zur Bestätigung senden'; } } }
   if (t.dataset.in5) { S.buddy.name = t.value.slice(0, 20); store.set('lt_buddy', S.buddy); }
 });
 $app.addEventListener('change', (ev) => { const t = ev.target; if (t.dataset && t.dataset.sel) { S[t.dataset.sel] = t.value; S.ares = null; } });
@@ -1268,9 +1722,45 @@ function bridgeSuggestions() {
   if (d.acts[fk('leben', 'sport', 'Sport')] || (d.ratings[fk('leben', 'stimmung', 'Stimmung')] >= 4)) out.push({ text: '<b>Gute Laune heute.</b> Teil sie: Erzähl, was dir heute gutgetan hat.', todo: 'Erzählen, was mir heute gutgetan hat' });
   return out.slice(0, 1);
 }
-$app.addEventListener('click', async (ev) => {
+async function onTap(ev) {
   const b = ev.target.closest('[data-a]'); if (!b) return;
   const a = b.dataset.a, v = b.dataset.v, f = b.dataset.f, i = b.dataset.i != null ? Number(b.dataset.i) : null;
+  if ($ov.contains(b)) {
+    if (a === 'ovClose') { await closeOv(); return; }
+    if (a === 'thankBack') { thank('', 'Danke zurück', ''); await closeOv(); return; }
+    await closeOv(true);
+    if (a === 'ovBuddy') { go('buddy'); return; }
+  }
+  // Alltag
+  if (a === 'alAdd') { doneAdd(v, b.dataset.d || today()); S.keepScroll = true; render(); return; }
+  if (a === 'alDel') { doneDel(v, b.dataset.d || today()); S.keepScroll = true; render(); return; }
+  if (a === 'thank') { const t = tasksAll().find((x) => x.id === v); thank(v, t ? t.name : 'Danke', b.dataset.d || ''); S.keepScroll = true; render(); return; }
+  if (a === 'goAlltag') { if (S.view === 'home') await leaveBud(); S.vTab = 'alltag'; S.vOpen = null; go('verlauf'); return; }
+  if (a === 'vTab') { S.vTab = v; S.vOpen = null; S.keepScroll = true; render(); return; }
+  if (a === 'anpAlltag') { alInit(); go('anpassen'); return; }
+  if (a === 'propYes' || a === 'propNo' || a === 'propBack') {
+    S.busy = true; render();
+    try { setSum(await api(a === 'propBack' ? 'withdrawProposal' : 'answerProposal', { id: v, accept: a === 'propYes' })); toast(a === 'propYes' ? 'Bestätigt, die neue Liste gilt jetzt' : a === 'propNo' ? 'Abgelehnt, die alte Liste bleibt' : 'Zurückgezogen'); }
+    catch (e) { toast('Fehler: ' + e.message); }
+    S.busy = false; S.keepScroll = true; render(); return;
+  }
+  if (a === 'tNew') { S.tsheet = { i: null, row: { id: 't' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), name: '', r: 'Woche', n: 2, resp: 'Pool', act: true } }; S.keepScroll = true; render(); return; }
+  if (a === 'tEdit') { S.tsheet = { i, row: Object.assign({}, S.anp.tasks[i]) }; S.keepScroll = true; render(); return; }
+  if (a === 'tClose') { S.tsheet = null; S.keepScroll = true; render(); return; }
+  if (a.indexOf('t') === 0 && /^t(Pick|R|N|Resp|Act|Ok)$/.test(a) && !S.tsheet) return;
+  if (a === 'tPick') { S.tsheet.row.name = v; if (v === 'Gassi') { S.tsheet.row.r = 'Tag'; S.tsheet.row.n = 2; } render(); return; }
+  if (a === 'tR') { S.tsheet.row.r = v; S.tsheet.row.n = Math.min(S.tsheet.row.n, v === 'Tag' ? 6 : 31); render(); return; }
+  if (a === 'tN') { S.tsheet.row.n = Math.max(1, Math.min(S.tsheet.row.r === 'Tag' ? 6 : 31, S.tsheet.row.n + Number(v))); render(); return; }
+  if (a === 'tResp') { S.tsheet.row.resp = v; render(); return; }
+  if (a === 'tAct') { const s = S.tsheet; s.row.act = !s.row.act; S.anp.tasks[s.i] = s.row; S.anp.dirty = true; S.tsheet = null; S.keepScroll = true; render(); return; }
+  if (a === 'tOk') {
+    const s = S.tsheet, name = String(s.row.name || '').trim();
+    if (!name) { s.err = 'Bitte gib einen Namen ein.'; render(); return; }
+    if (S.anp.tasks.some((t, k) => k !== s.i && t.act && t.name.toLowerCase() === name.toLowerCase())) { s.err = 'Diese Aufgabe gibt es schon.'; render(); return; }
+    s.row.name = name;
+    if (s.i == null) S.anp.tasks.push(s.row); else S.anp.tasks[s.i] = s.row;
+    S.anp.dirty = true; S.tsheet = null; S.keepScroll = true; render(); return;
+  }
   if (a === 'connect') {
     const url = document.getElementById('su').value.trim(), token = document.getElementById('st').value.trim();
     if (!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(url)) { S.setupErr = 'Die Adresse muss mit https://script.google.com/macros/s/ beginnen und mit /exec enden.'; render(); return; }
@@ -1305,7 +1795,7 @@ $app.addEventListener('click', async (ev) => {
   if (a === 'wcLast') { if (S.view === 'home') await leaveBud(); S.ci = 'leben'; S.date = lastSunday(today()); S.bridge = null; const sc2 = scoresNow(); S.before = { leben: sc2.leben, liebe: sc2.liebe }; go('checkin'); return; }
   if (a === 'startMonthly') { if (S.view === 'home') await leaveBud(); S.ci = 'leben'; S.date = today(); S.bridge = null; const sc3 = scoresNow(); S.before = { leben: sc3.leben, liebe: sc3.liebe }; S.scrollTo = 'monthly'; go('checkin'); return; }
   if (a === 'goVerlauf') { go('verlauf'); return; }
-  if (a === 'vOpen') { S.vOpen = S.vOpen === v ? null : v; S.keepScroll = true; render(); return; }
+  if (a === 'vOpen') { S.vOpen = S.vOpen === v ? null : v; S.popAnim = !!S.vOpen; S.keepScroll = true; render(); return; }
   if (a === 'aq' || a === 'aqOpen') { S.aq = a === 'aq' && S.aq === v ? null : v; S.keepScroll = true; render(); if (a === 'aqOpen') { const el = document.querySelector('[data-a=aq][data-v=' + v + ']'); if (el && el.scrollIntoView) el.scrollIntoView({ block: 'center' }); } return; }
   if (a === 'alag') { S.alag = v === '1'; S.ares = null; S.keepScroll = true; render(); return; }
   if (a === 'runCustom') { S.ares = analyzePair(S.ax, S.ay, !!S.alag); S.keepScroll = true; render(); return; }
@@ -1345,14 +1835,21 @@ $app.addEventListener('click', async (ev) => {
   // Teilen, Einstellungen
   if (a === 'share') { S.busy = true; try { setSum(await api('setShare', { share: !S.sum.share })); toast(S.sum.share ? 'Teilen eingeschaltet' : 'Teilen aus, geteilte Werte gelöscht'); } catch (e) { toast('Fehler: ' + e.message); } S.busy = false; S.keepScroll = true; render(); return; }
   if (a === 'prefPersonal') { S.prefs.personal = !S.prefs.personal; store.set('lt_prefs', S.prefs); S.keepScroll = true; render(); return; }
-  if (a === 'refresh') { await refresh(false); anpInit(S.anp ? S.anp.area : 'leben'); render(); return; }
+  if (a === 'refresh') { await refresh(false); if (S.anp && S.anp.area === 'alltag') alInit(); else anpInit(S.anp ? S.anp.area : 'leben'); render(); return; }
   if (a === 'logout') { if (confirm('Verbindung trennen? Die Daten in den Sheets bleiben erhalten.')) { ['lt_conn', 'lt_sum', 'lt_queue'].forEach(store.del); S.conn = null; S.sum = null; render(); } return; }
   // Anpassen
   if (a === 'anpBack') { if (S.anp && S.anp.dirty && !confirm('Ungespeicherte Änderungen verwerfen?')) return; S.anp = null; go('home'); return; }
-  if (a === 'anpArea') { if (S.anp.dirty && !confirm('Ungespeicherte Änderungen verwerfen?')) return; anpInit(v); go('anpassen'); return; }
+  if (a === 'anpArea') { if (S.anp.dirty && !confirm('Ungespeicherte Änderungen verwerfen?')) return; if (v === 'alltag') alInit(); else anpInit(v); go('anpassen'); return; }
   if (a === 'anpZ') { const r = S.anp.rows[i]; r.z = Math.max(1, Math.min(14, (r.z || 1) + Number(v))); S.anp.dirty = true; S.keepScroll = true; render(); return; }
   if (a === 'anpScore') { const r = S.anp.rows[i]; r.score = r.score === false; S.anp.dirty = true; S.keepScroll = true; render(); return; }
   if (a === 'anpEdit') { S.sheet = { area: S.anp.area, i, row: Object.assign({}, S.anp.rows[i]) }; S.keepScroll = true; render(); return; }
+  if (a === 'anpSave' && S.anp.area === 'alltag') {
+    S.busy = true; render();
+    const first = !tasksAll().length && !pendingInfo();
+    try { setSum(await api('proposeTasks', { tasks: S.anp.tasks, note: S.anp.note })); alInit(); toast(first ? 'Gespeichert, eure Aufgaben gelten jetzt' : 'Gesendet, ' + S.sum.partner + ' muss noch bestätigen'); }
+    catch (e) { toast('Fehler: ' + e.message); }
+    S.busy = false; render(); return;
+  }
   if (a === 'anpSave') {
     S.busy = true; render();
     try { setSum(await api('saveCriteria', { area: S.anp.area, rows: S.anp.rows.map((r) => ({ orig: r.orig || '', f: r.f, t: r.t, z: r.z, h: r.h, score: r.score !== false, inv: !!r.inv, act: r.act !== false, key: r.key || '' })) })); anpInit(S.anp.area); toast('Gespeichert'); }
@@ -1405,7 +1902,9 @@ $app.addEventListener('click', async (ev) => {
   else if (a === 'zeit') d.zeit[f] = Math.max(0, Math.min(16, (d.zeit[f] || 0) + Number(v)));
   else return;
   S.keepScroll = true; render();
-});
+}
+$app.addEventListener('click', onTap);
+$ov.addEventListener('click', onTap);
 window.addEventListener('online', () => refresh(true));
 let hiddenAt = 0;
 document.addEventListener('visibilitychange', () => {
@@ -1415,8 +1914,9 @@ document.addEventListener('visibilitychange', () => {
   if (S.view === 'home' || S.view === 'summary') refresh(true);
 });
 if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
-if (S.conn && S.sum) S.view = !store.get('lt_onboarded', false) ? 'onboarding' : needSummary() ? 'summary' : 'home';
+if (S.conn && S.sum) S.view = !store.get('lt_onboarded', false) ? 'onboarding' : 'home';
 render();
+checkOv();
 if (S.conn) refresh(true);
 </script>
 </body>
