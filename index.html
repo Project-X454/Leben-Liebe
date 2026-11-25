@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Innenkultur – Leben &amp; Liebe</title>
-<meta name="theme-color" content="#0F766E">
+<meta name="theme-color" content="#F4F6FB">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -12,208 +12,233 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
-:root{--ink0:#0F172A;--ink1:#334155;--ink2:#475569;--line:#E2E8F0;--bg:#F8FAFC;--card:#FFFFFF}
-body[data-mode=leben]{--a:#0F766E;--b:#1D4ED8;--soft:#ECFDF5;--soft2:#EFF6FF;--ink:#065F46;
-  --pattern:radial-gradient(rgba(255,255,255,.22) 1.4px,transparent 1.6px) 0 0/14px 14px,repeating-linear-gradient(135deg,rgba(29,78,216,.55) 0 10px,rgba(29,78,216,0) 10px 34px),#0F766E;
-  --light:radial-gradient(rgba(15,118,110,.12) 1.2px,transparent 1.4px) 0 0/16px 16px,#F8FAFC}
-body[data-mode=liebe]{--a:#BE123C;--b:#DB2777;--soft:#FFF1F2;--soft2:#FDF2F8;--ink:#881337;
-  --pattern:repeating-radial-gradient(circle at 100% 0%,rgba(253,164,175,.45) 0 2px,rgba(253,164,175,0) 2px 18px),radial-gradient(circle at 0% 100%,rgba(219,39,119,.7) 0 70px,rgba(219,39,119,0) 71px),#BE123C;
-  --light:repeating-radial-gradient(circle at 100% 0%,rgba(190,18,60,.07) 0 1.5px,transparent 1.5px 14px),#F8FAFC}
+:root{
+  --ink:#0B1220;--sub:#5B6475;--line:#EEF1F6;--bd:#D5DBE7;--bg:#F4F6FB;
+  --gL:linear-gradient(135deg,#047857 0%,#0E7490 55%,#1D4ED8 100%);
+  --gR:linear-gradient(135deg,#BE123C 0%,#BE185D 55%,#A21CAF 100%);
+  --gX:linear-gradient(90deg,#0E7490 0%,#1D4ED8 40%,#7C3AED 70%,#BE185D 100%);
+  --gHero:linear-gradient(150deg,#047857 0%,#1D4ED8 45%,#6D28D9 75%,#BE185D 100%);
+  --dots:radial-gradient(rgba(255,255,255,.15) 1.2px,transparent 1.4px) 0 0/14px 14px;
+  --sh:0 6px 20px rgba(15,23,42,.06);--sh2:0 12px 30px rgba(15,23,42,.12);
+}
 *{box-sizing:border-box}
-html,body{margin:0;height:100%}
-body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:var(--ink0);background:var(--bg);-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg)}
+body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:var(--ink);-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
 button,input,textarea{font-family:inherit;font-size:inherit;color:inherit}
-button{cursor:pointer}
-h1,h2,h3,.num{font-family:"Space Grotesk",Inter,-apple-system,sans-serif}
-#app{display:flex;flex-direction:column;height:100%;max-width:560px;margin:0 auto}
-header{padding:calc(14px + env(safe-area-inset-top)) 16px 12px;display:flex;flex-direction:column;gap:12px;background:var(--light)}
-.row{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.brand{display:flex;align-items:center;gap:10px}
-.logo{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:var(--a)}
-.brand b{font-family:"Space Grotesk",sans-serif;font-size:16px}
-.sub{font-size:12px;color:var(--ink2)}
-.iconbtn{min-width:40px;min-height:40px;border-radius:12px;border:1px solid var(--line);background:#fff;display:flex;align-items:center;justify-content:center}
-.seg{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;background:#fff;border:1px solid var(--line);border-radius:14px}
-.seg button{min-height:42px;border:none;border-radius:10px;font-weight:700;font-size:14px;background:transparent;color:var(--ink2)}
-.seg button.on-leben{background:#0F766E;color:#fff}.seg button.on-liebe{background:#BE123C;color:#fff}
-.datebar{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:4px}
-.datebar button{min-width:44px;min-height:40px;border:none;background:transparent;border-radius:10px;font-size:18px}
-.datebar button:disabled{opacity:.3}
-.datebar span{font-size:14px;font-weight:700}
-main{flex:1;overflow-y:auto;padding:4px 16px 24px;display:flex;flex-direction:column;gap:14px;-webkit-overflow-scrolling:touch}
-.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:10px;box-shadow:0 1px 2px rgba(15,23,42,.04)}
-.card h2{margin:0;font-size:17px}
-.hero{border-radius:22px;padding:20px;display:flex;justify-content:space-between;gap:12px;color:#fff;box-shadow:0 8px 24px rgba(15,23,42,.14);background:var(--pattern)}
-.hero .cap{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;opacity:.92}
-.hero .big{font-size:52px;font-weight:700;line-height:1}
-.pill{align-self:flex-start;padding:4px 10px;border-radius:12px;background:rgba(255,255,255,.2);font-size:12px;font-weight:600}
-.ring{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center}
-.ring i{display:block;width:56px;height:56px;border-radius:50%;background:var(--a)}
-.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.kpi{background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
-.kpi span{font-size:11px;color:var(--ink2)}.kpi b{font-family:"Space Grotesk",sans-serif;font-size:20px;color:var(--ink)}
-.rate{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:4px 0}
-.rate .l{display:flex;flex-direction:column}.rate .l b{font-size:14px}.rate .l span{font-size:11px;color:var(--ink2)}
-.dots{display:flex;gap:4px}
-.dot{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--bg);font-weight:700;font-size:13px;color:var(--ink2)}
-.dot.on{background:var(--a);border-color:var(--a);color:#fff}
+button{cursor:pointer;border:none;background:none;padding:0}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:3px solid #7C3AED;outline-offset:2px}
+h1,h2,h3,.jk{font-family:"Plus Jakarta Sans",Inter,sans-serif;letter-spacing:-.02em}
+h1{margin:0;font-size:26px;font-weight:800}
+h2{margin:0;font-size:17px;font-weight:800}
+#app{height:100%;max-width:560px;margin:0 auto;display:flex;flex-direction:column;position:relative}
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.pad{padding:calc(18px + env(safe-area-inset-top)) 16px 24px;display:flex;flex-direction:column;gap:14px}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.col{display:flex;flex-direction:column}
+.sub{font-size:12px;color:var(--sub)}
+.small{font-size:13px;color:var(--sub);line-height:1.45}
+.card{background:#fff;border-radius:22px;box-shadow:var(--sh);padding:16px;display:flex;flex-direction:column;gap:10px}
+.list{background:#fff;border-radius:22px;box-shadow:var(--sh);padding:4px 16px}
+.li{display:flex;align-items:center;gap:12px;padding:12px 0;border-top:1px solid var(--line)}
+.li:first-child{border-top:none}
+.iconbtn{width:44px;height:44px;border-radius:14px;background:#fff;box-shadow:0 4px 14px rgba(15,23,42,.08);display:flex;align-items:center;justify-content:center;flex:none}
+.iconbtn.glass{background:rgba(255,255,255,.18);box-shadow:none;color:#fff}
+.btn{min-height:54px;border-radius:18px;display:flex;align-items:center;justify-content:center;gap:8px;color:#fff;font-weight:800;font-size:15px;background:var(--gX);box-shadow:0 8px 20px rgba(124,58,237,.3);width:100%}
+.btn.L{background:var(--gL);box-shadow:0 8px 20px rgba(29,78,216,.3)}.btn.R{background:var(--gR);box-shadow:0 8px 20px rgba(190,24,93,.3)}
+.btn.white{background:#fff;color:#3B0764;box-shadow:0 10px 30px rgba(15,23,42,.25)}
+.btn:disabled{opacity:.6}
+.ghost{min-height:46px;border-radius:14px;background:#fff;border:1px solid var(--bd);font-weight:700;width:100%}
+.link{font-size:13px;font-weight:700;color:var(--sub);min-height:40px}
+.gradL{background:var(--dots),var(--gL)}.gradR{background:var(--dots),var(--gR)}
+.score{position:relative;overflow:hidden;border-radius:22px;padding:14px 16px;color:#fff;display:flex;flex-direction:column;gap:2px}
+.score.L{box-shadow:0 10px 24px rgba(14,116,144,.3)}.score.R{box-shadow:0 10px 24px rgba(190,24,93,.3)}
+.score b.n{font-family:"Plus Jakarta Sans",sans-serif;font-size:36px;font-weight:800;line-height:1.1}
+.pill{padding:3px 8px;border-radius:8px;font-size:11px;font-weight:800}
+.pill.L{background:#ECFDF5;color:#065F46}.pill.R{background:#FFF1F2;color:#9F1239}.pill.N{background:#EEF1F6;color:#334155}.pill.W{background:rgba(255,255,255,.22);color:#fff}
+.seg5{display:grid;grid-template-columns:repeat(5,38px);gap:4px;padding:3px;border-radius:12px;background:#EEF1F6;flex:none}
+.seg5 button{height:38px;border-radius:9px;font-size:13px;font-weight:700;color:var(--sub)}
+.seg5 button.on{color:#fff;font-weight:800}
+.L .seg5 button.on,.seg5.L button.on{background:var(--gL);box-shadow:0 4px 10px rgba(29,78,216,.3)}
+.seg5.R button.on{background:var(--gR);box-shadow:0 4px 10px rgba(190,24,93,.3)}
+.seg5.W button.on{background:linear-gradient(135deg,#D97706,#BE123C);box-shadow:0 4px 10px rgba(190,18,60,.3)}
+.rate{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 0}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
-.chip{min-height:40px;padding:0 14px;border-radius:20px;border:1px solid #CBD5E1;background:#fff;font-size:13px;font-weight:600;color:var(--ink1)}
-.chip.on{border-color:var(--a);background:var(--soft);color:var(--ink)}
-.chip.ctx{border-style:dashed}.chip.ctx.on{border-color:var(--ink1);background:#F1F5F9;color:var(--ink1)}
-.steps{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.step{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px;display:flex;flex-direction:column;gap:8px}
-.step span{font-size:12px;color:var(--ink2)}
-.step .row button{width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--bg);font-size:20px}
-.step b{font-family:"Space Grotesk",sans-serif;font-size:20px}
-textarea,input[type=text],input[type=url],input[type=password]{width:100%;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:15px;background:#fff;resize:none}
-label.t{font-size:14px;font-weight:600}
-.primary{min-height:52px;border:none;border-radius:16px;font-size:15px;font-weight:700;color:#fff;background:var(--pattern);box-shadow:0 6px 16px rgba(15,23,42,.16)}
-.primary:disabled{opacity:.6}
-.ghost{min-height:44px;border:1px solid var(--line);border-radius:14px;background:#fff;font-weight:600}
-.wc{border:1px solid var(--a);background:var(--light)}
-.tag{display:inline-block;padding:3px 10px;border-radius:10px;font-size:11px;font-weight:700;background:#fff;color:var(--ink1)}
-.bar{height:8px;border-radius:4px;background:#F1F5F9;overflow:hidden}.bar i{display:block;height:100%;border-radius:4px;background:var(--a)}
-.bar i.full{background:var(--b)}
-.line{display:flex;justify-content:space-between;font-size:14px;gap:8px}.line span{color:var(--ink2)}
-.check{width:100%;min-height:48px;display:flex;align-items:center;gap:12px;background:none;border:none;padding:4px 0;text-align:left;font-size:14px}
-.box{flex:none;width:24px;height:24px;border-radius:7px;border:2px solid #94A3B8;background:#fff;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px}
-.box.on{background:var(--a);border-color:var(--a)}
-.trend{height:110px;display:flex;align-items:flex-end;gap:6px}
-.trend div{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;color:var(--ink2)}
-.trend i{display:block;width:100%;border-radius:6px;background:var(--soft2);border:1px solid var(--line)}
-.trend .cur i{background:var(--a);border-color:var(--a)}
+.chip{min-height:40px;display:flex;align-items:center;gap:6px;padding:0 14px;border-radius:20px;border:1px solid var(--bd);background:#fff;font-size:13px;font-weight:600;color:#334155}
+.chip small{color:var(--sub);font-weight:600}
+.chip.on{border-color:transparent;color:#fff;font-weight:700}.chip.on small{color:rgba(255,255,255,.85)}
+.chip.on.L{background:var(--gL)}.chip.on.R{background:var(--gR)}
+.chip.ctx{border-style:dashed}.chip.ctx.on{background:#EEF1F6;color:#334155;border:1px solid #94A3B8}
+.chip.add{border-style:dashed;border-color:#94A3B8}
+.step{background:#fff;border-radius:18px;box-shadow:var(--sh);padding:12px;display:flex;flex-direction:column;gap:8px}
+.stepper{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.stepper button{width:40px;height:40px;border-radius:12px;background:var(--bg);font-size:20px}
+.stepper b{font-family:"Plus Jakarta Sans",sans-serif;font-size:20px;font-weight:800}
+textarea,input[type=text],input[type=url],input[type=password]{width:100%;border:1px solid var(--bd);border-radius:16px;padding:12px 14px;font-size:15px;background:#fff;resize:none}
+input[type=text]:focus,textarea:focus{border-color:#1D4ED8}
+.bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden}.bar i{display:block;height:100%;border-radius:4px}
+.box{flex:none;width:24px;height:24px;border-radius:8px;border:2px solid #CBD2E0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:800}
+.box.on{border:none;background:var(--gX)}
+.good{border-radius:20px;padding:14px 16px;background:linear-gradient(135deg,#ECFDF5 0%,#EFF6FF 100%);border:1px solid #A7F3D0;display:flex;gap:12px}
+.warn{border-radius:20px;padding:14px 16px;background:linear-gradient(135deg,#FFFBEB 0%,#FFF1F2 100%);border:1px solid #FDE68A;display:flex;gap:12px}
+.good .ic,.warn .ic{flex:none;width:32px;height:32px;border-radius:50%;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800}
+.good .ic{background:var(--gL)}.warn .ic{background:linear-gradient(135deg,#D97706,#BE123C)}
+.good b{color:#065F46}.good span{color:#134E4A}.warn b{color:#92400E}.warn span{color:#78350F}
+.good span,.warn span{font-size:13px;line-height:1.45}
+.reco{position:relative;overflow:hidden;border-radius:22px;padding:16px 18px;color:#fff;background:radial-gradient(circle at 100% 0%,rgba(255,255,255,.22) 0 60px,rgba(255,255,255,0) 61px),linear-gradient(135deg,#1D4ED8 0%,#6D28D9 60%,#BE185D 100%);display:flex;flex-direction:column;gap:6px}
+.cap{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.behind{border-radius:20px;padding:14px 16px;background:#FFFBEB;border:1px solid #FDE68A;display:flex;flex-direction:column;gap:8px}
+.head{padding:calc(16px + env(safe-area-inset-top)) 18px 16px;display:flex;flex-direction:column;gap:14px;color:#fff;border-radius:0 0 28px 28px}
+.head.L{background:var(--dots),var(--gL);box-shadow:0 10px 30px rgba(14,116,144,.25)}
+.head.R{background:repeating-radial-gradient(circle at 100% 0%,rgba(255,255,255,.12) 0 2px,rgba(255,255,255,0) 2px 18px),var(--gR);box-shadow:0 10px 30px rgba(190,24,93,.25)}
+.prog{display:grid;grid-template-columns:1fr 1fr;gap:6px}.prog i{height:6px;border-radius:3px;background:rgba(255,255,255,.3)}.prog i.on{background:#fff}
+.foot{padding:12px 16px calc(14px + env(safe-area-inset-bottom));background:#fff;box-shadow:0 -6px 20px rgba(15,23,42,.06);display:flex;flex-direction:column;gap:8px}
+nav.tabs{display:grid;grid-template-columns:repeat(4,1fr);align-items:center;padding:8px 10px calc(10px + env(safe-area-inset-bottom));background:#fff;box-shadow:0 -6px 20px rgba(15,23,42,.06)}
+nav.tabs button{min-height:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;font-weight:700;color:var(--sub)}
+nav.tabs button.on{color:#1D4ED8}
+nav.tabs .plus{width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#1D4ED8,#BE185D)}
+.hero{padding:calc(24px + env(safe-area-inset-top)) 20px 64px;color:#fff;background:var(--dots),radial-gradient(circle at 110% -10%,rgba(255,255,255,.25) 0 120px,rgba(255,255,255,0) 121px),var(--gHero);display:flex;flex-direction:column;gap:6px}
+.float{margin:-44px 16px 0;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.float>div{border-radius:20px;padding:14px;background:#fff;box-shadow:var(--sh2);display:flex;flex-direction:column;gap:4px}
+.big{font-family:"Plus Jakarta Sans",sans-serif;font-size:32px;font-weight:800}
+.dotsnav{display:flex;gap:6px;justify-content:center}.dotsnav i{width:6px;height:6px;border-radius:3px;background:#CBD2E0}.dotsnav i.on{width:24px;background:linear-gradient(90deg,#1D4ED8,#BE185D)}
+.ob1{min-height:100%;padding:calc(24px + env(safe-area-inset-top)) 24px calc(32px + env(safe-area-inset-bottom));display:flex;flex-direction:column;justify-content:space-between;gap:20px;color:#fff;background:radial-gradient(rgba(255,255,255,.13) 1.2px,transparent 1.4px) 0 0/18px 18px,linear-gradient(165deg,#047857 0%,#0E7490 25%,#1D4ED8 50%,#6D28D9 75%,#BE185D 100%)}
+.num{flex:none;width:44px;height:44px;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;font-family:"Plus Jakarta Sans",sans-serif;font-weight:800;font-size:18px}
+.switch{flex:none;width:48px;height:28px;border-radius:14px;padding:3px;display:flex;background:#CBD2E0}
+.switch span{width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(15,23,42,.25)}
+.switch.on{justify-content:flex-end;background:var(--gL)}.switch.on.R{background:var(--gR)}
+.segw{display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:4px;border-radius:14px;background:#fff;box-shadow:0 4px 14px rgba(15,23,42,.06)}
+.segw button{min-height:42px;border-radius:10px;font-size:14px;font-weight:700;color:var(--sub)}
+.segw button.on{color:#fff;font-weight:800}.segw button.on.L{background:var(--gL)}.segw button.on.R{background:var(--gR)}
 .quads{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.quad{min-height:112px;border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:4px;background:#F8FAFC;border:1px dashed #CBD5E1;color:var(--ink1)}
-.quad.on{background:var(--pattern);color:#fff;border:none}
-.quad small{font-size:10px;font-weight:700;letter-spacing:.04em;text-transform:uppercase}.quad b{font-size:14px;line-height:1.25}.quad span{font-size:11px;line-height:1.4}
-.ins{border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:6px;background:#fff;border:1px solid var(--line)}
-.ins .tagc{padding:4px 10px;border-radius:10px;font-size:11px;font-weight:700;color:#fff}
-.ins b.n{font-family:"Space Grotesk",sans-serif;font-size:20px}
-.ins p{margin:0;font-size:13px;line-height:1.5;color:var(--ink1)}
-.ins small{font-size:11px;color:var(--ink2)}
-.ins.wait{border-style:dashed;background:#F8FAFC}
-.dv{display:grid;grid-template-columns:1fr 1fr;gap:2px;height:8px}
-.dv div{background:#F1F5F9;overflow:hidden;display:flex}.dv div:first-child{justify-content:flex-end;border-radius:4px 0 0 4px}.dv div:last-child{border-radius:0 4px 4px 0}
-.dv i{display:block;height:100%}
-.switch{flex:none;width:52px;height:32px;border-radius:16px;border:none;padding:3px;display:flex;background:#CBD5E1}
-.switch.on{justify-content:flex-end;background:var(--a)}
-.switch span{width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(15,23,42,.25)}
-nav{display:grid;grid-template-columns:repeat(4,1fr);background:#fff;border-top:1px solid var(--line);padding:6px 8px calc(8px + env(safe-area-inset-bottom))}
-nav button{min-height:52px;border:none;background:transparent;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;font-weight:700;color:var(--ink2)}
-nav button.on{background:var(--soft);color:var(--ink)}
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(84px + env(safe-area-inset-bottom));background:#0F172A;color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;max-width:90%;z-index:10;box-shadow:0 6px 20px rgba(0,0,0,.25)}
-.note{margin:0;font-size:12px;line-height:1.5;color:var(--ink2)}
+.quad{min-height:108px;border-radius:16px;padding:10px;display:flex;flex-direction:column;gap:4px;background:#F8FAFC;border:1px dashed #CBD2E0;color:#334155}
+.quad.on{background:var(--dots),var(--gHero);color:#fff;border:none}
+.quad small{font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase}.quad b{font-size:14px;line-height:1.25}.quad span{font-size:11px;line-height:1.4}
+.ins{border-radius:18px;padding:14px;display:flex;flex-direction:column;gap:6px;background:#fff;box-shadow:var(--sh)}
+.ins.wait{box-shadow:none;border:1px dashed #CBD2E0;background:#F8FAFC}
+.dv{display:grid;grid-template-columns:1fr 1fr;gap:2px;height:8px}.dv div{background:var(--line);overflow:hidden;display:flex}.dv div:first-child{justify-content:flex-end;border-radius:4px 0 0 4px}.dv div:last-child{border-radius:0 4px 4px 0}.dv i{display:block;height:100%}
+.trend{height:120px;display:flex;align-items:flex-end;gap:6px}
+.trend div{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;color:var(--sub)}
+.trend i{display:block;width:100%;border-radius:6px;background:#E6EAF3}
+.sheet{position:absolute;inset:0;background:rgba(11,18,32,.55);display:flex;flex-direction:column;justify-content:flex-end;z-index:20}
+.sheet>.panel{border-radius:28px 28px 0 0;background:#fff;padding:10px 20px calc(24px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:14px;max-height:90%;overflow-y:auto}
+.grab{align-self:center;width:40px;height:5px;border-radius:3px;background:#CBD2E0}
+.types{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.types button{min-height:56px;border-radius:14px;border:1px solid var(--bd);padding:8px 10px;text-align:left;display:flex;flex-direction:column;justify-content:center}
+.types button b{font-size:13px}.types button span{font-size:11px;color:var(--sub)}
+.types button.on{border:2px solid #1D4ED8;background:#EFF6FF}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom));background:#0B1220;color:#fff;padding:10px 16px;border-radius:14px;font-size:14px;max-width:90%;z-index:30;box-shadow:0 6px 20px rgba(0,0,0,.25)}
 .err{color:#B91C1C;font-size:14px}
-.setup{padding:calc(32px + env(safe-area-inset-top)) 20px 32px;display:flex;flex-direction:column;gap:16px;max-width:520px;margin:0 auto}
+.tag{padding:4px 10px;border-radius:10px;font-size:11px;font-weight:800;color:#fff}
+.datechip{display:flex;align-items:center;gap:4px;background:rgba(255,255,255,.18);border-radius:12px;padding:2px}
+.datechip button{width:34px;height:34px;color:#fff;font-size:18px;border-radius:10px}.datechip button:disabled{opacity:.35}
+.datechip span{font-size:13px;font-weight:700;min-width:92px;text-align:center}
 </style>
 </head>
-<body data-mode="leben">
+<body>
 <div id="app"></div>
 <script>
 'use strict';
-/* ---------- Hilfen ---------- */
+/* ================= Hilfen ================= */
 const $app = document.getElementById('app');
 const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const pad = (n) => String(n).padStart(2, '0');
 const iso = (d) => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
 const parse = (s) => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d, 12); };
 const addDays = (s, n) => { const d = parse(s); d.setDate(d.getDate() + n); return iso(d); };
-const monday = (s) => { const d = parse(s); const wd = (d.getDay() + 6) % 7; d.setDate(d.getDate() - wd); return iso(d); };
-const isSunday = (s) => parse(s).getDay() === 0;
-const WD = ['So', 'Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa'];
-const MON = ['Jan', 'Feb', 'März', 'Apr', 'Mai', 'Juni', 'Juli', 'Aug', 'Sep', 'Okt', 'Nov', 'Dez'];
+const monday = (s) => { const d = parse(s); d.setDate(d.getDate() - (d.getDay() + 6) % 7); return iso(d); };
+const dayIdx = (s) => (parse(s).getDay() + 6) % 7; // 0 = Montag
+const WD = ['Sonntag', 'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag'];
+const MON = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember'];
 const nice = (s) => { const d = parse(s); return WD[d.getDay()] + ', ' + d.getDate() + '. ' + MON[d.getMonth()]; };
+const short = (s) => { const d = parse(s); return WD[d.getDay()].slice(0, 2) + ', ' + d.getDate() + '.' + (d.getMonth() + 1) + '.'; };
 const kw = (s) => { const d = parse(s); const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); const dn = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - dn); const y0 = new Date(Date.UTC(t.getUTCFullYear(), 0, 1)); return Math.ceil(((t - y0) / 86400000 + 1) / 7); };
 const pct = (x) => x == null ? '–' : Math.round(x * 100) + ' %';
-const fmtNum = (x, d) => x == null ? '–' : (Math.round(x * Math.pow(10, d)) / Math.pow(10, d)).toString().replace('.', ',');
+const fmt = (x, d) => x == null ? '–' : (Math.round(x * Math.pow(10, d)) / Math.pow(10, d)).toString().replace('.', ',');
 const mean = (xs) => xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null;
-const ICON = {
-  heute: 'M12 3v2M12 19v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M3 12h2M19 12h2M12 8a4 4 0 1 0 0 8a4 4 0 0 0 0-8z',
-  ziele: 'M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0-18 0M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0-8 0',
-  score: 'M4 20V10M10 20V4M16 20v-7M22 20H2',
-  analyse: 'M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1',
-  gear: 'M12 15a3 3 0 1 0 0-6a3 3 0 0 0 0 6zM19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-2.9 1.2V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-2.9-1.2l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0-1.2-2.9H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.2-2.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 2.9-1.2V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 2.9 1.2l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0 1.2 2.9H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z'
-};
-const svg = (d, c) => '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="' + (c || 'currentColor') + '" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + d + '"></path></svg>';
+const greet = () => { const h = new Date().getHours(); return h < 11 ? 'Guten Morgen' : h < 17 ? 'Hallo' : 'Guten Abend'; };
 const store = {
   get(k, f) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : f; } catch (e) { return f; } },
-  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* voll oder gesperrt */ } }
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* voll oder gesperrt */ } },
+  del(k) { try { localStorage.removeItem(k); } catch (e) { /* egal */ } }
 };
+const P = {
+  home: 'M3 11l9-7l9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z',
+  plus: 'M12 5v14M5 12h14',
+  chart: 'M4 20V10M10 20V4M16 20v-7M22 20H2',
+  link: 'M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1M14 10a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1',
+  sliders: 'M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M16 6m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0M10 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0M18 18m-2 0a2 2 0 1 0 4 0a2 2 0 1 0-4 0',
+  x: 'M6 6l12 12M18 6L6 18', back: 'M15 6l-6 6l6 6', check: 'M5 12l5 5l9-10', arrow: 'M5 12h14M13 6l6 6l-6 6',
+  lock: 'M7 11V7a5 5 0 0 1 10 0v4M5 11h14v10H5z', logo: 'M12 3v18M5 9c0 4 3 7 7 7s7-3 7-7'
+};
+const svg = (d, c, s, w) => '<svg width="' + (s || 20) + '" height="' + (s || 20) + '" viewBox="0 0 24 24" fill="none" stroke="' + (c || 'currentColor') + '" stroke-width="' + (w || 2) + '" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + d + '"></path></svg>';
 
-/* ---------- Zustand ---------- */
+/* ================= Zustand ================= */
 const S = {
-  conn: store.get('lt_conn', null),
-  sum: store.get('lt_sum', null),
-  mode: store.get('lt_mode', 'leben'),
-  tab: 'heute',
-  date: iso(new Date()),
-  drafts: {},
-  busy: false,
-  toast: '',
-  settings: false,
-  setupErr: ''
+  conn: store.get('lt_conn', null), sum: store.get('lt_sum', null), prefs: store.get('lt_prefs', { personal: false }),
+  view: 'home', ob: 0, ci: 'leben', date: iso(new Date()), drafts: {}, busy: false, toast: '', setupErr: '',
+  sheet: null, anp: null, done: null, before: null, bridge: null, obSel: null
 };
-let toastTimer = null;
-function toast(msg) { S.toast = msg; render(); clearTimeout(toastTimer); toastTimer = setTimeout(() => { S.toast = ''; render(); }, 3200); }
+let toastT = null;
+function toast(m) { S.toast = m; render(); clearTimeout(toastT); toastT = setTimeout(() => { S.toast = ''; render(); }, 3200); }
+const today = () => (S.sum && S.sum.today) || iso(new Date());
 
-/* ---------- Server ---------- */
+/* ================= Server ================= */
 async function api(action, payload) {
   const c = S.conn;
-  let res;
-  if (action === 'summary') {
-    res = await fetch(c.url + '?action=summary&token=' + encodeURIComponent(c.token), { method: 'GET', redirect: 'follow' });
-  } else {
-    res = await fetch(c.url, { method: 'POST', redirect: 'follow', body: JSON.stringify(Object.assign({ token: c.token, action }, payload)) });
-  }
+  const res = action === 'summary'
+    ? await fetch(c.url + '?action=summary&token=' + encodeURIComponent(c.token), { redirect: 'follow' })
+    : await fetch(c.url, { method: 'POST', redirect: 'follow', body: JSON.stringify(Object.assign({ token: c.token, action }, payload)) });
   const j = await res.json();
   if (!j.ok) throw new Error(j.error || 'Unbekannter Fehler');
   return j.data;
 }
-function setSum(data) { S.sum = data; store.set('lt_sum', data); S.drafts = {}; }
+function setSum(d) { S.sum = d; store.set('lt_sum', d); S.drafts = {}; }
+async function flushQueue() {
+  const q = store.get('lt_queue', []);
+  while (q.length) { setSum(await api('saveDay', q[0])); q.shift(); store.set('lt_queue', q); }
+}
 async function refresh(silent) {
   if (!S.conn) return;
   try { await flushQueue(); setSum(await api('summary')); if (!silent) toast('Aktualisiert'); }
-  catch (e) { if (!silent) toast(navigator.onLine ? 'Fehler: ' + e.message : 'Offline – zeige gespeicherte Daten'); }
+  catch (e) { if (!silent) toast(navigator.onLine ? 'Fehler: ' + e.message : 'Offline – gespeicherte Daten'); }
+  if (S.view === 'home' && needSummary()) S.view = 'summary';
   render();
 }
-async function flushQueue() {
-  const q = store.get('lt_queue', []);
-  while (q.length) {
-    const item = q[0];
-    const data = await api('saveDay', item);
-    setSum(data);
-    q.shift(); store.set('lt_queue', q);
-  }
-}
 
-/* ---------- Konfiguration aus dem Tab „Ziele“ ---------- */
-function cfg(mode) {
-  const rows = (S.sum && S.sum.cfg[mode]) || [];
+/* ================= Konfiguration ================= */
+function cfgRows(area) { return (S.sum && S.sum.cfg[area]) || []; }
+function cfg(area) {
+  const rows = cfgRows(area).filter((r) => r.act !== false);
   const by = (t) => rows.filter((r) => r.t === t);
   const wc = by('Wochencheck');
+  const isText = (r) => r.key === 'wc_text' || /freitext/i.test(r.h);
   return {
-    ratings: by('Bewertung').map((r) => ({ f: r.f, hint: r.h && !/^Wert 1 bis 5/.test(r.h) ? r.h : '', inv: r.f === 'Stress' || /umgedreht/i.test(r.h) })),
-    weekly: by('Woche').map((r) => ({ f: r.f, target: r.z || 1 })),
+    ratings: by('Bewertung').map((r) => ({ f: r.f, inv: !!r.inv, score: r.score !== false })),
+    weekly: by('Woche').filter((r) => r.score !== false).map((r) => ({ f: r.f, target: r.z || 1 })),
     monthly: by('Monat').map((r) => ({ f: r.f, target: r.z || 1 })),
     acts: by('Woche').concat(by('Aktivität')).map((r) => r.f),
-    zeit: by('Zeit').map((r) => r.f),
+    zeit: by('Zeit').map((r) => ({ f: r.f, key: r.key })),
     ctx: by('Kontext').map((r) => r.f),
-    wcRate: wc.filter((r) => !/freitext/i.test(r.h)).map((r) => r.f)[0] || null,
-    wcText: wc.filter((r) => /freitext/i.test(r.h)).map((r) => r.f)[0] || null
+    wcRate: (wc.filter((r) => !isText(r))[0] || {}).f || null,
+    wcText: (wc.filter(isText)[0] || {}).f || null
   };
 }
-const entries = (mode) => (S.sum && S.sum.entries[mode]) || [];
-const mine = (mode) => entries(mode).filter((e) => e.p === S.sum.me);
+function fk(area, key, fallback) { const r = cfgRows(area).find((x) => x.key === key); return r ? r.f : fallback; }
+const entries = (area) => (S.sum && S.sum.entries[area]) || [];
+const mine = (area) => entries(area).filter((e) => e.p === S.sum.me);
 
-function draft() {
-  const k = S.mode + '|' + S.date;
+/* ================= Entwürfe und Speichern ================= */
+function draft(area, date) {
+  area = area || S.ci; date = date || S.date;
+  const k = area + '|' + date;
   if (S.drafts[k]) return S.drafts[k];
-  const C = cfg(S.mode);
-  const d = { ratings: {}, acts: {}, zeit: {}, ctx: {}, note: '', wcRate: null, wcText: '', monthly: {}, dirty: false };
-  mine(S.mode).forEach((e) => {
-    if (e.d === S.date) {
+  const C = cfg(area);
+  const d = { ratings: {}, acts: {}, zeit: {}, ctx: {}, note: '', wcRate: null, wcText: '', monthly: {}, ctxOpen: false };
+  mine(area).forEach((e) => {
+    if (e.d === date) {
       if (e.t === 'Bewertung') d.ratings[e.f] = e.v;
       else if (e.t === 'Aktivität') d.acts[e.f] = true;
       else if (e.t === 'Zeit') d.zeit[e.f] = e.v;
@@ -222,16 +247,14 @@ function draft() {
       else if (e.t === 'Wochencheck' && e.f === C.wcRate) d.wcRate = e.v;
       else if (e.t === 'Wochencheck' && e.f === C.wcText) d.wcText = e.n;
     }
-    if (e.t === 'Monatsziel' && e.d.slice(0, 7) === S.date.slice(0, 7)) d.monthly[e.f] = true;
+    if (e.t === 'Monatsziel' && e.d.slice(0, 7) === date.slice(0, 7)) d.monthly[e.f] = true;
   });
-  C.zeit.forEach((f) => { if (d.zeit[f] == null) d.zeit[f] = 0; });
+  C.zeit.forEach((z) => { if (d.zeit[z.f] == null) d.zeit[z.f] = 0; });
   S.drafts[k] = d;
   return d;
 }
-
-async function save() {
-  const d = draft(), C = cfg(S.mode);
-  const list = [];
+function payload(area, date) {
+  const d = draft(area, date), C = cfg(area), list = [];
   Object.keys(d.ratings).forEach((f) => { if (d.ratings[f]) list.push({ t: 'Bewertung', f, v: d.ratings[f] }); });
   Object.keys(d.acts).forEach((f) => { if (d.acts[f]) list.push({ t: 'Aktivität', f, v: 1 }); });
   Object.keys(d.zeit).forEach((f) => { if (d.zeit[f] > 0) list.push({ t: 'Zeit', f, v: d.zeit[f] }); });
@@ -239,87 +262,184 @@ async function save() {
   if (d.note.trim()) list.push({ t: 'Kontext', f: 'Tagesnotiz', v: '', n: d.note.trim() });
   if (C.wcRate && d.wcRate) list.push({ t: 'Wochencheck', f: C.wcRate, v: d.wcRate });
   if (C.wcText && d.wcText.trim()) list.push({ t: 'Wochencheck', f: C.wcText, v: '', n: d.wcText.trim() });
-  const payload = { area: S.mode, date: S.date, entries: list, monthly: Object.keys(d.monthly).filter((f) => d.monthly[f]) };
-  S.busy = true; render();
-  try {
-    setSum(await api('saveDay', payload));
-    toast('Gespeichert');
-  } catch (e) {
+  return { area, date, entries: list, monthly: Object.keys(d.monthly).filter((f) => d.monthly[f]) };
+}
+async function saveArea(area, date) {
+  const p = payload(area, date);
+  try { setSum(await api('saveDay', p)); return true; }
+  catch (e) {
     if (!navigator.onLine || e instanceof TypeError) {
-      const q = store.get('lt_queue', []).filter((x) => !(x.area === payload.area && x.date === payload.date));
-      q.push(payload); store.set('lt_queue', q);
-      d.dirty = false;
+      const q = store.get('lt_queue', []).filter((x) => !(x.area === p.area && x.date === p.date));
+      q.push(p); store.set('lt_queue', q);
       toast('Offline gespeichert, wird später übertragen');
-    } else toast('Fehler: ' + e.message);
+      return true;
+    }
+    toast('Fehler: ' + e.message); return false;
   }
-  S.busy = false; render();
 }
 
-/* ---------- Auswertung ---------- */
+/* ================= Kennzahlen ================= */
+function scoresNow() {
+  const L = (S.sum && S.sum.scores.leben) || [], R = (S.sum && S.sum.scores.liebe) || [];
+  const me = S.sum ? S.sum.me : '';
+  const l = L[0] || {}, r = R[0] || {};
+  return {
+    leben: l.score != null ? l.score : null, lebenDaily: l.daily, lebenWk: l.wk, lebenMo: l.mo,
+    liebe: r.joint != null ? r.joint : null, liebeWk: r.wk, liebeMo: r.mo, gap: r.gap,
+    meScore: r.score ? r.score[me] : null, meFeel: r.feel ? r.feel[me] : null,
+    histL: L.slice(0, 8).map((x) => x.score).reverse(), histR: R.slice(0, 8).map((x) => x.joint).reverse(),
+    histMe: R.slice(0, 8).map((x) => (x.score ? x.score[me] : null)).reverse(), weeks: L.slice(0, 8).map((x) => x.w).reverse()
+  };
+}
+function weekCount(area, f, date) {
+  const mon = monday(date || today()), end = addDays(mon, 7), set = {};
+  entries(area).forEach((e) => { if (e.t === 'Aktivität' && e.f === f && e.d >= mon && e.d < end && !(e.p === S.sum.me && e.d === S.date && S.drafts[area + '|' + S.date])) set[e.d] = 1; });
+  const dk = area + '|' + S.date;
+  if (S.drafts[dk] && S.drafts[dk].acts[f] && S.date >= mon && S.date < end) set[S.date] = 1;
+  return Object.keys(set).length;
+}
+function goalStatus(area) {
+  const t = today(), di = dayIdx(t), left = 6 - di;
+  return cfg(area).weekly.map((w) => {
+    const done = weekCount(area, w.f, t), expected = w.target * (di + 1) / 7;
+    return { area, f: w.f, target: w.target, done, left, expected, reached: done >= w.target, deficit: expected - done, impossible: w.target - done > left + 1 };
+  });
+}
 function byDay(list) {
   const m = {};
-  list.forEach((e) => { (m[e.d] = m[e.d] || { r: {}, a: {}, z: {}, c: {} });
-    const x = m[e.d];
+  list.forEach((e) => { const x = (m[e.d] = m[e.d] || { r: {}, a: {}, z: {}, c: {} });
     if (e.t === 'Bewertung') x.r[e.f] = e.v; else if (e.t === 'Aktivität') x.a[e.f] = 1; else if (e.t === 'Zeit') x.z[e.f] = e.v; else if (e.t === 'Kontext') x.c[e.f] = 1; });
   return m;
 }
+function streak() {
+  const days = {}; mine('leben').concat(mine('liebe')).forEach((e) => { days[e.d] = 1; });
+  let n = 0, d = today(); if (!days[d]) d = addDays(d, -1);
+  while (days[d]) { n++; d = addDays(d, -1); }
+  return n;
+}
+function ratingAvg(area, f, from, to, person) {
+  const xs = entries(area).filter((e) => e.t === 'Bewertung' && e.f === f && e.d >= from && e.d < to && (!person || e.p === person) && e.v != null).map((e) => e.v);
+  return mean(xs);
+}
+function lastDays(area, pred, n) { // wie viele der letzten n Tage (inkl. heute) erfüllen pred(dayObj)
+  const M = byDay(mine(area)); let k = 0;
+  for (let i = 0; i < n; i++) { const d = addDays(today(), -i); if (M[d] && pred(M[d])) k++; }
+  return k;
+}
+function daysSince(area, pred) {
+  const M = byDay(area === 'liebe' ? entries('liebe') : mine(area));
+  for (let i = 0; i < 60; i++) { const d = addDays(today(), -i); if (M[d] && pred(M[d])) return i; }
+  return null;
+}
+
+/* ================= Feedback, To-dos, Empfehlung ================= */
+function feedback() {
+  const good = [], warn = [], t = today(), me = S.sum.me;
+  const st = streak();
+  goalStatus('leben').concat(goalStatus('liebe')).forEach((g) => { if (g.reached) good.push({ t: 'Wochenziel erreicht: ' + g.f, x: g.done + ' von ' + g.target + ' geschafft. Das zählt jetzt voll in deinen ' + (g.area === 'leben' ? 'Leben' : 'Liebe') + '-Score.' }); });
+  if (st >= 3) good.push({ t: st + ' Tage in Folge eingecheckt', x: 'Regelmäßigkeit macht die Auswertung erst aussagekräftig.' });
+  const cmp = (area, key, fb, name, inverse) => {
+    const f = fk(area, key, fb);
+    const now = ratingAvg(area, f, addDays(t, -6), addDays(t, 1), me), prev = ratingAvg(area, f, addDays(t, -13), addDays(t, -6), me);
+    if (now == null || prev == null) return;
+    const diff = now - prev, better = inverse ? diff <= -0.5 : diff >= 0.5, worse = inverse ? diff >= 0.5 : diff <= -0.5;
+    if (better) good.push({ t: name + ' hat sich verbessert', x: 'Schnitt der letzten 7 Tage: ' + fmt(now, 1) + ' statt ' + fmt(prev, 1) + '.' });
+    if (worse) warn.push({ t: name + ' ist gesunken', x: 'Schnitt der letzten 7 Tage: ' + fmt(now, 1) + ' statt ' + fmt(prev, 1) + '. Schau, was sich verändert hat.' });
+  };
+  cmp('leben', 'schlaf', 'Schlaf', 'Dein Schlaf'); cmp('leben', 'stimmung', 'Stimmung', 'Deine Stimmung'); cmp('leben', 'stress', 'Stress', 'Dein Stress', true); cmp('liebe', 'verbundenheit', 'Verbundenheit', 'Deine Verbundenheit');
+  const fS = fk('leben', 'stress', 'Stress');
+  const hiStress = lastDays('leben', (x) => x.r[fS] >= 4, 7);
+  if (hiStress >= 3) warn.push({ t: 'Stress an ' + hiStress + ' von 7 Tagen hoch', x: 'Plan bewusst Erholung ein, und sag deinem Partner, was du gerade brauchst.' });
+  const sc = scoresNow();
+  if (sc.gap != null && sc.gap >= 20) warn.push({ t: 'Ihr erlebt die Woche unterschiedlich', x: sc.gap + ' Punkte Abstand im Gefühl. Ein kurzes „Wie geht es uns?“ hilft mehr als Raten.' });
+  const fB = fk('leben', 'bildschirm', 'Viel Bildschirm');
+  const scr = lastDays('leben', (x) => x.c[fB], 5);
+  if (scr >= 4) warn.push({ t: 'Viel Bildschirm an ' + scr + ' von 5 Tagen', x: 'Das geht oft auf Kosten der bewussten Zeit zu zweit. Wie wäre ein handyfreier Abend?' });
+  const fG = fk('liebe', 'gespraech', 'Tiefes Gespräch');
+  const ds = daysSince('liebe', (x) => x.a[fG]);
+  if (mine('liebe').length > 5 && (ds == null || ds >= 5)) warn.push({ t: 'Länger kein tiefes Gespräch', x: (ds == null ? 'Bisher keins eingetragen' : 'Seit ' + ds + ' Tagen') + '. Frag heute nach dem Tag, ohne Handy daneben.' });
+  return { good, warn };
+}
+function todos() {
+  const out = [], t = today();
+  const behind = goalStatus('leben').concat(goalStatus('liebe')).filter((g) => !g.reached && g.deficit >= 0.5).sort((a, b) => b.deficit / b.target - a.deficit / a.target);
+  const takeArea = (a) => { const g = behind.find((x) => x.area === a); if (g) out.push({ id: 'g-' + g.f, area: a, t: g.f, x: 'Stand ' + g.done + ' von ' + g.target + (g.left ? ', noch ' + g.left + (g.left === 1 ? ' Tag' : ' Tage') : ', letzter Tag') }); };
+  takeArea('leben'); takeArea('liebe');
+  const fSl = fk('leben', 'schlaf', 'Schlaf'), fSt = fk('leben', 'stress', 'Stress');
+  if (lastDays('leben', (x) => x.r[fSl] != null && x.r[fSl] <= 2, 2) >= 2) out.push({ id: 'sleep', area: 'leben', t: 'Vor 23 Uhr ins Bett', x: 'Schlaf zwei Nächte unter 3' });
+  else if (lastDays('leben', (x) => x.r[fSt] >= 4, 2) >= 2) out.push({ id: 'stress', area: 'leben', t: '15 Minuten bewusst abschalten', x: 'Stress zwei Tage in Folge hoch' });
+  const fG = fk('liebe', 'gespraech', 'Tiefes Gespräch');
+  const ds = daysSince('liebe', (x) => x.a[fG]);
+  if (ds != null && ds >= 3) out.push({ id: 'talk', area: 'liebe', t: 'Frag nach dem Tag, ohne Handy', x: 'Letztes tiefes Gespräch vor ' + ds + ' Tagen' });
+  (store.get('lt_bridge', {})[t] || []).forEach((b, i) => out.unshift({ id: 'b' + i, area: 'liebe', t: b, x: 'Aus deinem Check-in' }));
+  if (out.length < 3) out.push({ id: 'thanks', area: 'liebe', t: 'Sag heute einmal bewusst Danke', x: 'Kleine Gesten tragen am meisten' });
+  if (out.length < 3) out.push({ id: 'walk', area: 'leben', t: '20 Minuten raus an die Luft', x: 'Gut für Stimmung und Schlaf' });
+  const seen = {}; return out.filter((x) => !seen[x.id] && (seen[x.id] = 1)).slice(0, 3);
+}
+function recommendation(A) {
+  const ok = A.insights.filter((i) => i.num != null);
+  if (ok.length) { const i = ok[0]; return { t: i.head, x: i.text }; }
+  const sc = scoresNow();
+  if (sc.leben != null && sc.liebe != null && sc.liebe + 10 < sc.leben) return { t: 'Zeit zu zweit einplanen', x: 'Dir geht es gerade besser als euch beiden zusammen. Ein fester Abend ohne Handy hilft am schnellsten.' };
+  if (sc.leben != null && sc.liebe != null && sc.leben + 10 < sc.liebe) return { t: 'Vergiss dich selbst nicht', x: 'Eure Beziehung läuft gut, dein eigenes Befinden hinkt hinterher. Was würde dir heute guttun?' };
+  return { t: 'Kleine Momente zählen', x: 'Paare, die im Alltag oft aufeinander eingehen, bleiben zufriedener. Ein Blick, eine Frage, ein Danke reichen.' };
+}
+function needSummary() {
+  if (!S.sum || !store.get('lt_onboarded', false)) return false;
+  const snap = store.get('lt_snap', null);
+  return !!(snap && snap.date !== today());
+}
+function takeSnap() { const sc = scoresNow(); store.set('lt_snap', { date: today(), leben: sc.leben, liebe: sc.liebe }); }
+
+/* ================= Analyse ================= */
 function compare(days, cond, outcome, lag, minN) {
   const A = [], B = [];
   days.forEach((d) => { const c = cond(d); if (c == null) return; const o = outcome(lag ? addDays(d, lag) : d); if (o == null) return; (c ? A : B).push(o); });
-  return { ok: A.length >= minN && B.length >= minN, nA: A.length, nB: B.length, a: mean(A), b: mean(B), diff: A.length && B.length ? mean(A) - mean(B) : null };
+  return { ok: A.length >= minN && B.length >= minN, nA: A.length, nB: B.length, a: mean(A), b: mean(B), diff: A.length && B.length ? mean(A) - mean(B) : null, min: minN };
 }
 function pearson(xs, ys) {
   const n = xs.length; if (n < 3) return null;
-  const mx = mean(xs), my = mean(ys);
-  let sxy = 0, sx = 0, sy = 0;
+  const mx = mean(xs), my = mean(ys); let sxy = 0, sx = 0, sy = 0;
   for (let i = 0; i < n; i++) { sxy += (xs[i] - mx) * (ys[i] - my); sx += (xs[i] - mx) ** 2; sy += (ys[i] - my) ** 2; }
   return sx && sy ? sxy / Math.sqrt(sx * sy) : null;
 }
 function analysis() {
   const L = byDay(mine('leben')), R = byDay(mine('liebe'));
   const days = Array.from(new Set(Object.keys(L).concat(Object.keys(R)))).sort();
-  const lr = (d, f) => (L[d] && L[d].r[f] != null ? L[d].r[f] : null);
-  const rr = (d, f) => (R[d] && R[d].r[f] != null ? R[d].r[f] : null);
+  const F = { sl: fk('leben', 'schlaf', 'Schlaf'), st: fk('leben', 'stress', 'Stress'), sm: fk('leben', 'stimmung', 'Stimmung'), en: fk('leben', 'energie', 'Energie'),
+    sp: fk('leben', 'sport', 'Sport'), bs: fk('leben', 'bildschirm', 'Viel Bildschirm'), zm: fk('leben', 'zeitfuermich', 'Zeit nur für mich'),
+    vb: fk('liebe', 'verbundenheit', 'Verbundenheit'), s2: fk('liebe', 'stimmung2', 'Stimmung zu zweit'), lt: fk('liebe', 'leichtigkeit', 'Leichtigkeit'),
+    bz: fk('liebe', 'bewusst', 'Bewusste Zeit'), kf: fk('liebe', 'konflikt', 'Konflikt gehabt'), kg: fk('liebe', 'geklaert', 'Konflikt geklärt'), hb: fk('liebe', 'hilfe_bek', 'Unterstützung bekommen') };
+  const lr = (d, f) => (L[d] && L[d].r[f] != null ? L[d].r[f] : null), rr = (d, f) => (R[d] && R[d].r[f] != null ? R[d].r[f] : null);
   const rz = (d, f) => (R[d] ? (R[d].z[f] != null ? R[d].z[f] : 0) : null);
-  const la = (d, f) => (L[d] ? (L[d].a[f] ? 1 : 0) : null);
-  const lc = (d, f) => (L[d] ? (L[d].c[f] ? 1 : 0) : null);
-  const ra = (d, f) => (R[d] ? (R[d].a[f] ? 1 : 0) : null);
-  const rc = (d, f) => (R[d] ? (R[d].c[f] ? 1 : 0) : null);
-  const MIN = 10;
+  const la = (d, f) => (L[d] ? (L[d].a[f] ? 1 : 0) : null), lc = (d, f) => (L[d] ? (L[d].c[f] ? 1 : 0) : null);
+  const ra = (d, f) => (R[d] ? (R[d].a[f] ? 1 : 0) : null), rc = (d, f) => (R[d] ? (R[d].c[f] ? 1 : 0) : null);
+  const sign = (x) => (x >= 0 ? '+' : '−') + fmt(Math.abs(x), 1);
   const out = [];
-  const i1 = compare(days, (d) => { const v = lr(d, 'Schlaf'); return v == null ? null : v >= 4; }, (d) => rr(d, 'Verbundenheit'), 0, MIN);
-  out.push({ dir: 'Leben → Liebe', c: '#0F766E', head: 'Schlaf und Verbundenheit', r: i1,
-    num: i1.ok ? (i1.diff >= 0 ? '+' : '−') + fmtNum(Math.abs(i1.diff), 1) : null,
-    text: i1.ok ? 'An Tagen nach gutem Schlaf (ab 4) bewertest du die Verbundenheit im Schnitt ' + fmtNum(Math.abs(i1.diff), 1) + ' Punkte ' + (i1.diff >= 0 ? 'höher' : 'niedriger') + '.' : 'Vergleicht deine Verbundenheit nach gutem und nach schlechtem Schlaf.' });
-  // Stress-Spillover (Wochen)
-  const weeks = (S.sum.scores.liebe || []).filter((w) => w.joint != null && w.w);
-  const ownStress = (w) => { const xs = []; for (let i = 0; i < 7; i++) { const v = lr(addDays(w, i), 'Stress'); if (v != null) xs.push(v); } return mean(xs); };
-  const partnerStress = (w) => { const r = (S.sum.shared || []).find((x) => x.w === w && x.p === S.sum.partner); return r ? r.stress : null; };
+  const i1 = compare(days, (d) => { const v = lr(d, F.sl); return v == null ? null : v >= 4; }, (d) => rr(d, F.vb), 0, 10);
+  out.push({ dir: 'Leben → Liebe', c: '#047857', head: F.sl + ' und ' + F.vb, r: i1, num: i1.ok ? sign(i1.diff) : null,
+    text: i1.ok ? 'An Tagen nach gutem Schlaf (ab 4) liegt deine Verbundenheit im Schnitt ' + fmt(Math.abs(i1.diff), 1) + ' Punkte ' + (i1.diff >= 0 ? 'höher' : 'niedriger') + '.' : 'Vergleicht deine Verbundenheit nach gutem und nach schlechtem Schlaf.' });
+  const weeks = ((S.sum.scores.liebe) || []).filter((w) => w.joint != null && w.w);
+  const own = (w) => { const xs = []; for (let i = 0; i < 7; i++) { const v = lr(addDays(w, i), F.st); if (v != null) xs.push(v); } return mean(xs); };
+  const part = (w) => { const r = (S.sum.shared || []).find((x) => x.w === w && x.p === S.sum.partner); return r ? r.stress : null; };
   const wA = [], wB = [];
-  weeks.forEach((w) => { const vals = [ownStress(w.w)]; if (S.sum.share) vals.push(partnerStress(w.w)); const xs = vals.filter((v) => v != null); if (!xs.length) return; (Math.max.apply(null, xs) >= 3.5 ? wA : wB).push(w.joint); });
+  weeks.forEach((w) => { const xs = [own(w.w)].concat(S.sum.share ? [part(w.w)] : []).filter((v) => v != null); if (!xs.length) return; (Math.max.apply(null, xs) >= 3.5 ? wA : wB).push(w.joint); });
   const i2ok = wA.length >= 3 && wB.length >= 3, i2d = i2ok ? mean(wA) - mean(wB) : null;
-  out.push({ dir: 'Leben → Liebe', c: '#1D4ED8', head: 'Stress färbt ab', r: { ok: i2ok, nA: wA.length, nB: wB.length, unit: 'Wochen' },
-    num: i2ok ? (i2d >= 0 ? '+' : '−') + Math.round(Math.abs(i2d)) : null,
-    text: i2ok ? 'In Wochen mit hohem Stress (Schnitt ab 3,5' + (S.sum.share ? ', bei einem von euch' : ', bei dir') + ') lag euer gemeinsamer Score ' + Math.round(Math.abs(i2d)) + ' Punkte ' + (i2d <= 0 ? 'niedriger' : 'höher') + '.' : 'Vergleicht euren gemeinsamen Score in stressigen und ruhigen Wochen.' + (S.sum.share ? '' : ' Mit „Teilen“ zählt auch der Stress deines Partners.') });
-  const i3 = compare(days, (d) => { const v = rz(d, 'Bewusste Zeit'); return v == null ? null : v >= 1; }, (d) => lr(d, 'Stimmung'), 1, MIN);
-  out.push({ dir: 'Liebe → Leben', c: '#BE123C', head: 'Bewusste Zeit und Stimmung', r: i3,
-    num: i3.ok ? (i3.diff >= 0 ? '+' : '−') + fmtNum(Math.abs(i3.diff), 1) : null,
-    text: i3.ok ? 'Nach Tagen mit mindestens 1 Stunde bewusster Zeit zu zweit ist deine Stimmung am Folgetag ' + fmtNum(Math.abs(i3.diff), 1) + ' Punkte ' + (i3.diff >= 0 ? 'besser' : 'schlechter') + '.' : 'Vergleicht deine Stimmung am Tag nach viel und wenig bewusster Zeit zu zweit.' });
-  const conflictDays = days.filter((d) => rc(d, 'Konflikt gehabt') === 1);
-  const i4 = compare(conflictDays, (d) => rc(d, 'Konflikt geklärt') === 1, (d) => lr(d, 'Schlaf'), 1, 3);
-  out.push({ dir: 'Liebe → Leben', c: '#DB2777', head: 'Konflikt geklärt, Schlaf besser?', r: i4,
-    num: i4.ok ? fmtNum(i4.a, 1) + ' / ' + fmtNum(i4.b, 1) : null,
-    text: i4.ok ? 'Nach Konflikten, die am selben Tag geklärt wurden, hast du deinen Schlaf mit ' + fmtNum(i4.a, 1) + ' bewertet. Blieben sie offen, mit ' + fmtNum(i4.b, 1) + '.' : 'Vergleicht deinen Schlaf nach geklärten und offenen Konflikten.' });
+  out.push({ dir: 'Leben → Liebe', c: '#1D4ED8', head: 'Stress färbt ab', r: { ok: i2ok, nA: wA.length, nB: wB.length, unit: 'Wochen', min: 3 }, num: i2ok ? (i2d >= 0 ? '+' : '−') + Math.round(Math.abs(i2d)) : null,
+    text: i2ok ? 'In stressigen Wochen (Schnitt ab 3,5' + (S.sum.share ? ', bei einem von euch' : ', bei dir') + ') lag euer gemeinsamer Score ' + Math.round(Math.abs(i2d)) + ' Punkte ' + (i2d <= 0 ? 'niedriger' : 'höher') + '.' : 'Vergleicht euren gemeinsamen Score in stressigen und ruhigen Wochen.' });
+  const i3 = compare(days, (d) => { const v = rz(d, F.bz); return v == null ? null : v >= 1; }, (d) => lr(d, F.sm), 1, 10);
+  out.push({ dir: 'Liebe → Leben', c: '#BE123C', head: F.bz + ' und ' + F.sm, r: i3, num: i3.ok ? sign(i3.diff) : null,
+    text: i3.ok ? 'Nach Tagen mit mindestens 1 Stunde bewusster Zeit zu zweit ist deine Stimmung am Folgetag ' + fmt(Math.abs(i3.diff), 1) + ' Punkte ' + (i3.diff >= 0 ? 'besser' : 'schlechter') + '.' : 'Vergleicht deine Stimmung am Tag nach viel und wenig bewusster Zeit zu zweit.' });
+  const cd = days.filter((d) => rc(d, F.kf) === 1);
+  const i4 = compare(cd, (d) => rc(d, F.kg) === 1, (d) => lr(d, F.sl), 1, 3);
+  out.push({ dir: 'Liebe → Leben', c: '#A21CAF', head: 'Konflikt geklärt, Schlaf besser?', r: i4, num: i4.ok ? fmt(i4.a, 1) + ' / ' + fmt(i4.b, 1) : null,
+    text: i4.ok ? 'Nach Konflikten, die am selben Tag geklärt wurden, hast du deinen Schlaf mit ' + fmt(i4.a, 1) + ' bewertet. Blieben sie offen, mit ' + fmt(i4.b, 1) + '.' : 'Vergleicht deinen Schlaf nach geklärten und offenen Konflikten.' });
   const pairs = [
-    ['Schlaf und Verbundenheit', (d) => lr(d, 'Schlaf'), (d) => rr(d, 'Verbundenheit'), 0],
-    ['Stress und Verbundenheit', (d) => lr(d, 'Stress'), (d) => rr(d, 'Verbundenheit'), 0],
-    ['Stress und Konflikt', (d) => lr(d, 'Stress'), (d) => rc(d, 'Konflikt gehabt'), 0],
-    ['Energie und Stimmung zu zweit', (d) => lr(d, 'Energie'), (d) => rr(d, 'Stimmung zu zweit'), 0],
-    ['Bewusste Zeit und Stimmung am Folgetag', (d) => rz(d, 'Bewusste Zeit'), (d) => lr(d, 'Stimmung'), 1],
-    ['Sport und Stimmung', (d) => la(d, 'Sport'), (d) => lr(d, 'Stimmung'), 0],
-    ['Viel Bildschirm und bewusste Zeit', (d) => lc(d, 'Viel Bildschirm'), (d) => rz(d, 'Bewusste Zeit'), 0],
-    ['Zeit für mich und Leichtigkeit zu zweit', (d) => la(d, 'Zeit nur für mich'), (d) => rr(d, 'Leichtigkeit'), 0],
-    ['Unterstützung bekommen und Stress am Folgetag', (d) => ra(d, 'Unterstützung bekommen'), (d) => lr(d, 'Stress'), 1]
+    [F.sl + ' und ' + F.vb, (d) => lr(d, F.sl), (d) => rr(d, F.vb), 0], [F.st + ' und ' + F.vb, (d) => lr(d, F.st), (d) => rr(d, F.vb), 0],
+    [F.st + ' und Konflikt', (d) => lr(d, F.st), (d) => rc(d, F.kf), 0], [F.en + ' und ' + F.s2, (d) => lr(d, F.en), (d) => rr(d, F.s2), 0],
+    [F.bz + ' und ' + F.sm + ' am Folgetag', (d) => rz(d, F.bz), (d) => lr(d, F.sm), 1], [F.sp + ' und ' + F.sm, (d) => la(d, F.sp), (d) => lr(d, F.sm), 0],
+    [F.bs + ' und ' + F.bz, (d) => lc(d, F.bs), (d) => rz(d, F.bz), 0], [F.zm + ' und ' + F.lt, (d) => la(d, F.zm), (d) => rr(d, F.lt), 0],
+    [F.hb + ' und ' + F.st + ' am Folgetag', (d) => ra(d, F.hb), (d) => lr(d, F.st), 1]
   ];
   const corr = pairs.map(([l, fx, fy, lag]) => {
     const xs = [], ys = [];
@@ -328,187 +448,396 @@ function analysis() {
   }).filter((c) => c.r != null && Math.abs(c.r) >= 0.1).sort((a, b) => Math.abs(b.r) - Math.abs(a.r)).slice(0, 5);
   return { days: days.length, insights: out, corr };
 }
+function verdict() {
+  const sc = scoresNow();
+  const L = sc.histL.filter((x) => x != null), R = sc.histR.filter((x) => x != null);
+  const weeksTracked = Math.max(L.length, R.length);
+  const half = (xs) => { const k = Math.floor(xs.length / 2); return xs.length >= 4 ? mean(xs.slice(-k)) - mean(xs.slice(0, xs.length - k)) : null; };
+  const dl = half(L), dr = half(R);
+  const word = (d) => d == null ? 'braucht noch etwas Zeit' : d >= 3 ? 'steigt (' + '+' + Math.round(d) + ')' : d <= -3 ? 'ist gesunken (' + Math.round(d) + ')' : 'ist stabil';
+  const A = analysis(); const lever = A.corr[0];
+  return { weeks: weeksTracked, text: 'Leben ' + word(dl) + ', Liebe ' + word(dr) + '.' + (lever ? ' Stärkster Zusammenhang bisher: ' + lever.l + '.' : '') };
+}
 
-/* ---------- Ansichten ---------- */
-function scoreNow(mode) {
-  const sc = S.sum ? S.sum.scores[mode] : [];
-  const cur = sc && sc[0], prev = sc && sc[1];
-  if (!cur) return { score: null, delta: null };
-  if (mode === 'leben') return { score: cur.score, delta: cur.score != null && prev && prev.score != null ? cur.score - prev.score : null, daily: cur.daily, wk: cur.wk, mo: cur.mo, rows: sc.map((r) => r.score) };
-  const me = S.sum.me, p = S.sum.partner;
-  return { score: cur.score[me], delta: cur.score[me] != null && prev && prev.score[me] != null ? cur.score[me] - prev.score[me] : null,
-    daily: cur.feel[me], wk: cur.wk, mo: cur.mo, partnerScore: cur.score[p], partnerFeel: cur.feel[p], joint: cur.joint, gap: cur.gap, rows: sc.map((r) => r.score[me]) };
+/* ================= Ansichten ================= */
+function scoreCard(area, val, extra) {
+  return '<div class="score ' + (area === 'leben' ? 'L gradL' : 'R gradR') + '"><span style="font-size:12px;font-weight:700;opacity:.92">' + (area === 'leben' ? 'Leben' : 'Liebe · gemeinsam') + '</span>' +
+    '<div class="row" style="justify-content:flex-start;gap:8px"><b class="n">' + (val != null ? val : '–') + '</b>' + (extra || '') + '</div></div>';
 }
-function vHeader() {
-  const canFwd = S.date < S.sum.today, canBack = S.date > addDays(S.sum.today, -14);
-  return '<header><div class="row"><div class="brand"><div class="logo">' + svg('M12 3v18M5 9c0 4 3 7 7 7s7-3 7-7', '#fff') + '</div><div style="display:flex;flex-direction:column"><b>Innenkultur</b><span class="sub">' + esc(S.sum.me) + ' · KW ' + kw(S.date) + '</span></div></div>' +
-    '<button class="iconbtn" data-act="settings" aria-label="Einstellungen">' + svg(ICON.gear) + '</button></div>' +
-    '<div class="seg" role="group" aria-label="Bereich wählen"><button data-act="mode" data-v="leben" class="' + (S.mode === 'leben' ? 'on-leben' : '') + '">Leben</button><button data-act="mode" data-v="liebe" class="' + (S.mode === 'liebe' ? 'on-liebe' : '') + '">Liebe</button></div>' +
-    (S.tab === 'heute' || S.tab === 'ziele' ? '<div class="datebar"><button data-act="day" data-v="-1" aria-label="Vorheriger Tag" ' + (canBack ? '' : 'disabled') + '>‹</button><span>' + (S.date === S.sum.today ? 'Heute, ' : '') + nice(S.date) + '</span><button data-act="day" data-v="1" aria-label="Nächster Tag" ' + (canFwd ? '' : 'disabled') + '>›</button></div>' : '') +
-    '</header>';
-}
-function vHero() {
-  const s = scoreNow(S.mode);
-  const deg = s.score != null ? Math.round(s.score * 3.6) : 0;
-  return '<section class="hero"><div style="display:flex;flex-direction:column;gap:6px"><span class="cap">' + (S.mode === 'leben' ? 'Leben' : 'Liebe') + '-Score · diese Woche</span><span class="big num">' + (s.score != null ? s.score : '–') + '</span>' +
-    (s.delta != null ? '<span class="pill">' + (s.delta >= 0 ? '▲ +' : '▼ ') + s.delta + ' zur Vorwoche</span>' : '<span class="pill">Noch keine Vorwoche</span>') +
-    '</div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><span style="font-size:12px;opacity:.92">' + (S.mode === 'liebe' ? 'Geteilt' : 'Privat') + '</span><div class="ring" aria-hidden="true" style="background:conic-gradient(#fff ' + deg + 'deg, rgba(255,255,255,.25) 0deg)"><i></i></div></div></section>' +
-    '<section class="kpis"><div class="kpi"><span>Tagesgefühl</span><b>' + pct(s.daily) + '</b></div><div class="kpi"><span>Wochenziele</span><b>' + pct(s.wk) + '</b></div><div class="kpi"><span>Monatsziele</span><b>' + pct(s.mo) + '</b></div></section>';
-}
-function vHeute() {
-  const C = cfg(S.mode), d = draft();
-  let h = '';
-  const showWc = (C.wcRate || C.wcText) && (isSunday(S.date) || d.wcRate || d.wcText);
-  if (showWc) {
-    h += '<section class="card wc"><div class="row"><h2>Wochen-Check</h2><span class="tag">Sonntag · 1 Minute</span></div>';
-    if (C.wcRate) h += '<b style="font-size:14px">' + esc(C.wcRate) + '</b><div class="dots">' + [1, 2, 3, 4, 5].map((v) => '<button class="dot ' + (d.wcRate === v ? 'on' : '') + '" data-act="wc" data-v="' + v + '" aria-label="' + esc(C.wcRate) + ' ' + v + ' von 5">' + v + '</button>').join('') + '</div>';
-    if (C.wcText) h += '<label class="t" for="wcText">' + esc(C.wcText) + '</label><textarea id="wcText" rows="2" data-in="wcText">' + esc(d.wcText) + '</textarea>';
-    h += '</section>';
-  }
-  h += '<section class="card"><div class="row"><h2>' + (S.mode === 'leben' ? 'Wie geht es dir?' : 'Wie verbunden fühlst du dich?') + '</h2><span class="sub">1 – 5</span></div>' +
-    C.ratings.map((r) => '<div class="rate"><div class="l"><b>' + esc(r.f) + '</b>' + (r.inv ? '<span>5 = sehr gestresst</span>' : (r.hint ? '<span>' + esc(r.hint) + '</span>' : '')) + '</div><div class="dots">' +
-      [1, 2, 3, 4, 5].map((v) => '<button class="dot ' + (d.ratings[r.f] === v ? 'on' : '') + '" data-act="rate" data-f="' + esc(r.f) + '" data-v="' + v + '" aria-label="' + esc(r.f) + ' ' + v + ' von 5">' + v + '</button>').join('') + '</div></div>').join('') + '</section>';
-  if (C.zeit.length) h += '<section class="steps">' + C.zeit.map((f) => '<div class="step"><span>' + esc(f) + (f === 'Bewusste Zeit' ? ' (ohne Handy)' : '') + '</span><div class="row"><button data-act="zeit" data-f="' + esc(f) + '" data-v="-0.5" aria-label="' + esc(f) + ' verringern">−</button><b>' + fmtNum(d.zeit[f], 1) + ' h</b><button data-act="zeit" data-f="' + esc(f) + '" data-v="0.5" aria-label="' + esc(f) + ' erhöhen">+</button></div></div>').join('') + '</section>';
-  h += '<section class="card"><h2>' + (S.mode === 'leben' ? 'Heute für mich getan' : 'Heute füreinander getan') + '</h2><div class="chips">' +
-    C.acts.map((f) => '<button class="chip ' + (d.acts[f] ? 'on' : '') + '" data-act="act" data-f="' + esc(f) + '" aria-pressed="' + !!d.acts[f] + '">' + esc(f) + '</button>').join('') + '</div></section>';
-  if (C.ctx.length) h += '<section class="card"><div style="display:flex;flex-direction:column;gap:2px"><h2>Kontext heute</h2><span class="sub">Zählt nicht in den Score, hilft bei den Zusammenhängen</span></div><div class="chips">' +
-    C.ctx.map((f) => '<button class="chip ctx ' + (d.ctx[f] ? 'on' : '') + '" data-act="ctx" data-f="' + esc(f) + '" aria-pressed="' + !!d.ctx[f] + '">' + esc(f) + '</button>').join('') + '</div></section>';
-  h += '<section style="display:flex;flex-direction:column;gap:8px"><label class="t" for="note" style="font-family:\'Space Grotesk\',sans-serif;font-size:17px">' + (S.mode === 'leben' ? 'Eine Sache, für die ich dankbar bin' : 'Was ich heute an dir geschätzt habe') + '</label><textarea id="note" rows="3" data-in="note">' + esc(d.note) + '</textarea></section>';
-  h += '<button class="primary" data-act="save" ' + (S.busy ? 'disabled' : '') + '>' + (S.busy ? 'Speichert …' : 'Check-in speichern') + '</button>';
-  const q = store.get('lt_queue', []);
-  if (q.length) h += '<p class="note">' + q.length + ' Check-in(s) warten auf Übertragung.</p>';
-  return h;
-}
-function weekCount(f) {
-  const mon = monday(S.date), end = addDays(mon, 7), set = {};
-  entries(S.mode).forEach((e) => { if (e.t === 'Aktivität' && e.f === f && e.d >= mon && e.d < end && !(e.p === S.sum.me && e.d === S.date)) set[e.d] = 1; });
-  if (draft().acts[f]) set[S.date] = 1;
-  return Object.keys(set).length;
-}
-function vZiele() {
-  const C = cfg(S.mode), d = draft();
-  const others = {};
-  entries(S.mode).forEach((e) => { if (e.t === 'Monatsziel' && e.p !== S.sum.me && e.d.slice(0, 7) === S.date.slice(0, 7)) others[e.f] = e.p; });
-  return '<section class="card"><div class="row"><h2>Wochenziele</h2><span class="sub">KW ' + kw(S.date) + '</span></div>' +
-    C.weekly.map((w) => { const n = weekCount(w.f), r = Math.min(n / w.target, 1); return '<div style="display:flex;flex-direction:column;gap:6px;padding:4px 0"><div class="line"><b style="font-weight:500">' + esc(w.f) + '</b><span>' + n + ' / ' + w.target + '</span></div><div class="bar"><i class="' + (r >= 1 ? 'full' : '') + '" style="width:' + Math.round(r * 100) + '%"></i></div></div>'; }).join('') +
-    (S.mode === 'liebe' ? '<p class="note">Gemeinsame Aktivitäten zählen einmal pro Tag, egal wer sie einträgt.</p>' : '') + '</section>' +
-    '<section class="card" style="gap:0"><h2 style="margin-bottom:6px">Monatsziele · ' + MON[parse(S.date).getMonth()] + '</h2>' +
-    C.monthly.map((m) => '<button class="check" data-act="month" data-f="' + esc(m.f) + '" aria-pressed="' + !!d.monthly[m.f] + '"><span class="box ' + (d.monthly[m.f] ? 'on' : '') + '">' + (d.monthly[m.f] ? '✓' : '') + '</span><span style="flex:1">' + esc(m.f) + (others[m.f] ? '<br><small class="sub">erledigt von ' + esc(others[m.f]) + '</small>' : '') + '</span></button>').join('') +
-    '</section><button class="primary" data-act="save" ' + (S.busy ? 'disabled' : '') + '>' + (S.busy ? 'Speichert …' : 'Speichern') + '</button><p class="note">Ziele und Zielwerte änderst du im Google Sheet im Tab „Ziele“.</p>';
-}
-function vScore() {
-  const s = scoreNow(S.mode);
-  const rows = (s.rows || []).slice(0, 8).reverse();
-  let h = '<section class="card"><h2>So setzt sich der Score zusammen</h2>' +
-    [[S.mode === 'liebe' ? 'Tagesgefühl & bewusste Zeit' : 'Tägliches Befinden', s.daily, '35 %'], ['Wochenziele', s.wk, '45 %'], ['Monatsziele', s.mo, '20 %']]
-      .map(([l, v, w]) => '<div style="display:flex;flex-direction:column;gap:6px"><div class="line"><b style="font-weight:500">' + l + '</b><span>' + pct(v) + ' · ' + w + '</span></div><div class="bar"><i style="width:' + Math.round((v || 0) * 100) + '%"></i></div></div>').join('') +
-    '<p class="note">Gewichte änderst du im Sheet unter „Einstellungen“. Der Score aktualisiert sich beim Speichern.</p></section>';
-  const maxV = 100;
-  h += '<section class="card"><h2>Verlauf (Wochen)</h2><div class="trend">' + rows.map((v, i) => '<div class="' + (i === rows.length - 1 ? 'cur' : '') + '"><span>' + (v != null ? v : '–') + '</span><i style="height:' + Math.round(((v || 0) / maxV) * 70 + 2) + 'px"></i></div>').join('') + '</div></section>';
-  if (S.mode === 'liebe') {
-    const gap = s.gap;
-    h += '<section class="card"><h2>Meine Sicht und deine Sicht</h2>' +
-      [[S.sum.me + ' (du)', s.daily, s.score], [S.sum.partner, s.partnerFeel, s.partnerScore]].map(([l, f, sc], i) => '<div style="display:flex;flex-direction:column;gap:6px"><div class="line"><b style="font-weight:500">' + esc(l) + '</b><span>Gefühl ' + pct(f) + ' · Score ' + (sc != null ? sc : '–') + '</span></div><div class="bar"><i class="' + (i ? 'full' : '') + '" style="width:' + Math.round((f || 0) * 100) + '%"></i></div></div>').join('') +
-      '<div class="kpis" style="grid-template-columns:1fr 1fr"><div class="kpi" style="background:#FFF1F2;border:none"><span style="color:#881337">Gemeinsamer Score</span><b style="color:#881337">' + (s.joint != null ? s.joint : '–') + '</b></div><div class="kpi" style="background:#F1F5F9;border:none"><span>Abweichung im Gefühl</span><b style="color:#0F172A">' + (gap != null ? gap + ' Pkt.' : '–') + '</b></div></div>' +
-      '<p class="note">' + (gap == null ? 'Sobald ihr beide diese Woche eingetragen habt, siehst du hier den Vergleich.' : gap >= 20 ? 'Ihr erlebt die Woche unterschiedlich. Guter Anlass für ein Gespräch: Was hat dir gefehlt, was hat dir gutgetan?' : 'Ihr erlebt die Woche ähnlich.') + '</p></section>';
-  }
-  return h;
-}
-function vAnalyse() {
-  const A = analysis(), l = scoreNow('leben').score, r = scoreNow('liebe').score, LIM = 50;
-  const has = l != null && r != null;
-  const Q = [
-    ['Liebe stark · Leben schwach', 'Die Beziehung trägt dich', 'Gut, dass ihr euch habt. Schau, was dir selbst fehlt.', has && l < LIM && r >= LIM],
-    ['Beides stark', 'Im Fluss', 'Halte die Routinen, die gerade funktionieren.', has && l >= LIM && r >= LIM],
-    ['Beides schwach', 'Ruhe und Hilfe holen', 'Weniger vornehmen, Schlaf und Unterstützung zuerst.', has && l < LIM && r < LIM],
-    ['Leben stark · Liebe schwach', 'Ihr verliert euch aus den Augen', 'Plant bewusst Zeit zu zweit ein.', has && l >= LIM && r < LIM]
-  ];
-  let h = '<section class="card"><div style="display:flex;flex-direction:column;gap:2px"><h2>Wo stehst du gerade?</h2><span class="sub">Leben ' + (l != null ? l : '–') + ' · Liebe ' + (r != null ? r : '–') + ' · Grenze bei 50</span></div><div class="quads">' +
-    Q.map(([ax, t, x, on]) => '<div class="quad ' + (on ? 'on' : '') + '"><small>' + ax + '</small><b>' + t + '</b><span>' + x + '</span></div>').join('') + '</div></section>';
-  h += '<section style="display:flex;flex-direction:column;gap:10px"><div class="row"><h2 style="margin:0;font-size:17px">Was dir auffällt</h2><span class="sub">' + A.days + ' Tage mit Einträgen</span></div>' +
-    A.insights.map((i) => i.num != null
-      ? '<div class="ins"><div class="row"><span class="tagc" style="background:' + i.c + '">' + i.dir + '</span><b class="n">' + i.num + '</b></div><b style="font-size:15px">' + i.head + '</b><p>' + esc(i.text) + '</p><small>Basis: ' + i.r.nA + ' und ' + i.r.nB + ' ' + (i.r.unit || 'Tage') + '</small></div>'
-      : '<div class="ins wait"><div class="row"><span class="tagc" style="background:' + i.c + '">' + i.dir + '</span><small>noch zu wenig Daten</small></div><b style="font-size:15px">' + i.head + '</b><p>' + esc(i.text) + '</p><small>Bisher ' + i.r.nA + ' und ' + i.r.nB + ' ' + (i.r.unit || 'Tage') + ' je Gruppe, nötig: ' + (i.r.unit ? 3 : (i.head.indexOf('Konflikt') === 0 ? 3 : 10)) + '</small></div>').join('') + '</section>';
-  h += '<section class="card"><div style="display:flex;flex-direction:column;gap:2px"><h2>Stärkste Zusammenhänge</h2><span class="sub">Rechts: gehen gemeinsam hoch. Links: gegenläufig. Ab 14 gemeinsamen Tagen.</span></div>' +
-    (A.corr.length ? A.corr.map((c) => '<div style="display:flex;flex-direction:column;gap:5px"><div class="line" style="font-size:13px"><b>' + esc(c.l) + '</b><span>' + (c.r > 0 ? '+' : '−') + fmtNum(Math.abs(c.r), 2) + '</span></div><div class="dv"><div><i style="background:#DB2777;width:' + (c.r < 0 ? Math.round(-c.r * 100) : 0) + '%"></i></div><div><i style="background:#1D4ED8;width:' + (c.r > 0 ? Math.round(c.r * 100) : 0) + '%"></i></div></div></div>').join('')
-      : '<p class="note">Noch zu wenig Daten. Trag ein paar Wochen in Leben und Liebe ein, dann erscheinen hier die stärksten Zusammenhänge.</p>') + '</section>';
-  h += '<section class="card" style="flex-direction:row;align-items:center;justify-content:space-between;gap:12px"><div style="display:flex;flex-direction:column;gap:4px"><b style="font-size:14px">Stress und Schlaf teilen</b><span class="sub" style="line-height:1.45">Nur der Wochenschnitt landet im Liebe-Sheet, keine Tageswerte.</span></div><button class="switch ' + (S.sum.share ? 'on' : '') + '" role="switch" aria-checked="' + !!S.sum.share + '" aria-label="Stress und Schlaf teilen" data-act="share"><span></span></button></section>';
-  h += '<p class="note">Das sind Tendenzen aus deinen eigenen Einträgen, keine Beweise für Ursache und Wirkung.</p>';
-  return h;
-}
-function vSettings() {
-  return '<div class="setup"><h1 style="margin:0;font-size:26px">Einstellungen</h1><div class="card"><b>Verbunden als ' + esc(S.sum ? S.sum.me : '') + '</b><span class="sub" style="word-break:break-all">' + esc(S.conn.url) + '</span></div>' +
-    '<button class="ghost" data-act="refresh">Daten neu laden</button><button class="ghost" data-act="logout" style="color:#B91C1C">Verbindung trennen</button><button class="primary" data-act="settings">Zurück</button>' +
-    '<p class="note">Ziele, Zielwerte und Gewichte änderst du direkt in deinen Google Sheets. Die App übernimmt sie beim nächsten Laden.</p></div>';
+function deltaPill(now, before) {
+  if (now == null || before == null || now === before) return '';
+  const d = now - before;
+  return '<span class="pill W">' + (d > 0 ? '▲ ' + d : '▼ ' + Math.abs(d)) + '</span>';
 }
 function vSetup() {
-  return '<div class="setup"><div class="brand"><div class="logo" style="background:#0F766E">' + svg('M12 3v18M5 9c0 4 3 7 7 7s7-3 7-7', '#fff') + '</div><b style="font-size:20px">Innenkultur</b></div>' +
-    '<h1 style="margin:0;font-size:26px">Einrichten</h1><p class="note" style="font-size:14px">Trag die Adresse deines Apps Scripts und deinen Zugangscode ein. Beides steht in der Anleitung.</p>' +
-    '<label class="t" for="su">Web-App-Adresse</label><input id="su" type="url" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off">' +
-    '<label class="t" for="st">Zugangscode</label><input id="st" type="password" autocomplete="off">' +
+  return '<div class="scroll"><div class="pad" style="gap:16px;padding-top:calc(40px + env(safe-area-inset-top))"><div class="row" style="justify-content:flex-start"><div class="num" style="background:var(--gX)">' + svg(P.logo, '#fff') + '</div><b class="jk" style="font-size:22px">Innenkultur</b></div>' +
+    '<h1>Verbinden</h1><p class="small" style="font-size:15px;margin:0">Trag die Adresse deines Apps Scripts und deinen Zugangscode ein.</p>' +
+    '<label class="col" style="gap:6px"><b style="font-size:14px">Web-App-Adresse</b><input id="su" type="url" placeholder="https://script.google.com/macros/s/…/exec" autocomplete="off"></label>' +
+    '<label class="col" style="gap:6px"><b style="font-size:14px">Zugangscode</b><input id="st" type="password" autocomplete="off"></label>' +
     (S.setupErr ? '<p class="err">' + esc(S.setupErr) + '</p>' : '') +
-    '<button class="primary" style="background:#0F766E" data-act="connect" ' + (S.busy ? 'disabled' : '') + '>' + (S.busy ? 'Verbinde …' : 'Verbinden') + '</button></div>';
+    '<button class="btn" data-a="connect" ' + (S.busy ? 'disabled' : '') + '>' + (S.busy ? 'Verbinde …' : 'Verbinden') + '</button></div></div>';
+}
+function vOnboarding() {
+  const dots = (i) => '<div class="dotsnav" aria-label="Seite ' + (i + 1) + ' von 3">' + [0, 1, 2].map((k) => '<i class="' + (k === i ? 'on' : '') + '"></i>').join('') + '</div>';
+  if (S.ob === 0) return '<div class="scroll"><div class="ob1"><div class="row" style="justify-content:flex-end"><button class="iconbtn glass" style="width:auto;padding:0 14px;font-size:13px;font-weight:700" data-a="obSkip">Überspringen</button></div>' +
+    '<div aria-hidden="true" style="position:relative;height:240px"><div style="position:absolute;left:12%;top:20px;width:52%;aspect-ratio:1;border-radius:50%;background:linear-gradient(135deg,rgba(16,185,129,.95),rgba(37,99,235,.85));box-shadow:0 20px 50px rgba(15,23,42,.3)"></div><div style="position:absolute;right:12%;top:50px;width:46%;aspect-ratio:1;border-radius:50%;background:linear-gradient(135deg,rgba(244,63,94,.9),rgba(192,38,211,.85));mix-blend-mode:screen;box-shadow:0 20px 50px rgba(15,23,42,.3)"></div></div>' +
+    '<div class="col" style="gap:14px"><h1 style="font-size:34px;line-height:1.1">Leben und Liebe im Blick</h1><p style="margin:0;font-size:16px;line-height:1.55;opacity:.95">Zwei Minuten am Abend. Ein ehrlicher Blick darauf, was dir guttut und was euch guttut, und wie beides zusammenhängt.</p></div>' +
+    '<div class="col" style="gap:18px">' + dots(0) + '<button class="btn white" data-a="obNext">Los geht\'s</button></div></div></div>';
+  if (S.ob === 1) return '<div class="scroll"><div class="pad" style="min-height:100%;gap:16px"><div class="row"><button class="iconbtn" data-a="obBack" aria-label="Zurück">' + svg(P.back) + '</button><button class="link" data-a="obSkip">Überspringen</button></div>' +
+    '<div class="col" style="gap:6px"><h1 style="font-size:30px">So funktioniert\'s</h1><span class="small" style="font-size:15px">Drei Schritte, jeden Tag gleich.</span></div>' +
+    [['1', 'var(--gL)', 'Abends einchecken', 'Erst wie es dir geht, dann wie es euch geht. Ein paar Fingertipps, kein Roman.'],
+     ['2', 'linear-gradient(135deg,#1D4ED8,#6D28D9)', 'Zwei Scores von 0 bis 100', 'Dein Leben-Score und euer gemeinsamer Liebe-Score. Wochenziele zählen anteilig nach Wochentagen, so startet kein Montag bei null.'],
+     ['3', 'linear-gradient(135deg,#6D28D9,#BE185D)', 'Feedback und Vorschläge', 'Die App sagt dir, was gut läuft, wo du hinterherhängst und was heute hilft. Ab etwa zwei Wochen erkennt sie deine Muster.']]
+      .map(([n, g, t, x]) => '<div class="card" style="flex-direction:row;gap:14px"><span class="num" style="background:' + g + '">' + n + '</span><div class="col" style="gap:3px"><b style="font-size:16px">' + t + '</b><span class="small" style="font-size:14px">' + x + '</span></div></div>').join('') +
+    '<div class="good" style="background:linear-gradient(135deg,#ECFDF5,#F5F3FF 50%,#FFF1F2);border-color:#DDD6FE">' + svg(P.lock, '#6D28D9', 22) + '<span style="color:#2E1065;font-size:14px"><b style="color:#2E1065">Leben bleibt privat</b> in deinem eigenen Sheet. <b style="color:#2E1065">Liebe teilt ihr</b> in einem gemeinsamen Sheet.</span></div>' +
+    '<div class="col" style="gap:16px;margin-top:auto">' + dots(1) + '<button class="btn" data-a="obNext">Weiter</button></div></div></div>';
+  const rows = cfgRows('leben').filter((r) => r.t === 'Bewertung' || r.t === 'Woche');
+  if (!S.obSel) { S.obSel = {}; rows.forEach((r) => { S.obSel[r.f] = { act: r.act !== false, z: r.z }; }); }
+  return '<div class="scroll"><div class="pad" style="gap:16px"><div class="row"><button class="iconbtn" data-a="obBack" aria-label="Zurück">' + svg(P.back) + '</button><span class="sub">Alles später unter Anpassen änderbar</span></div>' +
+    '<div class="col" style="gap:6px"><h1 style="font-size:30px">Mach sie zu deiner</h1><span class="small" style="font-size:15px">Was willst du in deinem Leben beobachten? Tippe an, was dir gerade wichtig ist.</span></div>' +
+    '<div class="card"><b style="font-size:13px;color:#065F46">Täglich bewerten</b><div class="chips">' + rows.filter((r) => r.t === 'Bewertung').map((r) => '<button class="chip L ' + (S.obSel[r.f].act ? 'on' : '') + '" data-a="obTog" data-f="' + esc(r.f) + '" aria-pressed="' + S.obSel[r.f].act + '">' + esc(r.f) + '</button>').join('') + '</div></div>' +
+    '<div class="list"><div class="li" style="border:none;padding-bottom:4px"><b style="font-size:13px;color:#065F46">Wochenziele</b></div>' + rows.filter((r) => r.t === 'Woche').map((r) => { const s = S.obSel[r.f]; return '<div class="li"><button class="box ' + (s.act ? 'on' : '') + '" data-a="obTog" data-f="' + esc(r.f) + '" aria-label="' + esc(r.f) + ' ' + (s.act ? 'aktiv' : 'aus') + '">' + (s.act ? '✓' : '') + '</button><span style="flex:1;font-size:14px;font-weight:600;' + (s.act ? '' : 'color:var(--sub)') + '">' + esc(r.f) + '</span><div class="stepper" style="gap:6px"><button data-a="obZ" data-f="' + esc(r.f) + '" data-v="-1" aria-label="weniger" style="width:34px;height:34px">−</button><b style="font-size:16px;min-width:28px;text-align:center">' + s.z + '×</b><button data-a="obZ" data-f="' + esc(r.f) + '" data-v="1" aria-label="mehr" style="width:34px;height:34px">+</button></div></div>'; }).join('') + '</div>' +
+    '<p class="small" style="margin:0">Liebe richtet ihr gemeinsam unter „Anpassen“ ein. Tipp: Stell dir einen täglichen Wecker, z. B. um 21 Uhr, als Erinnerung für den Check-in.</p>' +
+    '<div class="col" style="gap:16px">' + dots(2) + '<button class="btn" data-a="obDone" ' + (S.busy ? 'disabled' : '') + '>' + (S.busy ? 'Speichert …' : 'Fertig, los geht\'s') + '</button></div></div></div>';
+}
+function vSummary() {
+  const snap = store.get('lt_snap', {}) || {}, sc = scoresNow(), fb = feedback(), st = streak();
+  const since = snap.date ? (snap.date === addDays(today(), -1) ? 'gestern' : short(snap.date)) : '';
+  const d = (a, b) => a == null || b == null ? '' : '<span class="pill ' + (a >= b ? 'L' : 'N') + '">' + (a >= b ? '+' : '−') + Math.abs(a - b) + '</span>';
+  const changes = [];
+  goalStatus('leben').concat(goalStatus('liebe')).forEach((g) => { if (!g.reached && g.target - g.done === 1) changes.push({ ic: (g.done) + '/' + g.target, c: '#1D4ED8', bg: '#EFF6FF', t: g.f + ': fast geschafft', x: 'Noch einmal bis Sonntag' }); });
+  const fSl = fk('leben', 'schlaf', 'Schlaf'), M = byDay(mine('leben'));
+  let run = 0; for (let i = 0; i < 14; i++) { const x = M[addDays(today(), -i)]; if (x && x.r[fSl] >= 4) run++; else if (i > 0) break; }
+  if (run >= 3) changes.unshift({ ic: '▲', c: '#047857', bg: '#ECFDF5', t: fSl + ' ' + run + ' Nächte in Folge ab 4', x: 'Das wirkt meist auch auf die Stimmung zu zweit' });
+  const fBz = fk('liebe', 'bewusst', 'Bewusste Zeit');
+  const sumZ = (from, to) => mine('liebe').filter((e) => e.t === 'Zeit' && e.f === fBz && e.d >= from && e.d < to).reduce((a, e) => a + (e.v || 0), 0);
+  const mon = monday(today()), di = dayIdx(today());
+  const zNow = sumZ(mon, addDays(today(), 1)), zPrev = sumZ(addDays(mon, -7), addDays(mon, -7 + di + 1));
+  if (zNow || zPrev) changes.push({ ic: zNow >= zPrev ? '▲' : '▼', c: zNow >= zPrev ? '#047857' : '#BE123C', bg: zNow >= zPrev ? '#ECFDF5' : '#FFF1F2', t: fBz + ' zu zweit: ' + fmt(zNow, 1) + ' h', x: 'Letzte Woche bis ' + WD[parse(today()).getDay()] + ': ' + fmt(zPrev, 1) + ' h' });
+  return '<div class="scroll"><div class="hero"><span style="font-size:13px;font-weight:600;opacity:.92">' + nice(today()) + '</span><h1 style="font-size:28px;line-height:1.15">' + greet() + '. Das hat sich ' + (since ? 'seit ' + since : '') + ' bewegt</h1>' +
+    (st ? '<span class="pill W" style="align-self:flex-start;margin-top:6px;font-size:13px;padding:6px 12px">' + st + (st === 1 ? ' Tag' : ' Tage') + ' in Folge eingecheckt</span>' : '') + '</div>' +
+    '<div class="float"><div><span style="font-size:12px;font-weight:700;color:#065F46">Leben</span><div class="row" style="justify-content:flex-start;gap:8px"><span class="big">' + (sc.leben != null ? sc.leben : '–') + '</span>' + d(sc.leben, snap.leben) + '</div><span class="sub">' + (snap.leben != null ? 'vorher ' + snap.leben : 'noch kein Vergleich') + '</span></div>' +
+    '<div><span style="font-size:12px;font-weight:700;color:#9F1239">Liebe · gemeinsam</span><div class="row" style="justify-content:flex-start;gap:8px"><span class="big">' + (sc.liebe != null ? sc.liebe : '–') + '</span>' + d(sc.liebe, snap.liebe) + '</div><span class="sub">' + (snap.liebe != null ? 'vorher ' + snap.liebe : 'noch kein Vergleich') + '</span></div></div>' +
+    '<div class="pad" style="padding-top:18px">' +
+    (changes.length ? '<div class="list"><div class="li" style="border:none;padding-bottom:2px"><h2>Was sich verändert hat</h2></div>' + changes.slice(0, 3).map((c) => '<div class="li"><span style="flex:none;width:34px;height:34px;border-radius:10px;background:' + c.bg + ';color:' + c.c + ';display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px">' + c.ic + '</span><div class="col"><b style="font-size:14px">' + esc(c.t) + '</b><span class="sub">' + esc(c.x) + '</span></div></div>').join('') + '</div>' : '') +
+    (fb.good[0] ? '<div class="good"><span class="ic">✓</span><div class="col" style="gap:2px"><b style="font-size:14px">' + esc(fb.good[0].t) + '</b><span>' + esc(fb.good[0].x) + '</span></div></div>' : '') +
+    (fb.warn[0] ? '<div class="warn"><span class="ic">!</span><div class="col" style="gap:2px"><b style="font-size:14px">' + esc(fb.warn[0].t) + '</b><span>' + esc(fb.warn[0].x) + '</span></div></div>' : '') +
+    '<button class="btn" data-a="sumDone">Weiter zu meinem Tag</button></div></div>';
+}
+function vHome() {
+  const sc = scoresNow(), snap = store.get('lt_snap', {}) || {}, T = todos(), tick = store.get('lt_todo', {})[today()] || {};
+  const A = analysis(), reco = recommendation(A), V = verdict(), fb = feedback();
+  const doneL = mine('leben').some((e) => e.d === today()), doneR = mine('liebe').some((e) => e.d === today());
+  const behind = goalStatus('leben').concat(goalStatus('liebe')).filter((g) => !g.reached && g.deficit >= 1).sort((a, b) => b.deficit - a.deficit)[0];
+  let h = '<div class="scroll"><div class="pad">' +
+    '<div class="row"><div class="col" style="gap:2px"><span class="small">' + nice(today()) + ' · KW ' + kw(today()) + '</span><h1>' + greet() + '</h1></div><button class="iconbtn" data-a="go" data-v="anpassen" aria-label="Anpassen">' + svg(P.sliders) + '</button></div>' +
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">' + scoreCard('leben', sc.leben, deltaPill(sc.leben, snap.leben)) + scoreCard('liebe', sc.liebe, deltaPill(sc.liebe, snap.liebe)) + '</div>';
+  h += '<div class="card"><div class="row"><h2>Dein Check-in heute</h2><span class="sub">ca. 2 Min.</span></div><div class="row" style="gap:8px">' +
+    '<span style="flex:1;display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:12px;background:#ECFDF5;font-size:13px;font-weight:700;color:#065F46"><span style="width:8px;height:8px;border-radius:50%;background:#047857"></span>Leben ' + (doneL ? 'erledigt' : 'offen') + '</span>' +
+    '<span style="flex:1;display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:12px;background:#FFF1F2;font-size:13px;font-weight:700;color:#9F1239"><span style="width:8px;height:8px;border-radius:50%;background:#BE123C"></span>Liebe ' + (doneR ? 'erledigt' : 'offen') + '</span></div>' +
+    '<button class="btn" data-a="startCheckin">' + (doneL && doneR ? 'Check-in bearbeiten' : 'Check-in starten') + ' ' + svg(P.arrow, '#fff', 18, 2.4) + '</button></div>';
+  h += '<div class="col" style="gap:10px"><div class="row"><h2 style="font-size:18px">Deine To-dos für heute</h2><span class="sub">' + T.filter((t) => tick[t.id]).length + ' von ' + T.length + '</span></div><div class="list">' +
+    T.map((t) => '<div class="li" style="align-items:flex-start"><button class="box ' + (tick[t.id] ? 'on' : '') + '" data-a="todo" data-v="' + esc(t.id) + '" aria-pressed="' + !!tick[t.id] + '" aria-label="' + esc(t.t) + ' erledigt">' + (tick[t.id] ? '✓' : '') + '</button><div class="col" style="flex:1;gap:2px"><b style="font-size:14px;' + (tick[t.id] ? 'text-decoration:line-through;color:var(--sub)' : '') + '">' + esc(t.t) + '</b><span class="sub">' + esc(t.x) + '</span></div><span class="pill ' + (t.area === 'leben' ? 'L' : 'R') + '">' + (t.area === 'leben' ? 'Leben' : 'Liebe') + '</span></div>').join('') + '</div></div>';
+  h += '<div class="reco"><span class="cap" style="opacity:.92">Empfehlung</span><b class="jk" style="font-size:17px;line-height:1.3">' + esc(reco.t) + '</b><span style="font-size:13px;line-height:1.5">' + esc(reco.x) + '</span></div>';
+  if (behind) h += '<div class="behind"><div class="row"><b style="font-size:13px;color:#92400E">Hier hängst du hinterher</b><span class="sub" style="color:#92400E">' + (behind.left ? 'noch ' + behind.left + (behind.left === 1 ? ' Tag' : ' Tage') : 'letzter Tag') + '</span></div><div class="row" style="font-size:14px"><b>' + esc(behind.f) + '</b><span style="color:#78350F">' + behind.done + ' / ' + behind.target + '</span></div><div class="bar" style="background:#FEF3C7"><i style="width:' + Math.max(4, Math.round(behind.done / behind.target * 100)) + '%;background:#D97706"></i></div><span class="sub" style="color:#78350F">' + (behind.impossible ? 'Diese Woche wird knapp. Jedes Mal zählt trotzdem anteilig.' : 'Plan es dir fest ein, dann ist es gut machbar.') + '</span></div>';
+  else h += '<div class="good"><span class="ic">✓</span><div class="col" style="gap:2px"><b style="font-size:14px">Alle Wochenziele im Plan</b><span>Gemessen an den bisherigen Wochentagen liegst du überall gut.</span></div></div>';
+  h += '<div class="card"><div class="row"><h2>Dein Verlauf</h2><span class="sub">' + (V.weeks ? V.weeks + (V.weeks === 1 ? ' Woche' : ' Wochen') + ' Daten' : 'gerade gestartet') + '</span></div><span style="font-size:14px;line-height:1.5">' + esc(V.text) + '</span>' +
+    '<div class="row" style="gap:8px;align-items:stretch">' + (fb.good[0] ? '<span style="flex:1;padding:8px 10px;border-radius:12px;background:#ECFDF5;font-size:12px;color:#065F46"><b>Gut:</b> ' + esc(fb.good[0].t) + '</span>' : '') + (fb.warn[0] ? '<span style="flex:1;padding:8px 10px;border-radius:12px;background:#FFF1F2;font-size:12px;color:#9F1239"><b>Achtung:</b> ' + esc(fb.warn[0].t) + '</span>' : '') + '</div></div>';
+  const q = store.get('lt_queue', []);
+  if (q.length) h += '<p class="small" style="margin:0">' + q.length + ' Check-in(s) warten auf Übertragung.</p>';
+  return h + '</div></div>' + vTabs('home');
+}
+function vTabs(cur) {
+  const b = (v, l, ic) => '<button data-a="' + (v === 'checkin' ? 'startCheckin' : 'go') + '" data-v="' + v + '" class="' + (cur === v ? 'on' : '') + '" aria-current="' + (cur === v ? 'page' : 'false') + '">' + ic + l + '</button>';
+  return '<nav class="tabs">' + b('home', 'Start', svg(P.home, null, 22)) + b('checkin', 'Check-in', '<span class="plus">' + svg(P.plus, '#fff', 18, 2.6) + '</span>') + b('verlauf', 'Verlauf', svg(P.chart, null, 22)) + b('analyse', 'Analyse', svg(P.link, null, 22)) + '</nav>';
+}
+function vCheckin() {
+  const area = S.ci, L = area === 'leben', C = cfg(area), d = draft(area, S.date), cls = L ? 'L' : 'R';
+  const canBack = S.date > addDays(today(), -7), canFwd = S.date < today();
+  let h = '<div class="head ' + cls + '"><div class="row"><button class="iconbtn glass" data-a="' + (L ? 'closeCheckin' : 'ciBack') + '" aria-label="' + (L ? 'Check-in schließen' : 'Zurück zu Leben') + '">' + svg(L ? P.x : P.back, '#fff', 18, 2.4) + '</button>' +
+    '<div class="datechip"><button data-a="day" data-v="-1" ' + (canBack ? '' : 'disabled') + ' aria-label="Vorheriger Tag">‹</button><span>' + (S.date === today() ? 'Heute' : short(S.date)) + '</span><button data-a="day" data-v="1" ' + (canFwd ? '' : 'disabled') + ' aria-label="Nächster Tag">›</button></div>' +
+    '<span style="font-size:13px;font-weight:700;min-width:44px;text-align:right">' + (L ? '1' : '2') + ' / 2</span></div>' +
+    '<div class="prog"><i class="on"></i><i class="' + (L ? '' : 'on') + '"></i></div><div class="col" style="gap:2px"><h1>' + (L ? 'Erst du: Leben' : 'Dann ihr: Liebe') + '</h1><span style="font-size:13px;opacity:.92">' + (L ? 'Privat, nur in deinem eigenen Sheet' : 'Geteilt mit ' + esc(S.sum.partner)) + '</span></div></div>';
+  h += '<div class="scroll"><div class="pad" style="padding-top:16px">';
+  if (!L && S.bridge && S.bridge.length) h += S.bridge.map((b, i) => '<div class="card" style="background:linear-gradient(135deg,#EFF6FF,#F5F3FF 50%,#FDF2F8);border:1px solid #DDD6FE;box-shadow:none"><div class="row" style="justify-content:flex-start;gap:8px"><span class="tag" style="background:var(--gL)">Aus Leben</span>' + svg(P.arrow, '#6D28D9', 16, 2.4) + '<span class="tag" style="background:var(--gR)">in Liebe</span></div><span style="font-size:14px;line-height:1.45;color:#2E1065">' + b.text + '</span><div class="row" style="gap:8px"><button class="btn" style="min-height:42px;font-size:13px;background:#6D28D9;box-shadow:none" data-a="bridgeKeep" data-v="' + i + '">Als To-do merken</button><button class="ghost" style="min-height:42px;font-size:13px;border-color:#DDD6FE;color:#4C1D95" data-a="bridgeDrop" data-v="' + i + '">Nicht nötig</button></div></div>').join('');
+  const showWc = (C.wcRate || C.wcText) && (parse(S.date).getDay() === 0 || d.wcRate || d.wcText);
+  if (showWc) {
+    h += '<div class="card" style="border:1px solid ' + (L ? '#A7F3D0' : '#FECDD3') + '"><div class="row"><h2>Wochen-Check</h2><span class="pill N">Sonntag</span></div>';
+    if (C.wcRate) h += '<div class="rate"><b style="font-size:14px;flex:1">' + esc(C.wcRate) + '</b></div><div class="seg5 ' + cls + '" style="align-self:flex-start">' + [1, 2, 3, 4, 5].map((v) => '<button class="' + (d.wcRate === v ? 'on' : '') + '" data-a="wc" data-v="' + v + '" aria-label="' + esc(C.wcRate) + ' ' + v + '">' + v + '</button>').join('') + '</div>';
+    if (C.wcText) h += '<label class="col" style="gap:6px"><b style="font-size:14px">' + esc(C.wcText) + '</b><textarea id="wcText" rows="2" data-in="wcText">' + esc(d.wcText) + '</textarea></label>';
+    h += '</div>';
+  }
+  h += '<div class="card" style="gap:2px"><h2 style="margin-bottom:6px">' + (L ? 'Wie geht es dir heute?' : 'Wie verbunden fühlst du dich?') + '</h2>' +
+    C.ratings.map((r) => '<div class="rate"><div class="col"><b style="font-size:14px">' + esc(r.f) + '</b>' + (r.inv ? '<span class="sub">5 = hoch, zählt umgekehrt</span>' : '') + '</div><div class="seg5 ' + (r.inv ? 'W' : cls) + '">' +
+      [1, 2, 3, 4, 5].map((v) => '<button class="' + (d.ratings[r.f] === v ? 'on' : '') + '" data-a="rate" data-f="' + esc(r.f) + '" data-v="' + v + '" aria-label="' + esc(r.f) + ' ' + v + ' von 5">' + v + '</button>').join('') + '</div></div>').join('') + '</div>';
+  if (C.zeit.length) h += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">' + C.zeit.map((z) => '<div class="step"><span class="sub">' + esc(z.f) + (z.key === 'bewusst' ? ' (ohne Handy)' : '') + '</span><div class="stepper"><button data-a="zeit" data-f="' + esc(z.f) + '" data-v="-0.5" aria-label="' + esc(z.f) + ' weniger">−</button><b>' + fmt(d.zeit[z.f], 1) + ' h</b><button data-a="zeit" data-f="' + esc(z.f) + '" data-v="0.5" aria-label="' + esc(z.f) + ' mehr">+</button></div></div>').join('') + '</div>';
+  const wmap = {}; C.weekly.forEach((w) => { wmap[w.f] = w.target; });
+  h += '<div class="card"><h2>' + (L ? 'Was hast du heute für dich getan?' : 'Was habt ihr füreinander getan?') + '</h2><div class="chips">' +
+    C.acts.map((f) => '<button class="chip ' + cls + ' ' + (d.acts[f] ? 'on' : '') + '" data-a="act" data-f="' + esc(f) + '" aria-pressed="' + !!d.acts[f] + '">' + esc(f) + (wmap[f] ? ' <small>' + weekCount(area, f, S.date) + '/' + wmap[f] + '</small>' : '') + '</button>').join('') +
+    '<button class="chip add" data-a="newCrit" data-v="' + area + '">+ Neu</button></div>' + (C.weekly.length ? '<span class="sub">Die Zahl zeigt deinen Wochenstand' + (L ? '' : ', gemeinsam gezählt') + '.</span>' : '') + '</div>';
+  if (C.ctx.length) {
+    const sel = C.ctx.filter((f) => d.ctx[f]);
+    h += d.ctxOpen ? '<div class="card"><div class="row"><h2>Kontext</h2><button class="link" data-a="ctxToggle">Schließen</button></div><span class="sub">Zählt nicht in den Score, hilft bei den Zusammenhängen.</span><div class="chips">' + C.ctx.map((f) => '<button class="chip ctx ' + (d.ctx[f] ? 'on' : '') + '" data-a="ctx" data-f="' + esc(f) + '" aria-pressed="' + !!d.ctx[f] + '">' + esc(f) + '</button>').join('') + '</div></div>'
+      : '<button class="card" style="flex-direction:row;align-items:center;justify-content:space-between;border:1px dashed #B8C1D3;box-shadow:none;text-align:left" data-a="ctxToggle"><div class="col"><b style="font-size:14px">Kontext hinzufügen</b><span class="sub">' + (sel.length ? esc(sel.join(', ')) : 'z. B. ' + esc(C.ctx.slice(0, 2).join(', '))) + '</span></div><span style="width:32px;height:32px;border-radius:10px;background:#EEF1F6;display:flex;align-items:center;justify-content:center;font-weight:800">+</span></button>';
+  }
+  if (C.monthly.length && S.date === today()) h += '<div class="list"><div class="li" style="border:none;padding-bottom:2px"><h2>Monatsziele · ' + MON[parse(S.date).getMonth()] + '</h2></div>' + C.monthly.map((m) => { const other = !L && entries('liebe').find((e) => e.t === 'Monatsziel' && e.f === m.f && e.p !== S.sum.me && e.d.slice(0, 7) === S.date.slice(0, 7)); return '<div class="li"><button class="box ' + (d.monthly[m.f] ? 'on' : '') + '" data-a="month" data-f="' + esc(m.f) + '" aria-pressed="' + !!d.monthly[m.f] + '" aria-label="' + esc(m.f) + '">' + (d.monthly[m.f] ? '✓' : '') + '</button><div class="col" style="flex:1"><span style="font-size:14px;font-weight:600">' + esc(m.f) + '</span>' + (other ? '<span class="sub">erledigt von ' + esc(other.p) + '</span>' : '') + '</div></div>'; }).join('') + '</div>';
+  h += '<label class="col" style="gap:8px"><b class="jk" style="font-size:17px">' + (L ? 'Eine Sache, für die ich dankbar bin' : 'Was ich heute an dir geschätzt habe') + '</b><textarea id="note" rows="2" data-in="note" placeholder="Optional">' + esc(d.note) + '</textarea></label>';
+  h += '</div></div><div class="foot"><button class="btn ' + (L ? '' : 'R') + '" data-a="' + (L ? 'ciNext' : 'ciFinish') + '" ' + (S.busy ? 'disabled' : '') + '>' + (S.busy ? 'Speichert …' : L ? 'Weiter zu Liebe ' + svg(P.arrow, '#fff', 18, 2.4) : 'Check-in abschließen') + '</button>' + (L ? '<button class="link" data-a="ciOnlyLeben" style="align-self:center">Nur Leben speichern</button>' : '') + '</div>';
+  return h;
+}
+function vDone() {
+  const D = S.done || {}, sc = scoresNow(), fb = feedback(), st = streak();
+  const items = fb.good.slice(0, 2).map((x) => '<div class="good"><span class="ic">✓</span><div class="col" style="gap:2px"><b style="font-size:14px">' + esc(x.t) + '</b><span>' + esc(x.x) + '</span></div></div>').join('') +
+    fb.warn.slice(0, 1).map((x) => '<div class="warn"><span class="ic">!</span><div class="col" style="gap:2px"><b style="font-size:14px">' + esc(x.t) + '</b><span>' + esc(x.x) + '</span></div></div>').join('');
+  const box = (label, color, before, now, grad) => '<div class="col" style="gap:4px"><span style="font-size:12px;font-weight:700;color:' + color + '">' + label + '</span><div class="row" style="justify-content:flex-start;gap:6px;align-items:baseline">' + (before != null && before !== now ? '<span class="small" style="font-size:15px">' + before + ' →</span>' : '') + '<span class="big" style="font-size:30px">' + (now != null ? now : '–') + '</span></div><div class="bar" style="height:6px"><i style="width:' + (now || 0) + '%;background:' + grad + '"></i></div></div>';
+  const why = (D.items || []).length ? '<div class="card"><h2>Das hat heute gezählt</h2>' + D.items.map((g) => '<div class="row" style="font-size:14px"><span style="font-weight:600">' + esc(g.f) + ' <span class="sub">' + g.done + '/' + g.target + '</span></span><span class="pill ' + (g.area === 'leben' ? 'L' : 'R') + '">' + (g.reached ? 'Wochenziel erreicht' : 'zählt anteilig') + '</span></div>').join('') + '</div>' : '';
+  return '<div class="scroll"><div class="hero" style="align-items:center;text-align:center;padding-top:calc(36px + env(safe-area-inset-top));padding-bottom:70px"><div style="width:76px;height:76px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center"><div style="width:56px;height:56px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center">' + svg(P.check, '#6D28D9', 28, 3) + '</div></div><h1 style="font-size:28px">Check-in gespeichert</h1><span style="font-size:14px;opacity:.92">' + (st > 1 ? st + ' Tage in Folge. ' : '') + 'Bis morgen.</span></div>' +
+    '<div style="margin:-46px 16px 0;border-radius:22px;background:#fff;box-shadow:var(--sh2);padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px">' + box('Leben', '#065F46', D.before && D.before.leben, sc.leben, 'var(--gL)') + box('Liebe · gemeinsam', '#9F1239', D.before && D.before.liebe, sc.liebe, 'var(--gR)') + '</div>' +
+    '<div class="pad" style="padding-top:16px">' + why + (items ? '<h2 style="font-size:18px">Dein Feedback</h2>' + items : '') + '<button class="btn" data-a="go" data-v="home">Zur Startseite</button></div></div>';
+}
+function vVerlauf() {
+  const sc = scoresNow();
+  const chart = (vals, grad, label) => { const max = 100; return '<div class="trend">' + vals.map((v, i) => '<div><span>' + (v != null ? v : '–') + '</span><i style="height:' + Math.round(((v || 0) / max) * 80 + 2) + 'px;' + (i === vals.length - 1 ? 'background:' + grad : '') + '"></i><span>' + (sc.weeks[i] ? 'KW' + kw(sc.weeks[i]) : '') + '</span></div>').join('') + '</div>'; };
+  const parts = (d, w, m, label) => [[label, d, '35 %'], ['Wochenziele, anteilig', w, '45 %'], ['Monatsziele', m, '20 %']].map(([l, v, g]) => '<div class="col" style="gap:6px"><div class="row" style="font-size:14px"><span style="font-weight:600">' + l + '</span><span class="sub">' + pct(v) + ' · ' + g + '</span></div><div class="bar"><i style="width:' + Math.round((v || 0) * 100) + '%;background:var(--gX)"></i></div></div>').join('');
+  const goals = (area) => goalStatus(area).map((g) => '<div class="col" style="gap:6px"><div class="row" style="font-size:14px"><span style="font-weight:600">' + esc(g.f) + '</span><span class="sub">' + g.done + ' / ' + g.target + '</span></div><div class="bar"><i style="width:' + Math.min(100, Math.round(g.done / g.target * 100)) + '%;background:' + (area === 'leben' ? 'var(--gL)' : 'var(--gR)') + '"></i></div></div>').join('');
+  let h = '<div class="scroll"><div class="pad"><h1>Verlauf</h1>' +
+    '<div class="card"><div class="row"><h2>Leben</h2><span class="big" style="font-size:26px">' + (sc.leben != null ? sc.leben : '–') + '</span></div>' + chart(sc.histL, 'var(--gL)') + parts(sc.lebenDaily, sc.lebenWk, sc.lebenMo, 'Tagesgefühl') + '</div>' +
+    '<div class="card"><div class="row"><h2>Liebe · gemeinsam</h2><span class="big" style="font-size:26px">' + (sc.liebe != null ? sc.liebe : '–') + '</span></div>' + chart(sc.histR, 'var(--gR)') +
+    '<div class="row" style="gap:8px"><span style="flex:1;padding:10px 12px;border-radius:12px;background:#F1F5F9;font-size:13px">Abstand im Gefühl: <b>' + (sc.gap != null ? sc.gap + ' Pkt.' : '–') + '</b></span></div>' +
+    (sc.gap != null ? '<span class="small">' + (sc.gap >= 20 ? 'Ihr erlebt die Woche unterschiedlich. Guter Anlass für ein Gespräch: Was hat dir gefehlt, was hat dir gutgetan?' : 'Ihr erlebt die Woche ähnlich.') + '</span>' : '') + '</div>';
+  if (S.prefs.personal) h += '<div class="card"><div class="row"><h2>Mein eigener Liebe-Score</h2><span class="big" style="font-size:26px">' + (sc.meScore != null ? sc.meScore : '–') + '</span></div>' + chart(sc.histMe, 'var(--gR)') + '<span class="small">Nur für dich sichtbar. Zum Einordnen, nicht zum Vergleichen.</span></div>';
+  h += '<div class="card"><h2>Wochenziele · KW ' + kw(today()) + '</h2>' + goals('leben') + goals('liebe') + '<span class="small">Im Score zählen Wochenziele anteilig nach den bisherigen Wochentagen. Wer im Plan liegt, bekommt die vollen Punkte.</span></div>';
+  return h + '</div></div>' + vTabs('verlauf');
+}
+function vAnalyse() {
+  const A = analysis(), sc = scoresNow(), l = sc.leben, r = sc.liebe, LIM = 50, has = l != null && r != null;
+  const Q = [['Liebe stark · Leben schwach', 'Die Beziehung trägt dich', 'Schau, was dir selbst fehlt.', has && l < LIM && r >= LIM], ['Beides stark', 'Im Fluss', 'Halte, was gerade funktioniert.', has && l >= LIM && r >= LIM], ['Beides schwach', 'Ruhe und Hilfe holen', 'Weniger vornehmen, Schlaf und Unterstützung zuerst.', has && l < LIM && r < LIM], ['Leben stark · Liebe schwach', 'Ihr verliert euch aus den Augen', 'Plant bewusst Zeit zu zweit ein.', has && l >= LIM && r < LIM]];
+  let h = '<div class="scroll"><div class="pad"><h1>Analyse</h1><div class="card"><div class="col" style="gap:2px"><h2>Wo stehst du gerade?</h2><span class="sub">Leben ' + (l != null ? l : '–') + ' · Liebe ' + (r != null ? r : '–') + ' · Grenze bei 50</span></div><div class="quads">' + Q.map(([a, t, x, on]) => '<div class="quad ' + (on ? 'on' : '') + '"><small>' + a + '</small><b>' + t + '</b><span>' + x + '</span></div>').join('') + '</div></div>';
+  h += '<div class="row"><h2 style="font-size:18px">Was dir auffällt</h2><span class="sub">' + A.days + ' Tage mit Einträgen</span></div>' + A.insights.map((i) => i.num != null
+    ? '<div class="ins"><div class="row"><span class="tag" style="background:' + i.c + '">' + i.dir + '</span><b class="jk" style="font-size:20px">' + esc(i.num) + '</b></div><b style="font-size:15px">' + esc(i.head) + '</b><span class="small" style="color:#334155">' + esc(i.text) + '</span><span class="sub">Basis: ' + i.r.nA + ' und ' + i.r.nB + ' ' + (i.r.unit || 'Tage') + '</span></div>'
+    : '<div class="ins wait"><div class="row"><span class="tag" style="background:' + i.c + '">' + i.dir + '</span><span class="sub">noch zu wenig Daten</span></div><b style="font-size:15px">' + esc(i.head) + '</b><span class="small">' + esc(i.text) + '</span><span class="sub">Bisher ' + i.r.nA + ' und ' + i.r.nB + ' ' + (i.r.unit || 'Tage') + ', nötig je ' + i.r.min + '</span></div>').join('');
+  h += '<div class="card"><div class="col" style="gap:2px"><h2>Stärkste Zusammenhänge</h2><span class="sub">Rechts: gehen gemeinsam hoch. Links: gegenläufig. Ab 14 gemeinsamen Tagen.</span></div>' + (A.corr.length ? A.corr.map((c) => '<div class="col" style="gap:5px"><div class="row" style="font-size:13px"><b>' + esc(c.l) + '</b><span class="sub">' + (c.r > 0 ? '+' : '−') + fmt(Math.abs(c.r), 2) + '</span></div><div class="dv"><div><i style="background:#BE185D;width:' + (c.r < 0 ? Math.round(-c.r * 100) : 0) + '%"></i></div><div><i style="background:#1D4ED8;width:' + (c.r > 0 ? Math.round(c.r * 100) : 0) + '%"></i></div></div></div>').join('') : '<span class="small">Noch zu wenig Daten. Nach ein paar Wochen erscheinen hier deine stärksten Zusammenhänge.</span>') + '</div>';
+  h += '<div class="card" style="flex-direction:row;align-items:center;justify-content:space-between"><div class="col" style="gap:4px"><b style="font-size:14px">Stress und Schlaf teilen</b><span class="sub" style="line-height:1.45">Nur der Wochenschnitt, keine Tageswerte. Nötig für gemeinsame Zusammenhänge.</span></div><button class="switch ' + (S.sum.share ? 'on' : '') + '" role="switch" aria-checked="' + !!S.sum.share + '" aria-label="Stress und Schlaf teilen" data-a="share"><span></span></button></div>';
+  return h + '<p class="small" style="margin:0">Das sind Tendenzen aus deinen eigenen Einträgen, keine Beweise für Ursache und Wirkung.</p></div></div>' + vTabs('analyse');
+}
+const TYPES = [['Bewertung', 'Bewertung', 'täglich 1 bis 5'], ['Woche', 'Gewohnheit', 'abhaken, mit Wochenziel'], ['Aktivität', 'Gewohnheit', 'abhaken, ohne Ziel'], ['Monat', 'Monatsziel', 'einmal im Monat'], ['Zeit', 'Zeit', 'in Stunden'], ['Kontext', 'Kontext', 'nur für die Analyse']];
+const tname = (t) => (TYPES.find((x) => x[0] === t) || [t, t])[1];
+function anpInit(area) { S.anp = { area, rows: cfgRows(area).map((r) => Object.assign({ orig: r.f }, r)), dirty: false }; }
+function vAnpassen() {
+  if (!S.anp) anpInit('leben');
+  const A = S.anp, L = A.area === 'leben';
+  const groups = [['Bewertung', 'Täglich bewerten'], ['Woche', 'Wochenziele'], ['Aktivität', 'Gewohnheiten ohne Ziel'], ['Monat', 'Monatsziele'], ['Zeit', 'Zeit'], ['Kontext', 'Kontext'], ['Wochencheck', 'Wochen-Check (sonntags)']];
+  let h = '<div class="scroll"><div class="pad"><div class="row" style="justify-content:flex-start;gap:12px"><button class="iconbtn" data-a="anpBack" aria-label="Zurück">' + svg(P.back) + '</button><h1>Anpassen</h1></div>' +
+    '<div class="segw" role="group" aria-label="Bereich"><button class="' + (L ? 'on L' : '') + '" data-a="anpArea" data-v="leben">Leben</button><button class="' + (!L ? 'on R' : '') + '" data-a="anpArea" data-v="liebe">Liebe</button></div>' +
+    (!L ? '<div class="warn" style="padding:10px 14px"><span style="font-size:13px">Änderungen bei Liebe gelten für euch beide.</span></div>' : '');
+  groups.forEach(([t, label]) => {
+    const rows = A.rows.map((r, i) => Object.assign({ i }, r)).filter((r) => r.t === t);
+    if (!rows.length) return;
+    h += '<div class="list"><div class="li" style="border:none;padding-bottom:4px"><h2 style="font-size:16px;flex:1">' + label + '</h2>' + (t === 'Bewertung' || t === 'Woche' || t === 'Monat' ? '<span class="sub">zählt</span>' : '') + '</div>' +
+      rows.map((r) => {
+        const badges = (r.act === false ? '<span class="pill N">ausgeblendet</span> ' : '') + (r.inv ? '<span class="pill" style="background:#FFFBEB;color:#B45309">umgekehrt</span> ' : '') + (r.orig && r.orig !== r.f ? '<span class="pill L">umbenannt</span> ' : '') + (!r.orig ? '<span class="pill L">neu</span>' : '');
+        const right = (t === 'Woche' || t === 'Monat') ? '<div class="stepper" style="gap:6px"><button data-a="anpZ" data-v="-1" data-i="' + r.i + '" aria-label="weniger" style="width:32px;height:32px">−</button><b style="font-size:15px;min-width:26px;text-align:center">' + (r.z || 1) + '×</b><button data-a="anpZ" data-v="1" data-i="' + r.i + '" aria-label="mehr" style="width:32px;height:32px">+</button></div>' : '';
+        const sw = (t === 'Bewertung' || t === 'Woche' || t === 'Monat') ? '<button class="switch ' + (r.score !== false ? 'on' : '') + ' ' + (L ? '' : 'R') + '" role="switch" aria-checked="' + (r.score !== false) + '" aria-label="' + esc(r.f) + ' zählt in den Score" data-a="anpScore" data-i="' + r.i + '"><span></span></button>' : '';
+        return '<div class="li"><button data-a="anpEdit" data-i="' + r.i + '" style="flex:1;text-align:left;display:flex;flex-direction:column;gap:3px;min-height:40px;justify-content:center"><span style="font-size:14px;font-weight:600;' + (r.act === false ? 'color:var(--sub)' : '') + '">' + esc(r.f) + '</span>' + (badges ? '<span>' + badges + '</span>' : '') + '</button>' + right + sw + '</div>';
+      }).join('') + '</div>';
+  });
+  h += '<button class="ghost" style="border:2px dashed #94A3B8;color:#1D4ED8;min-height:52px;font-size:15px" data-a="newCrit" data-v="' + A.area + '">+ Kriterium hinzufügen</button>';
+  h += '<div class="card"><h2>So zählt der Score</h2><div style="display:flex;height:14px;border-radius:7px;overflow:hidden"><div style="width:35%;background:#047857"></div><div style="width:45%;background:#1D4ED8"></div><div style="width:20%;background:#6D28D9"></div></div><div class="row" style="font-size:12px"><span><b>35 %</b> Tagesgefühl</span><span><b>45 %</b> Wochenziele</span><span><b>20 %</b> Monat</span></div><span class="sub">Die Gewichte änderst du im Sheet unter „Einstellungen“.</span></div>';
+  h += '<div class="list"><div class="li" style="border:none;padding-bottom:4px"><h2 style="font-size:16px">Einstellungen</h2></div>' +
+    '<div class="li"><div class="col" style="flex:1"><b style="font-size:14px">Meinen eigenen Liebe-Score zeigen</b><span class="sub">Nur für dich, im Verlauf</span></div><button class="switch ' + (S.prefs.personal ? 'on R' : '') + '" role="switch" aria-checked="' + !!S.prefs.personal + '" aria-label="Eigenen Liebe-Score zeigen" data-a="prefPersonal"><span></span></button></div>' +
+    '<div class="li"><button data-a="obAgain" style="flex:1;text-align:left;min-height:40px;font-size:14px;font-weight:600">Einführung noch einmal ansehen</button></div>' +
+    '<div class="li"><button data-a="refresh" style="flex:1;text-align:left;min-height:40px;font-size:14px;font-weight:600">Daten neu laden</button></div>' +
+    '<div class="li"><button data-a="logout" style="flex:1;text-align:left;min-height:40px;font-size:14px;font-weight:600;color:#B91C1C">Verbindung trennen</button><span class="sub">' + esc(S.sum.me) + '</span></div></div>';
+  h += '<p class="small" style="margin:0">Umbenennen behält alle bisherigen Einträge. Ausgeblendete Kriterien bleiben gespeichert. Was nicht zählt, wird nur beobachtet.</p></div></div>';
+  h += '<div class="foot"><button class="btn ' + (L ? 'L' : 'R') + '" data-a="anpSave" ' + (!A.dirty || S.busy ? 'disabled' : '') + '>' + (S.busy ? 'Speichert …' : A.dirty ? 'Änderungen speichern' : 'Keine Änderungen') + '</button></div>';
+  return h;
+}
+function vSheet() {
+  const s = S.sheet; if (!s) return '';
+  const isNew = s.i == null, r = s.row, L = s.area === 'leben';
+  return '<div class="sheet"><button style="flex:1" data-a="sheetClose" aria-label="Schließen"></button><div class="panel" role="dialog" aria-label="' + (isNew ? 'Neues Kriterium' : 'Kriterium bearbeiten') + '"><div class="grab"></div>' +
+    '<div class="row"><h1 style="font-size:22px">' + (isNew ? 'Neues Kriterium' : 'Bearbeiten') + '</h1><span class="tag" style="background:' + (L ? 'var(--gL)' : 'var(--gR)') + '">' + (L ? 'Leben' : 'Liebe') + '</span></div>' +
+    '<label class="col" style="gap:6px"><b style="font-size:13px">Name</b><input id="critName" type="text" data-in2="f" value="' + esc(r.f) + '" maxlength="80" placeholder="z. B. Meditation"></label>' +
+    (isNew ? '<div class="col" style="gap:6px"><b style="font-size:13px">Wie wird es erfasst?</b><div class="types">' + TYPES.map(([t, n, x]) => '<button class="' + (r.t === t ? 'on' : '') + '" data-a="sheetType" data-v="' + t + '"><b>' + n + '</b><span>' + x + '</span></button>').join('') + '</div></div>' : '<span class="sub">Art: ' + tname(r.t) + ' (bleibt fest, damit der Verlauf stimmt)</span>') +
+    ((r.t === 'Woche' || r.t === 'Monat') ? '<div class="row"><b style="font-size:14px">' + (r.t === 'Woche' ? 'Wochenziel' : 'Ziel pro Monat') + '</b><div class="stepper" style="gap:10px"><button data-a="sheetZ" data-v="-1" aria-label="weniger">−</button><b>' + (r.z || 1) + '×</b><button data-a="sheetZ" data-v="1" aria-label="mehr">+</button></div></div>' : '') +
+    '<div class="col" style="border-top:1px solid var(--line)">' +
+    ((r.t === 'Bewertung' || r.t === 'Woche' || r.t === 'Monat') ? '<div class="li" style="border-top:none"><div class="col" style="flex:1"><b style="font-size:14px">Zählt in den Score</b><span class="sub">Aus: wird nur beobachtet</span></div><button class="switch ' + (r.score !== false ? 'on' : '') + '" role="switch" aria-checked="' + (r.score !== false) + '" data-a="sheetFlag" data-v="score" aria-label="Zählt in den Score"><span></span></button></div>' : '') +
+    (r.t === 'Bewertung' ? '<div class="li"><div class="col" style="flex:1"><b style="font-size:14px">Umgekehrt werten</b><span class="sub">Hoher Wert ist schlecht, z. B. Stress</span></div><button class="switch ' + (r.inv ? 'on' : '') + '" role="switch" aria-checked="' + !!r.inv + '" data-a="sheetFlag" data-v="inv" aria-label="Umgekehrt werten"><span></span></button></div>' : '') +
+    (!isNew ? '<div class="li"><div class="col" style="flex:1"><b style="font-size:14px">In der App anzeigen</b><span class="sub">Aus: ausgeblendet, Verlauf bleibt</span></div><button class="switch ' + (r.act !== false ? 'on' : '') + '" role="switch" aria-checked="' + (r.act !== false) + '" data-a="sheetFlag" data-v="act" aria-label="In der App anzeigen"><span></span></button></div>' +
+      '<div class="li"><button class="ghost" style="flex:1" data-a="sheetMove" data-v="-1">Nach oben</button><button class="ghost" style="flex:1" data-a="sheetMove" data-v="1">Nach unten</button></div>' : '') + '</div>' +
+    (s.err ? '<p class="err" style="margin:0">' + esc(s.err) + '</p>' : '') +
+    '<button class="btn ' + (L ? 'L' : 'R') + '" data-a="sheetOk">' + (isNew ? 'Hinzufügen' : 'Übernehmen') + '</button>' +
+    (!isNew && !r.orig ? '<button class="link" data-a="sheetDel" style="align-self:center;color:#B91C1C">Wieder entfernen</button>' : '') + '</div></div>';
 }
 function render() {
-  document.body.dataset.mode = S.mode;
-  const meta = document.querySelector('meta[name=theme-color]'); if (meta) meta.content = S.mode === 'leben' ? '#0F766E' : '#BE123C';
-  const scrollEl = document.querySelector('main'); const top = scrollEl ? scrollEl.scrollTop : 0;
-  const focusId = document.activeElement && document.activeElement.id;
+  const sc = document.querySelector('.scroll'), top = sc ? sc.scrollTop : 0, fid = document.activeElement && document.activeElement.id;
   let h;
   if (!S.conn || !S.sum) h = vSetup();
-  else if (S.settings) h = vSettings();
-  else {
-    const body = S.tab === 'heute' ? vHeute() : S.tab === 'ziele' ? vZiele() : S.tab === 'score' ? vScore() : vAnalyse();
-    h = vHeader() + '<main>' + vHero() + body + '</main><nav>' +
-      [['heute', 'Heute'], ['ziele', 'Ziele'], ['score', 'Score'], ['analyse', 'Analyse']].map(([id, l]) => '<button data-act="tab" data-v="' + id + '" class="' + (S.tab === id ? 'on' : '') + '" aria-current="' + (S.tab === id ? 'page' : 'false') + '">' + svg(ICON[id]) + l + '</button>').join('') + '</nav>';
-  }
+  else if (S.view === 'onboarding') h = vOnboarding();
+  else if (S.view === 'summary') h = vSummary();
+  else if (S.view === 'checkin') h = vCheckin();
+  else if (S.view === 'done') h = vDone();
+  else if (S.view === 'verlauf') h = vVerlauf();
+  else if (S.view === 'analyse') h = vAnalyse();
+  else if (S.view === 'anpassen') h = vAnpassen();
+  else h = vHome();
+  h += vSheet();
   if (S.toast) h += '<div class="toast" role="status">' + esc(S.toast) + '</div>';
   $app.innerHTML = h;
-  const m2 = document.querySelector('main'); if (m2) m2.scrollTop = top;
-  if (focusId) { const el = document.getElementById(focusId); if (el && el.tagName === 'TEXTAREA') { el.focus(); el.setSelectionRange(el.value.length, el.value.length); } }
+  const sc2 = document.querySelector('.scroll'); if (sc2 && S.keepScroll) sc2.scrollTop = top;
+  S.keepScroll = false;
+  if (fid) { const el = document.getElementById(fid); if (el && (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT')) { el.focus(); try { el.setSelectionRange(el.value.length, el.value.length); } catch (e) { /* type=url */ } } }
 }
+function go(v) { S.view = v; S.sheet = null; render(); const sc = document.querySelector('.scroll'); if (sc) sc.scrollTop = 0; }
 
-/* ---------- Bedienung ---------- */
+/* ================= Bedienung ================= */
 $app.addEventListener('input', (ev) => {
-  const k = ev.target.dataset && ev.target.dataset.in; if (!k) return;
-  const d = draft(); d[k] = ev.target.value; d.dirty = true;
+  const t = ev.target;
+  if (t.dataset.in) { const d = draft(S.ci, S.date); d[t.dataset.in] = t.value; }
+  if (t.dataset.in2 && S.sheet) S.sheet.row[t.dataset.in2] = t.value;
 });
+function newActs(area) {
+  const d = draft(area, S.date), saved = {};
+  mine(area).forEach((e) => { if (e.d === S.date && e.t === 'Aktivität') saved[e.f] = 1; });
+  return Object.keys(d.acts).filter((f) => d.acts[f] && !saved[f]);
+}
+function gainedItems(area, acts) {
+  const st = goalStatus(area);
+  return acts.map((f) => st.find((g) => g.f === f)).filter(Boolean).map((g) => ({ f: g.f, area, reached: g.reached, done: g.done, target: g.target }));
+}
+function bridgeSuggestions() {
+  const d = draft('leben', S.date), out = [];
+  const st = d.ratings[fk('leben', 'stress', 'Stress')], sl = d.ratings[fk('leben', 'schlaf', 'Schlaf')];
+  if (st >= 4) out.push({ text: '<b>Dein Stress liegt heute bei ' + st + '.</b> Magst du kurz sagen, dass du heute etwas Ruhe brauchst? Das hilft, Missverständnisse zu vermeiden.', todo: 'Sagen, dass ich heute Ruhe brauche' });
+  else if (sl && sl <= 2) out.push({ text: '<b>Du hast schlecht geschlafen.</b> Ein früher gemeinsamer Abend tut euch beiden gut.', todo: 'Früher gemeinsamer Abend' });
+  if (d.acts[fk('leben', 'sport', 'Sport')] || (d.ratings[fk('leben', 'stimmung', 'Stimmung')] >= 4)) out.push({ text: '<b>Gute Laune heute.</b> Teil sie: Erzähl, was dir heute gutgetan hat.', todo: 'Erzählen, was mir heute gutgetan hat' });
+  return out.slice(0, 1);
+}
 $app.addEventListener('click', async (ev) => {
-  const b = ev.target.closest('[data-act]'); if (!b) return;
-  const act = b.dataset.act, v = b.dataset.v, f = b.dataset.f;
-  if (act === 'connect') {
+  const b = ev.target.closest('[data-a]'); if (!b) return;
+  const a = b.dataset.a, v = b.dataset.v, f = b.dataset.f, i = b.dataset.i != null ? Number(b.dataset.i) : null;
+  if (a === 'connect') {
     const url = document.getElementById('su').value.trim(), token = document.getElementById('st').value.trim();
     if (!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(url)) { S.setupErr = 'Die Adresse muss mit https://script.google.com/macros/s/ beginnen und mit /exec enden.'; render(); return; }
     S.conn = { url, token }; S.busy = true; S.setupErr = ''; render();
-    try { setSum(await api('summary')); store.set('lt_conn', S.conn); }
+    try { setSum(await api('summary')); store.set('lt_conn', S.conn); S.view = store.get('lt_onboarded', false) ? 'home' : 'onboarding'; if (!store.get('lt_snap', null)) takeSnap(); }
     catch (e) { S.conn = null; S.setupErr = 'Verbindung fehlgeschlagen: ' + e.message; }
     S.busy = false; render(); return;
   }
-  if (act === 'mode') { S.mode = v; store.set('lt_mode', v); render(); return; }
-  if (act === 'tab') { S.tab = v; render(); document.querySelector('main') && (document.querySelector('main').scrollTop = 0); return; }
-  if (act === 'day') { S.date = addDays(S.date, Number(v)); render(); return; }
-  if (act === 'settings') { S.settings = !S.settings; render(); return; }
-  if (act === 'refresh') { S.settings = false; await refresh(false); return; }
-  if (act === 'logout') { if (confirm('Verbindung trennen? Die Daten in den Sheets bleiben erhalten.')) { localStorage.removeItem('lt_conn'); localStorage.removeItem('lt_sum'); S.conn = null; S.sum = null; S.settings = false; render(); } return; }
-  if (act === 'save') { await save(); return; }
-  if (act === 'share') {
+  // Onboarding
+  if (a === 'obNext') { S.ob++; go('onboarding'); return; }
+  if (a === 'obBack') { S.ob = Math.max(0, S.ob - 1); go('onboarding'); return; }
+  if (a === 'obSkip') { store.set('lt_onboarded', true); if (!store.get('lt_snap', null)) takeSnap(); go('home'); return; }
+  if (a === 'obAgain') { S.ob = 0; S.obSel = null; go('onboarding'); return; }
+  if (a === 'obTog') { S.obSel[f].act = !S.obSel[f].act; S.keepScroll = true; render(); return; }
+  if (a === 'obZ') { S.obSel[f].z = Math.max(1, Math.min(14, (S.obSel[f].z || 1) + Number(v))); S.keepScroll = true; render(); return; }
+  if (a === 'obDone') {
+    const rows = cfgRows('leben'); let changed = false;
+    const out = rows.map((r) => { const s = S.obSel && S.obSel[r.f]; const n = Object.assign({ orig: r.f }, r); if (s) { if (s.act !== (r.act !== false)) { n.act = s.act; changed = true; } if (r.t === 'Woche' && s.z !== r.z) { n.z = s.z; changed = true; } } return n; });
+    if (changed) { S.busy = true; render(); try { setSum(await api('saveCriteria', { area: 'leben', rows: out })); } catch (e) { toast('Fehler: ' + e.message); } S.busy = false; }
+    store.set('lt_onboarded', true); if (!store.get('lt_snap', null)) takeSnap(); go('home'); return;
+  }
+  if (a === 'sumDone') { takeSnap(); go('home'); return; }
+  if (a === 'go') { if (v === 'anpassen') anpInit('leben'); go(v); return; }
+  if (a === 'todo') { const all = store.get('lt_todo', {}); const t = today(); all[t] = all[t] || {}; all[t][v] = !all[t][v]; Object.keys(all).forEach((k) => { if (k < addDays(t, -7)) delete all[k]; }); store.set('lt_todo', all); S.keepScroll = true; render(); return; }
+  // Check-in
+  if (a === 'startCheckin') { S.ci = 'leben'; S.date = today(); S.bridge = null; S.done = null; const sc = scoresNow(); S.before = { leben: sc.leben, liebe: sc.liebe }; go('checkin'); return; }
+  if (a === 'closeCheckin') { go('home'); return; }
+  if (a === 'day') { S.date = addDays(S.date, Number(v)); render(); return; }
+  if (a === 'ciBack') { S.ci = 'leben'; go('checkin'); return; }
+  if (a === 'ciNext' || a === 'ciOnlyLeben') {
     S.busy = true; render();
-    try { setSum(await api('setShare', { share: !S.sum.share })); toast(S.sum.share ? 'Teilen eingeschaltet' : 'Teilen ausgeschaltet, geteilte Werte gelöscht'); }
+    const na = newActs('leben');
+    const ok = await saveArea('leben', S.date); S.busy = false;
+    if (!ok) { render(); return; }
+    S.done = { before: S.before, items: gainedItems('leben', na) };
+    if (a === 'ciOnlyLeben') { go('done'); return; }
+    S.bridge = bridgeSuggestions(); S.ci = 'liebe'; go('checkin'); return;
+  }
+  if (a === 'ciFinish') {
+    S.busy = true; render();
+    const na = newActs('liebe');
+    const ok = await saveArea('liebe', S.date); S.busy = false;
+    if (!ok) { render(); return; }
+    S.done = { before: S.before, items: ((S.done && S.done.items) || []).concat(gainedItems('liebe', na)) };
+    go('done'); return;
+  }
+  if (a === 'bridgeKeep' || a === 'bridgeDrop') {
+    const item = S.bridge[Number(v)];
+    if (a === 'bridgeKeep') { const all = store.get('lt_bridge', {}); const t = today(); all[t] = (all[t] || []).concat([item.todo]); Object.keys(all).forEach((k) => { if (k < addDays(t, -3)) delete all[k]; }); store.set('lt_bridge', all); toast('Als To-do gemerkt'); }
+    S.bridge.splice(Number(v), 1); S.keepScroll = true; render(); return;
+  }
+  // Teilen, Einstellungen
+  if (a === 'share') { S.busy = true; try { setSum(await api('setShare', { share: !S.sum.share })); toast(S.sum.share ? 'Teilen eingeschaltet' : 'Teilen aus, geteilte Werte gelöscht'); } catch (e) { toast('Fehler: ' + e.message); } S.busy = false; S.keepScroll = true; render(); return; }
+  if (a === 'prefPersonal') { S.prefs.personal = !S.prefs.personal; store.set('lt_prefs', S.prefs); S.keepScroll = true; render(); return; }
+  if (a === 'refresh') { await refresh(false); anpInit(S.anp ? S.anp.area : 'leben'); render(); return; }
+  if (a === 'logout') { if (confirm('Verbindung trennen? Die Daten in den Sheets bleiben erhalten.')) { ['lt_conn', 'lt_sum', 'lt_queue'].forEach(store.del); S.conn = null; S.sum = null; render(); } return; }
+  // Anpassen
+  if (a === 'anpBack') { if (S.anp && S.anp.dirty && !confirm('Ungespeicherte Änderungen verwerfen?')) return; S.anp = null; go('home'); return; }
+  if (a === 'anpArea') { if (S.anp.dirty && !confirm('Ungespeicherte Änderungen verwerfen?')) return; anpInit(v); go('anpassen'); return; }
+  if (a === 'anpZ') { const r = S.anp.rows[i]; r.z = Math.max(1, Math.min(14, (r.z || 1) + Number(v))); S.anp.dirty = true; S.keepScroll = true; render(); return; }
+  if (a === 'anpScore') { const r = S.anp.rows[i]; r.score = r.score === false; S.anp.dirty = true; S.keepScroll = true; render(); return; }
+  if (a === 'anpEdit') { S.sheet = { area: S.anp.area, i, row: Object.assign({}, S.anp.rows[i]) }; S.keepScroll = true; render(); return; }
+  if (a === 'anpSave') {
+    S.busy = true; render();
+    try { setSum(await api('saveCriteria', { area: S.anp.area, rows: S.anp.rows.map((r) => ({ orig: r.orig || '', f: r.f, t: r.t, z: r.z, h: r.h, score: r.score !== false, inv: !!r.inv, act: r.act !== false, key: r.key || '' })) })); anpInit(S.anp.area); toast('Gespeichert'); }
     catch (e) { toast('Fehler: ' + e.message); }
     S.busy = false; render(); return;
   }
-  const d = draft();
-  if (act === 'rate') { d.ratings[f] = d.ratings[f] === Number(v) ? null : Number(v); }
-  else if (act === 'wc') { d.wcRate = d.wcRate === Number(v) ? null : Number(v); }
-  else if (act === 'act') { d.acts[f] = !d.acts[f]; }
-  else if (act === 'ctx') { d.ctx[f] = !d.ctx[f]; }
-  else if (act === 'month') { d.monthly[f] = !d.monthly[f]; }
-  else if (act === 'zeit') { d.zeit[f] = Math.max(0, Math.min(16, (d.zeit[f] || 0) + Number(v))); }
-  d.dirty = true; render();
+  if (a === 'newCrit') {
+    const fromCi = S.view === 'checkin';
+    if (fromCi || !S.anp || S.anp.area !== v) anpInit(v);
+    S.sheet = { area: v, i: null, fromCi, row: { orig: '', f: '', t: v === 'leben' ? 'Woche' : 'Aktivität', z: 3, h: '', score: true, inv: false, act: true, key: '' } }; S.keepScroll = true; render(); return;
+  }
+  // Blatt
+  const s = S.sheet;
+  if (a === 'sheetClose') { S.sheet = null; S.keepScroll = true; render(); return; }
+  if (a.indexOf('sheet') === 0 && !s) return;
+  if (a === 'sheetType') { s.row.t = v; if ((v === 'Woche' || v === 'Monat') && !s.row.z) s.row.z = v === 'Woche' ? 3 : 1; render(); return; }
+  if (a === 'sheetZ') { s.row.z = Math.max(1, Math.min(14, (s.row.z || 1) + Number(v))); render(); return; }
+  if (a === 'sheetFlag') { if (v === 'score') s.row.score = s.row.score === false; if (v === 'inv') s.row.inv = !s.row.inv; if (v === 'act') s.row.act = s.row.act === false; render(); return; }
+  if (a === 'sheetMove') {
+    const rows = S.anp.rows, same = rows.map((r, k) => k).filter((k) => rows[k].t === s.row.t), pos = same.indexOf(s.i), to = same[pos + Number(v)];
+    if (to == null) return; rows[s.i] = Object.assign(rows[s.i], s.row); const tmp = rows[to]; rows[to] = rows[s.i]; rows[s.i] = tmp; s.i = to; S.anp.dirty = true; render(); return;
+  }
+  if (a === 'sheetDel') { S.anp.rows.splice(s.i, 1); S.anp.dirty = true; S.sheet = null; render(); return; }
+  if (a === 'sheetOk') {
+    const name = String(s.row.f || '').trim();
+    if (!name) { s.err = 'Bitte gib einen Namen ein.'; render(); return; }
+    if (name === 'Tagesnotiz') { s.err = '„Tagesnotiz“ ist reserviert.'; render(); return; }
+    if (S.anp.rows.some((r, k) => k !== s.i && r.f.toLowerCase() === name.toLowerCase())) { s.err = 'Diesen Namen gibt es schon.'; render(); return; }
+    s.row.f = name;
+    if (s.i == null) { const lastSame = S.anp.rows.map((r) => r.t).lastIndexOf(s.row.t); S.anp.rows.splice(lastSame >= 0 ? lastSame + 1 : S.anp.rows.length, 0, s.row); }
+    else S.anp.rows[s.i] = s.row;
+    S.anp.dirty = true; S.sheet = null; S.keepScroll = true;
+    if (s.fromCi) {
+      S.busy = true; render();
+      try { const keep = S.drafts; setSum(await api('saveCriteria', { area: s.area, rows: S.anp.rows.map((r) => ({ orig: r.orig || '', f: r.f, t: r.t, z: r.z, h: r.h, score: r.score !== false, inv: !!r.inv, act: r.act !== false, key: r.key || '' })) })); S.drafts = keep; toast('„' + name + '“ hinzugefügt'); }
+      catch (e) { toast('Fehler: ' + e.message); }
+      S.anp = null; S.busy = false; S.keepScroll = true; render(); return;
+    }
+    render(); toast('Noch speichern nicht vergessen');
+    return;
+  }
+  // Eingaben im Check-in
+  const d = draft(S.ci, S.date);
+  if (a === 'rate') d.ratings[f] = d.ratings[f] === Number(v) ? null : Number(v);
+  else if (a === 'wc') d.wcRate = d.wcRate === Number(v) ? null : Number(v);
+  else if (a === 'act') d.acts[f] = !d.acts[f];
+  else if (a === 'ctx') d.ctx[f] = !d.ctx[f];
+  else if (a === 'ctxToggle') d.ctxOpen = !d.ctxOpen;
+  else if (a === 'month') d.monthly[f] = !d.monthly[f];
+  else if (a === 'zeit') d.zeit[f] = Math.max(0, Math.min(16, (d.zeit[f] || 0) + Number(v)));
+  else return;
+  S.keepScroll = true; render();
 });
 window.addEventListener('online', () => refresh(true));
-document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && S.conn) { const t = iso(new Date()); if (S.sum && S.sum.today !== t) S.date = t; refresh(true); } });
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible' || !S.conn) return;
+  if (S.view === 'home' || S.view === 'summary') refresh(true);
+});
 if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+if (S.conn && S.sum) S.view = !store.get('lt_onboarded', false) ? 'onboarding' : needSummary() ? 'summary' : 'home';
 render();
 if (S.conn) refresh(true);
 </script>
