@@ -360,18 +360,35 @@ function scoresNow() {
     histMe: R.slice(0, 8).map((x) => (x.score ? x.score[me] : null)).reverse(), weeks: L.slice(0, 8).map((x) => x.w).reverse()
   };
 }
-function weekCount(area, f, date) {
+/* ---- Start der Produktivphase ---- */
+const hasStartInfo = () => !!(S.sum && S.sum.start);
+const startOf = (area) => (hasStartInfo() ? S.sum.start[area === 'leben' ? 'leben' : 'liebe'] : '0000-01-01');
+const started = (area) => !!startOf(area) && startOf(area) <= today();
+function monthRule(area, date) { // zählen Monatsziele in diesem Monat, und mit welchem Faktor?
+  date = date || today();
+  const st = startOf(area), p = parse(date), dim = new Date(p.getFullYear(), p.getMonth() + 1, 0).getDate(), m0 = date.slice(0, 7) + '-01', m1 = iso(new Date(p.getFullYear(), p.getMonth(), dim, 12));
+  if (!st || st <= m0) return { counts: true, factor: 1, from: m0 };
+  if (st > m1) return { counts: false, factor: 0, from: st };
+  const rest = Math.round((parse(m1) - parse(st)) / 86400000) + 1;
+  if (rest / dim >= 0.5) return { counts: true, factor: 1, from: st };
+  const nm = addDays(st, 7 - dayIdx(st)), fr = Math.max(0, Math.round((parse(m1) - parse(nm)) / 86400000) + 1) / dim;
+  return { counts: false, factor: fr, from: nm, partial: true };
+}
+function weekCount(area, f, date, from) {
   const mon = monday(date || today()), end = addDays(mon, 7), set = {};
-  entries(area).forEach((e) => { if (e.t === 'Aktivität' && e.f === f && e.d >= mon && e.d < end && !(e.p === S.sum.me && e.d === S.date && S.drafts[area + '|' + S.date])) set[e.d] = 1; });
+  from = from && from > mon ? from : mon;
+  entries(area).forEach((e) => { if (e.t === 'Aktivität' && e.f === f && e.d >= from && e.d < end && !(e.p === S.sum.me && e.d === S.date && S.drafts[area + '|' + S.date])) set[e.d] = 1; });
   const dk = area + '|' + S.date;
-  if (S.drafts[dk] && S.drafts[dk].acts[f] && S.date >= mon && S.date < end) set[S.date] = 1;
+  if (S.drafts[dk] && S.drafts[dk].acts[f] && S.date >= from && S.date < end) set[S.date] = 1;
   return Object.keys(set).length;
 }
 function goalStatus(area) {
-  const t = today(), di = dayIdx(t), left = 6 - di;
+  const t = today(), di = dayIdx(t), left = 6 - di, mon = monday(t), st = startOf(area);
+  const s0 = st && st > mon && st <= t ? st : mon, active = 7 - dayIdx(s0), elapsed = di - dayIdx(s0) + 1;
   return cfg(area).weekly.map((w) => {
-    const done = weekCount(area, w.f, t), expected = w.target * (di + 1) / 7;
-    return { area, f: w.f, target: w.target, done, left, expected, reached: done >= w.target, deficit: expected - done, impossible: w.target - done > left + 1 };
+    const tgt = s0 > mon ? Math.max(1, Math.round(w.target * active / 7)) : w.target;
+    const done = weekCount(area, w.f, t, s0), expected = w.target * elapsed / 7;
+    return { area, f: w.f, target: tgt, full: w.target, partial: s0 > mon, done, left, expected, reached: done >= tgt, deficit: expected - done, impossible: tgt - done > left + 1 };
   });
 }
 function byDay(list) {
@@ -738,8 +755,9 @@ function captureTasks() {
   const gs = goalStatus('leben').concat(goalStatus('liebe')), inPlan = gs.filter((g) => g.reached || g.deficit < 1).length;
   if (gs.length) out.push({ id: 'wg', grp: 'woche', title: 'Wochenziele', done: inPlan === gs.length, sub: inPlan + ' von ' + gs.length + ' im Plan', act: 'goVerlauf', prio: 99, info: true });
   const pd = parse(t), dim = new Date(pd.getFullYear(), pd.getMonth() + 1, 0).getDate(), left = dim - pd.getDate(), mon = t.slice(0, 7);
-  const openM = ['leben', 'liebe'].reduce((n, a) => n + cfg(a).monthly.filter((m) => !entries(a).some((e) => e.t === 'Monatsziel' && e.f === m.f && e.d.slice(0, 7) === mon && (a === 'liebe' || e.p === S.sum.me))).length, 0);
-  const totM = cfg('leben').monthly.length + cfg('liebe').monthly.length;
+  const mAreas = ['leben', 'liebe'].filter((a) => { const r = monthRule(a, t); return r.counts || (r.partial && cfg(a).monthly.some((m) => m.target * r.factor >= 0.5)); });
+  const openM = mAreas.reduce((n, a) => n + cfg(a).monthly.filter((m) => !entries(a).some((e) => e.t === 'Monatsziel' && e.f === m.f && e.d.slice(0, 7) === mon && (a === 'liebe' || e.p === S.sum.me))).length, 0);
+  const totM = mAreas.reduce((n, a) => n + cfg(a).monthly.length, 0);
   if (totM) out.push({ id: 'm', grp: 'monat', title: 'Monatsziele', done: openM === 0, sub: openM === 0 ? 'alle geschafft' : openM + ' von ' + totM + ' offen, noch ' + left + (left === 1 ? ' Tag' : ' Tage'), act: 'startMonthly', prio: openM && left <= 7 ? 3 : 99, openM, left });
   const recent = []; for (let i = 0; i < 5; i++) recent.push(addDays(t, -i));
   const lang = [];
@@ -782,6 +800,7 @@ function benNow() {
   let txt = opener + ' ';
   txt += names.length ? (h < 15 && !todayOpen.some((x) => x.id === 'y') ? 'Heute Abend stehen noch ' + joinDe(names.map((n) => n.replace('dein ', 'dein '))) + ' an. ' : 'Für heute ' + (names.length > 1 ? 'fehlen' : 'fehlt') + ' noch ' + joinDe(names) + '. ') : 'Für heute ist alles eingetragen, super. ';
   const due = myDue(today()), th = thankable()[0], pi = pendingInfo(), extra = [];
+  if (hasStartInfo() && !startOf('leben') && !startOf('liebe')) extra.push('Wir sind noch in der Testphase. Sobald ihr bereit seid, drück auf Start.');
   if (pi && !pi.mine) extra.push(S.sum.partner + ' möchte eure Aufgabenliste ändern, schau bitte kurz drüber.');
   const mineD = due.filter((s) => s.mineResp), poolD = due.filter((s) => s.pool);
   if (mineD.length) extra.push('Im Alltag ist noch ' + joinDe(mineD.slice(0, 2).map((s) => '„' + s.t.name + '“')) + ' offen, da bist du dran.');
@@ -904,15 +923,16 @@ function periodOf(t, date) {
 }
 function taskState(t, date) {
   date = date || today();
-  const [from, to] = periodOf(t, date), me = S.sum.me, all = AL().done.filter((d) => d.id === t.id);
+  const [from0, to] = periodOf(t, date), me = S.sum.me, all = AL().done.filter((d) => d.id === t.id), st = startOf('liebe');
+  const from = st && st > from0 && st <= date ? st : from0;
   const rows = all.filter((d) => d.d >= from && d.d < to);
   const who = t.resp === 'Abwechselnd' ? turnOf(t) : t.resp;
-  const left = Math.max(0, t.n - rows.length);
-  let plan = t.n;
-  if (t.r === 'Woche') plan = Math.floor(t.n * (dayIdx(date) + 1) / 7 + 0.3);
-  if (t.r === 'Monat') { const p = parse(date), dim = new Date(p.getFullYear(), p.getMonth() + 1, 0).getDate(); plan = Math.floor(t.n * p.getDate() / dim + 0.3); }
+  let n = t.n, plan = t.n;
+  if (t.r === 'Woche') { const act = 7 - dayIdx(from), el = dayIdx(date) - dayIdx(from) + 1; if (from > from0) n = Math.max(1, Math.round(t.n * act / 7)); plan = Math.floor(t.n * el / 7 + 0.3); }
+  if (t.r === 'Monat') { const p = parse(date), dim = new Date(p.getFullYear(), p.getMonth() + 1, 0).getDate(), r = st ? monthRule('liebe', date) : { counts: true, factor: 1, from: from0 }; if (!r.counts) n = Math.round(t.n * r.factor); const span = Math.round((parse(to) - parse(r.from)) / 86400000), el = Math.round((parse(date) - parse(r.from)) / 86400000) + 1; plan = n && el > 0 ? Math.floor(n * el / span + 0.3) : 0; }
+  const left = Math.max(0, n - rows.length);
   const last = all.filter((d) => d.d <= date).map((d) => d.d).sort().pop();
-  return { t, done: rows.length, rows, left, plan, due: left > 0 && rows.length < plan,
+  return { t, n, done: rows.length, rows, left, plan, due: left > 0 && rows.length < plan,
     mineToday: all.filter((d) => d.d === date && d.p === me).length, otherToday: all.filter((d) => d.d === date && d.p !== me).length,
     mineResp: t.resp === me || (t.resp === 'Abwechselnd' && who === me), partnerResp: t.resp === S.sum.partner || (t.resp === 'Abwechselnd' && who !== me),
     pool: t.resp === 'Pool', alt: t.resp === 'Abwechselnd', who, last, since: last ? Math.round((parse(date) - parse(last)) / 86400000) : null };
@@ -921,16 +941,25 @@ const myDue = (date) => (AL() ? tasksAct().map((t) => taskState(t, date)).filter
 /* gleiche Rechnung wie im Script (alltagWeek_) */
 function alltagWeek(wStart, todayS) {
   todayS = todayS || today();
-  if (!AL() || !wStart || wStart > todayS) return null;
-  const wEnd = addDays(wStart, 7), days = Math.min(7, Math.max(1, Math.round((parse(todayS) - parse(wStart)) / 86400000) + 1));
+  const start = startOf('liebe');
+  if (!AL() || !wStart || wStart > todayS || !start) return null;
+  const wEnd = addDays(wStart, 7); if (wEnd <= start) return null;
+  const s0 = wStart > start ? wStart : start, dd = (a, b) => Math.round((parse(a) - parse(b)) / 86400000);
+  const days = Math.max(1, dd(todayS < wEnd ? addDays(todayS, 1) : wEnd, s0));
   const [A, B] = names2(), comp = [], zExp = { [A]: 0, [B]: 0 }, zDone = { [A]: 0, [B]: 0 }, pool = { [A]: 0, [B]: 0 }, cnt = { [A]: 0, [B]: 0 };
-  AL().done.forEach((d) => { if (d.d >= wStart && d.d < wEnd && d.d <= todayS && cnt[d.p] != null) cnt[d.p]++; });
+  AL().done.forEach((d) => { if (d.d >= s0 && d.d < wEnd && d.d <= todayS && cnt[d.p] != null) cnt[d.p]++; });
   tasksAct().forEach((t) => {
     let exp, rows;
     if (t.r === 'Monat') {
-      const ref = todayS < wEnd ? todayS : addDays(wEnd, -1), m0 = ref.slice(0, 7) + '-01', p = parse(ref), dim = new Date(p.getFullYear(), p.getMonth() + 1, 0).getDate();
-      exp = t.n * p.getDate() / dim; rows = AL().done.filter((d) => d.id === t.id && d.d >= m0 && d.d <= ref);
-    } else { exp = (t.r === 'Tag' ? t.n * 7 : t.n) * days / 7; rows = AL().done.filter((d) => d.id === t.id && d.d >= wStart && d.d < wEnd && d.d <= todayS); }
+      const ref = todayS < wEnd ? todayS : addDays(wEnd, -1), m0 = ref.slice(0, 7) + '-01', p = parse(ref), dim = new Date(p.getFullYear(), p.getMonth() + 1, 0).getDate(), m1 = iso(new Date(p.getFullYear(), p.getMonth(), dim, 12));
+      let from = m0, n = t.n, span = dim;
+      if (start > m0) {
+        if ((dd(m1, start) + 1) / dim >= 0.5) { from = start; span = dd(m1, start) + 1; }
+        else { const nm = addDays(start, 7 - dayIdx(start)); n = t.n * Math.max(0, dd(m1, nm) + 1) / dim; from = nm; span = dd(m1, nm) + 1; if (n < 0.5) return; }
+      }
+      if (ref < from) return;
+      exp = n * (dd(ref, from) + 1) / span; rows = AL().done.filter((d) => d.id === t.id && d.d >= from && d.d <= ref);
+    } else { exp = (t.r === 'Tag' ? t.n * 7 : t.n) * days / 7; rows = AL().done.filter((d) => d.id === t.id && d.d >= s0 && d.d < wEnd && d.d <= todayS); }
     if (exp <= 0) return;
     comp.push(Math.min(1, rows.length / exp));
     const by = { [A]: 0, [B]: 0 }; rows.forEach((d) => { if (by[d.p] != null) by[d.p]++; });
@@ -1097,6 +1126,7 @@ function greetItems() {
   const items = openTasks().filter((x) => x.id !== 'al').slice(0, 3).map((x) => (x.id === 'tL' ? 'Dein Leben-Check-in heute, ca. eine Minute.' : x.id === 'tR' ? 'Dein Liebe-Check-in heute, direkt danach.' : taskSentence(x)));
   const due = myDue(today());
   if (due.length) items.push('Im Alltag ist noch ' + joinDe(due.slice(0, 3).map((s) => '„' + s.t.name + '“')) + ' offen' + (due.some((s) => s.mineResp) ? ', da bist du dran.' : '.'));
+  if (hasStartInfo() && (!startOf('leben') || !startOf('liebe'))) items.unshift('Ihr seid noch in der Testphase. Wenn ihr bereit seid, drückt auf der Startseite auf Start, dann zählen eure Scores.');
   const pi = pendingInfo(); if (pi && !pi.mine) items.unshift(S.sum.partner + ' möchte eure Aufgabenliste ändern und wartet auf deine Bestätigung.');
   return items.slice(0, 4);
 }
@@ -1141,7 +1171,7 @@ async function closeOv(fast) {
 /* ================= Alltag-Ansichten ================= */
 function taskRow(s, date, compact) {
   const t = s.t, mineN = s.mineToday, tag = s.mineResp && s.due ? '<span class="pill" style="background:#FEF3C7;color:#92400E">' + (s.alt ? 'Du bist dran' : 'Heute') + '</span>' : '';
-  const status = t.r === 'Tag' ? s.done + ' von ' + t.n + ' heute' : t.r === 'Woche' ? s.done + ' von ' + t.n + ' diese Woche' : s.done + ' von ' + t.n + ' diesen Monat';
+  const status = t.r === 'Tag' ? s.done + ' von ' + s.n + ' heute' : t.r === 'Woche' ? s.done + ' von ' + s.n + ' diese Woche' : s.n ? s.done + ' von ' + s.n + ' diesen Monat' : 'zählt erst nächsten Monat';
   const extra = s.otherToday && !mineN ? ' · heute von ' + esc(S.sum.partner) : s.alt && !s.mineResp ? ' · ' + esc(S.sum.partner) + ' ist dran' : '';
   return '<div class="trow"><span class="ticon">' + tIcon(t.name) + '</span><div class="col" style="flex:1;gap:1px;min-width:0"><b style="font-size:14px">' + esc(t.name) + '</b><span class="sub">' + status + extra + '</span></div>' + (compact ? '' : tag) +
     (mineN ? '<button class="tbtn minus" data-a="alDel" data-v="' + esc(t.id) + '" data-d="' + date + '" aria-label="' + esc(t.name) + ' einmal zurücknehmen">−</button>' : '') +
@@ -1155,6 +1185,25 @@ function vAlltagCheckin(date) {
   return '<div class="card" style="gap:2px"><div class="row" style="margin-bottom:4px"><h2>Heute für euren Alltag</h2>' + (z != null ? '<span class="pill L">Zusagen ' + Math.round(z * 100) + ' %</span>' : '') + '</div>' +
     grp.filter((g) => g[1].length).map(([l, rows]) => '<span class="sub" style="font-weight:800;letter-spacing:.05em;text-transform:uppercase;margin-top:8px">' + esc(l) + '</span>' + rows.map((s) => taskRow(s, date)).join('')).join('') +
     '<span class="sub" style="margin-top:6px">Wird sofort gespeichert und ist für euch beide sichtbar.</span></div>';
+}
+function startPreview(date) {
+  const di = dayIdx(date), days = 7 - di, p = parse(date), dim = new Date(p.getFullYear(), p.getMonth() + 1, 0).getDate(), rest = dim - p.getDate() + 1;
+  const mon = MON[p.getMonth()], next = MON[(p.getMonth() + 1) % 12];
+  const week = di === 0 ? 'Diese Woche zählt voll.' : 'Diese Woche zählt anteilig: ' + days + ' von 7 Tagen, z. B. wird aus „3× Sport“ ' + Math.max(1, Math.round(3 * days / 7)) + '×.';
+  const month = rest / dim >= 0.5 ? 'Die Monatsziele für ' + mon + ' zählen voll.' : 'Im ' + mon + ' sind nur noch ' + rest + ' Tage übrig, deshalb zählen Monatsziele erst ab ' + next + ' voll (größere Ziele anteilig ab dem nächsten Montag).';
+  return week + ' ' + month;
+}
+function vStartCard() {
+  if (!hasStartInfo()) return '';
+  const sL = startOf('leben'), sR = startOf('liebe');
+  if (sL && sR) return '';
+  const t = today(), ask = S.startAsk;
+  const head = !sL && !sR ? 'Bereit für euren Start?' : !sR ? 'Startet ihr auch Liebe und Alltag?' : 'Liebe läuft seit ' + short(sR) + ', starte dein Leben';
+  const txt = !sL && !sR ? 'Bis jetzt ist Testphase: Alles wird gespeichert, zählt aber noch nicht in die Scores. Mit dem Start beginnt eure Produktivphase.' : !sR ? 'Dein Leben läuft seit ' + short(sL) + '. Liebe und Alltag startet ihr gemeinsam, ' + esc(S.sum.partner) + ' sieht den Start sofort.' : esc(S.sum.partner) + ' hat Liebe und Alltag schon gestartet. Dein Leben-Score startet mit deinem Knopfdruck.';
+  return '<div style="position:relative;overflow:hidden;border-radius:26px;padding:18px;color:#fff;background:var(--dots),radial-gradient(circle at 110% -10%,rgba(255,255,255,.25) 0 110px,rgba(255,255,255,0) 111px),var(--gHero);box-shadow:0 14px 32px rgba(109,40,217,.32);display:flex;flex-direction:column;gap:10px">' +
+    '<span class="cap" style="opacity:.92">Produktivphase</span><b class="jk" style="font-size:21px;line-height:1.25">' + head + '</b><span style="font-size:14px;line-height:1.5;opacity:.96">' + txt + '</span>' +
+    (ask ? '<div style="border-radius:16px;background:rgba(255,255,255,.16);padding:12px 14px;font-size:13px;line-height:1.5">Start heute, ' + nice(t) + '. ' + esc(startPreview(t)) + '</div><div class="row" style="gap:10px"><button style="flex:1;min-height:50px;border-radius:16px;background:rgba(255,255,255,.2);color:#fff;font-weight:700" data-a="startCancel">Abbrechen</button><button style="flex:1.5;min-height:50px;border-radius:16px;background:#fff;color:#4C1D95;font-weight:800;font-size:15px" data-a="startNow">Jetzt starten</button></div>'
+      : '<button style="min-height:54px;border-radius:18px;background:#fff;color:#4C1D95;font-weight:800;font-size:17px;box-shadow:0 8px 20px rgba(15,23,42,.2)" data-a="startAsk">▶ Start</button>') + '</div>';
 }
 function vAlltagHome() {
   if (!AL()) return '';
@@ -1201,8 +1250,8 @@ function vAlltagVerlauf() {
   if (open) h += popsHtml(alltagPops(w), S.popAnim, '#334155');
   h += '<div class="card" style="gap:10px"><div class="row"><h2>Diese Woche</h2><span class="sub">blau du · rot ' + esc(pa) + '</span></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">' +
     tasks.map((t) => {
-      const s = taskState(t, today()), segs = s.rows.map((d) => '<i style="flex:1;height:6px;border-radius:3px;background:' + (d.p === me ? '#2563EB' : '#E11D48') + '"></i>').join('') + Array.from({ length: Math.max(0, t.n - s.rows.length) }, () => '<i style="flex:1;height:6px;border-radius:3px;background:#E6EAF3"></i>').join('');
-      return '<div style="border-radius:16px;background:var(--bg);padding:10px 12px;display:flex;flex-direction:column;gap:6px"><div class="row" style="gap:6px"><span style="font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + tIcon(t.name) + ' ' + esc(t.name) + '</span><span class="sub" style="flex:none">' + s.done + '/' + t.n + '</span></div><div style="display:flex;gap:3px">' + segs + '</div></div>';
+      const s = taskState(t, today()), segs = s.rows.map((d) => '<i style="flex:1;height:6px;border-radius:3px;background:' + (d.p === me ? '#2563EB' : '#E11D48') + '"></i>').join('') + Array.from({ length: Math.max(0, s.n - s.rows.length) }, () => '<i style="flex:1;height:6px;border-radius:3px;background:#E6EAF3"></i>').join('');
+      return '<div style="border-radius:16px;background:var(--bg);padding:10px 12px;display:flex;flex-direction:column;gap:6px"><div class="row" style="gap:6px"><span style="font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + tIcon(t.name) + ' ' + esc(t.name) + '</span><span class="sub" style="flex:none">' + s.done + '/' + s.n + '</span></div><div style="display:flex;gap:3px">' + segs + '</div></div>';
     }).join('') + '</div><span class="sub">Zählt je nach Rhythmus pro Tag, Woche oder Monat.</span></div>';
   const th = thankable();
   if (th.length) h += '<div class="card" style="gap:2px"><h2 style="margin-bottom:4px">Danke sagen</h2>' + th.slice(0, 3).map((x) => '<div class="trow"><span class="ticon" style="background:#FFF1F2">' + tIcon(x.name) + '</span><span style="flex:1;font-size:14px">„' + esc(x.name) + '“ <span class="sub">' + whenText(x.d) + '</span></span><button style="flex:none;min-height:38px;padding:0 14px;border-radius:12px;background:var(--gR);color:#fff;font-weight:800;font-size:13px" data-a="thank" data-v="' + esc(x.id) + '" data-d="' + x.d + '">♥ Danke</button></div>').join('') + '</div>';
@@ -1287,6 +1336,7 @@ function vTaskSheet() {
 
 /* ================= Ansichten ================= */
 function scoreCard(area, val, extra) {
+  if (hasStartInfo() && !started(area)) extra = '<span class="pill W">Testphase</span>';
   return '<div class="score ' + (area === 'leben' ? 'L gradL' : 'R gradR') + '"><span style="font-size:12px;font-weight:700;opacity:.92">' + (area === 'leben' ? 'Leben' : 'Liebe · gemeinsam') + '</span>' +
     '<div class="row" style="justify-content:flex-start;gap:8px"><b class="n">' + (val != null ? val : '–') + '</b>' + (extra || '') + '</div></div>';
 }
@@ -1361,7 +1411,7 @@ function vHome() {
     '<div class="row"><div class="col" style="gap:2px"><span class="small">' + nice(today()) + ' · KW ' + kw(today()) + '</span><h1>' + greet() + '</h1></div><button class="iconbtn" data-a="go" data-v="anpassen" aria-label="Anpassen">' + svg(P.sliders) + '</button></div>' +
     '<div id="ticker" aria-live="polite">' + tickHtml(S.rot.ticker.items[S.rot.ticker.i], S.rot.ticker.i, ti.length) + '</div>' +
     '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">' + scoreCard('leben', sc.leben, deltaPill(sc.leben, snap.leben)) + scoreCard('liebe', sc.liebe, deltaPill(sc.liebe, snap.liebe)) + '</div>';
-  h += vAlltagHome();
+  h += vStartCard() + vAlltagHome();
   if (allToday.length) h += '<button class="btn" data-a="' + allToday[0].act + '">' + ACT_LABEL[allToday[0].act] + ' ' + svg(P.arrow, '#fff', 18, 2.4) + '</button>';
   h += vCapture();
   h += '<div class="col" style="gap:10px"><div class="row"><h2 style="font-size:18px">Deine To-dos für heute</h2><span class="sub">' + T.filter((t) => tick[t.id]).length + ' von ' + T.length + '</span></div><div class="list">' +
@@ -1642,6 +1692,8 @@ function vAnpassen() {
   h += vBuddySettings(false);
   h += '<div class="list"><div class="li" style="border:none;padding-bottom:4px"><h2 style="font-size:16px">Einstellungen</h2></div>' +
     '<div class="li"><div class="col" style="flex:1"><b style="font-size:14px">Meinen eigenen Liebe-Score zeigen</b><span class="sub">Nur für dich, im Verlauf</span></div><button class="switch ' + (S.prefs.personal ? 'on R' : '') + '" role="switch" aria-checked="' + !!S.prefs.personal + '" aria-label="Eigenen Liebe-Score zeigen" data-a="prefPersonal"><span></span></button></div>' +
+    (hasStartInfo() ? '<div class="li"><div class="col" style="flex:1"><b style="font-size:14px">Start Leben</b><span class="sub">' + (startOf('leben') ? 'seit ' + nice(startOf('leben')) : 'noch Testphase') + '</span></div><button class="ghost" style="width:auto;min-height:38px;padding:0 12px;font-size:13px" data-a="restart" data-v="leben">' + (startOf('leben') ? 'Neu starten' : 'Starten') + '</button></div>' +
+      '<div class="li"><div class="col" style="flex:1"><b style="font-size:14px">Start Liebe & Alltag</b><span class="sub">' + (startOf('liebe') ? 'seit ' + nice(startOf('liebe')) + ', gemeinsam' : 'noch Testphase') + '</span></div><button class="ghost" style="width:auto;min-height:38px;padding:0 12px;font-size:13px" data-a="restart" data-v="liebe">' + (startOf('liebe') ? 'Neu starten' : 'Starten') + '</button></div>' : '') +
     '<div class="li"><button data-a="obAgain" style="flex:1;text-align:left;min-height:40px;font-size:14px;font-weight:600">Einführung noch einmal ansehen</button></div>' +
     '<div class="li"><button data-a="refresh" style="flex:1;text-align:left;min-height:40px;font-size:14px;font-weight:600">Daten neu laden</button></div>' +
     '<div class="li"><button data-a="logout" style="flex:1;text-align:left;min-height:40px;font-size:14px;font-weight:600;color:#B91C1C">Verbindung trennen</button><span class="sub">' + esc(S.sum.me) + '</span></div></div>';
@@ -1736,6 +1788,15 @@ async function onTap(ev) {
   if (a === 'alDel') { doneDel(v, b.dataset.d || today()); S.keepScroll = true; render(); return; }
   if (a === 'thank') { const t = tasksAll().find((x) => x.id === v); thank(v, t ? t.name : 'Danke', b.dataset.d || ''); S.keepScroll = true; render(); return; }
   if (a === 'goAlltag') { if (S.view === 'home') await leaveBud(); S.vTab = 'alltag'; S.vOpen = null; go('verlauf'); return; }
+  if (a === 'startAsk' || a === 'startCancel') { S.startAsk = a === 'startAsk'; S.keepScroll = true; render(); return; }
+  if (a === 'startNow' || a === 'restart') {
+    const area = a === 'restart' ? v : !startOf('leben') && !startOf('liebe') ? 'both' : !startOf('leben') ? 'leben' : 'liebe';
+    if (a === 'restart' && startOf(v) && !confirm(v === 'liebe' ? 'Liebe und Alltag ab heute neu starten? Das gilt auch für ' + S.sum.partner + '. Eure Einträge bleiben erhalten.' : 'Dein Leben ab heute neu starten? Deine Einträge bleiben erhalten.')) return;
+    S.busy = true; render();
+    try { setSum(await api('setStart', { area, date: today() })); S.startAsk = false; toast('Gestartet! Ab heute zählt alles.'); }
+    catch (e) { toast('Fehler: ' + e.message); }
+    S.busy = false; S.keepScroll = true; render(); return;
+  }
   if (a === 'vTab') { S.vTab = v; S.vOpen = null; S.keepScroll = true; render(); return; }
   if (a === 'anpAlltag') { alInit(); go('anpassen'); return; }
   if (a === 'propYes' || a === 'propNo' || a === 'propBack') {
