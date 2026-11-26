@@ -201,6 +201,19 @@ nav.tabs .plus{width:34px;height:34px;border-radius:12px;display:flex;align-item
 .resp button.on{border:2px solid #1D4ED8;background:#EFF6FF}
 .seg3{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:4px;border-radius:14px;background:var(--bg)}
 .seg3 button{min-height:40px;border-radius:10px;font-size:13px;font-weight:700;color:var(--sub)}.seg3 button.on{background:var(--gL);color:#fff;font-weight:800}
+.qsheet{position:absolute;inset:0;background:rgba(11,18,32,.5);display:flex;flex-direction:column;justify-content:flex-end;z-index:20;animation:fadeIn .25s ease-out both}
+.qsheet>.panel{border-radius:28px 28px 0 0;background:#fff;padding:10px 20px calc(22px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:10px;max-height:88%;overflow-y:auto;animation:slideUp .4s cubic-bezier(.2,1,.3,1) both}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:none}}
+.ztog{display:flex;align-items:center;gap:8px;margin:2px 0 4px 50px;font-size:12px;font-weight:700;color:var(--sub)}
+.ztog i{width:36px;height:22px;border-radius:11px;padding:2px;display:flex;background:#CBD2E0}.ztog i b{width:18px;height:18px;border-radius:9px;background:#fff;display:block}
+.ztog.on{color:#6D28D9}.ztog.on i{justify-content:flex-end;background:linear-gradient(135deg,#7C3AED,#DB2777)}
+.eRise{position:absolute;bottom:-60px;animation:eRise 3.6s ease-in both}
+@keyframes eRise{0%{transform:translate(0,0) scale(.6);opacity:0}12%{opacity:1}100%{transform:translate(var(--sx),-110vh) scale(1.25) rotate(var(--r));opacity:0}}
+.newsT{position:absolute;left:14px;right:14px;top:calc(14px + env(safe-area-inset-top));border-radius:22px;padding:14px 16px;color:#fff;background:linear-gradient(135deg,#7C3AED,#DB2777);box-shadow:0 18px 40px rgba(109,40,217,.35);display:flex;flex-direction:column;gap:10px;animation:newsIn .5s cubic-bezier(.2,1.3,.4,1) both}
+@keyframes newsIn{from{opacity:0;transform:translateY(-40px)}to{opacity:1;transform:none}}
+.capHead{margin:-16px -16px 6px;padding:16px;border-radius:22px 22px 0 0;color:#fff;background:radial-gradient(rgba(255,255,255,.15) 1.2px,transparent 1.4px) 0 0/14px 14px,linear-gradient(120deg,#047857 0%,#1D4ED8 45%,#7C3AED 75%,#DB2777 100%)}
+.gdot{flex:none;width:30px;height:30px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff}
+@media (prefers-reduced-motion: reduce){.eRise,.newsT,.qsheet,.qsheet>.panel{animation:none!important}}
 @media (prefers-reduced-motion: reduce){.flyR,.flyL,.dropT,.benCard,.dBub,.hBurst,.dCard,.popIn,.bob,.wob,.hTrail,.ovbg{animation:none!important}}
 </style>
 </head>
@@ -744,7 +757,7 @@ function captureTasks() {
   const tL = dayDone('leben', t), tR = dayDone('liebe', t);
   out.push({ id: 'tL', grp: 'heute', title: 'Leben-Check-in', done: tL, sub: tL ? 'erledigt' : h >= 17 ? 'Am besten jetzt am Abend' : 'Heute Abend, ca. 1 Minute', act: 'startCheckin', prio: tL ? 99 : h >= 20 ? 1 : 5 });
   out.push({ id: 'tR', grp: 'heute', title: 'Liebe-Check-in', done: tR, sub: tR ? 'erledigt' : 'Direkt nach Leben, ca. 1 Minute', act: tL ? 'startLiebe' : 'startCheckin', prio: tR ? 99 : h >= 20 ? 2 : 6 });
-  if (AL() && tasksAct().length) { const due = myDue(t); out.push({ id: 'al', grp: 'heute', title: 'Alltag abhaken', done: !due.length, sub: due.length ? joinDe(due.slice(0, 3).map((s) => s.t.name)) + ' offen' : 'alles erledigt', act: 'goAlltag', prio: due.length ? (h >= 17 ? 2 : 4) : 99 }); }
+  if (AL() && tasksAct().length) { const due = myDue(t); out.push({ id: 'al', grp: 'heute', title: 'Alltag abhaken', done: !due.length, sub: due.length ? joinDe(due.slice(0, 3).map((s) => s.t.name)) + ' offen' : 'alles erledigt', act: 'qsAlltag', prio: due.length ? (h >= 17 ? 2 : 4) : 99 }); }
   const yL = dayDone('leben', y), yR = dayDone('liebe', y);
   if (y >= start && (!yL || !yR)) out.push({ id: 'y', grp: 'heute', title: 'Gestern nachtragen', done: false, sub: !yL && !yR ? 'Leben und Liebe fehlen' : !yL ? 'Leben fehlt' : 'Liebe fehlt', act: 'tipYesterday', prio: h < 12 ? 0 : 3 });
   const C = cfg('leben'), isSun = parse(t).getDay() === 0;
@@ -753,12 +766,12 @@ function captureTasks() {
     else { const ls = lastSunday(t); if (ls >= start && dayIdx(t) <= 1 && !wcDone(ls)) out.push({ id: 'wcl', grp: 'woche', title: 'Wochen-Check nachholen', done: false, sub: 'Vom letzten Sonntag', act: 'wcLast', prio: 4 }); }
   }
   const gs = goalStatus('leben').concat(goalStatus('liebe')), inPlan = gs.filter((g) => g.reached || g.deficit < 1).length;
-  if (gs.length) out.push({ id: 'wg', grp: 'woche', title: 'Wochenziele', done: inPlan === gs.length, sub: inPlan + ' von ' + gs.length + ' im Plan', act: 'goVerlauf', prio: 99, info: true });
+  if (gs.length) out.push({ id: 'wg', grp: 'woche', title: 'Wochenziele', done: inPlan === gs.length, sub: inPlan + ' von ' + gs.length + ' im Plan', act: 'qsQuick', prio: 99, info: true });
   const pd = parse(t), dim = new Date(pd.getFullYear(), pd.getMonth() + 1, 0).getDate(), left = dim - pd.getDate(), mon = t.slice(0, 7);
   const mAreas = ['leben', 'liebe'].filter((a) => { const r = monthRule(a, t); return r.counts || (r.partial && cfg(a).monthly.some((m) => m.target * r.factor >= 0.5)); });
   const openM = mAreas.reduce((n, a) => n + cfg(a).monthly.filter((m) => !entries(a).some((e) => e.t === 'Monatsziel' && e.f === m.f && e.d.slice(0, 7) === mon && (a === 'liebe' || e.p === S.sum.me))).length, 0);
   const totM = mAreas.reduce((n, a) => n + cfg(a).monthly.length, 0);
-  if (totM) out.push({ id: 'm', grp: 'monat', title: 'Monatsziele', done: openM === 0, sub: openM === 0 ? 'alle geschafft' : openM + ' von ' + totM + ' offen, noch ' + left + (left === 1 ? ' Tag' : ' Tage'), act: 'startMonthly', prio: openM && left <= 7 ? 3 : 99, openM, left });
+  if (totM) out.push({ id: 'm', grp: 'monat', title: 'Monatsziele', done: openM === 0, sub: openM === 0 ? 'alle geschafft' : openM + ' von ' + totM + ' offen, noch ' + left + (left === 1 ? ' Tag' : ' Tage'), act: 'qsQuick', prio: openM && left <= 7 ? 3 : 99, openM, left });
   const recent = []; for (let i = 0; i < 5; i++) recent.push(addDays(t, -i));
   const lang = [];
   ['leben', 'liebe'].forEach((a) => {
@@ -779,7 +792,7 @@ function captureTasks() {
   return out.concat(lang.slice(0, 3));
 }
 const openTasks = () => captureTasks().filter((x) => !x.done && !x.info).sort((a, b) => a.prio - b.prio);
-const ACT_LABEL = { startCheckin: 'Jetzt einchecken', startLiebe: 'Liebe eintragen', tipYesterday: 'Gestern nachtragen', wcLast: 'Wochen-Check nachholen', startMonthly: 'Monatsziele öffnen', goVerlauf: 'Ansehen', goAlltag: 'Alltag öffnen', thank: 'Danke sagen' };
+const ACT_LABEL = { startCheckin: 'Jetzt einchecken', startLiebe: 'Liebe eintragen', tipYesterday: 'Gestern nachtragen', wcLast: 'Wochen-Check nachholen', startMonthly: 'Monatsziele öffnen', goVerlauf: 'Ansehen', goAlltag: 'Alltag öffnen', thank: 'Danke sagen', qsAlltag: 'Alltag abhaken', qsQuick: 'Schnell eintragen' };
 const joinDe = (a) => a.length < 2 ? (a[0] || '') : a.slice(0, -1).join(', ') + ' und ' + a[a.length - 1];
 function taskSentence(x) {
   if (x.id === 'wc') return 'Heute ist Sonntag, Zeit für deinen kurzen Wochen-Check.';
@@ -847,11 +860,12 @@ function startTicker() {
 function vCapture() {
   const all = captureTasks(), groups = [['heute', 'Heute'], ['woche', 'Diese Woche'], ['monat', 'Diesen Monat'], ['lang', 'Länger offen']];
   const today_ = all.filter((x) => x.grp === 'heute'), doneN = today_.filter((x) => x.done).length;
-  let h = '<div class="card" style="gap:4px"><div class="row" style="margin-bottom:4px"><h2>Was wann eintragen</h2><span class="pill ' + (doneN === today_.length ? 'L' : 'N') + '">Heute ' + doneN + '/' + today_.length + '</span></div>';
+  const GC = { heute: 'linear-gradient(135deg,#047857,#1D4ED8)', woche: 'linear-gradient(135deg,#6D28D9,#A21CAF)', monat: 'linear-gradient(135deg,#BE185D,#E11D48)', lang: 'linear-gradient(135deg,#D97706,#EA580C)' };
+  let h = '<div class="card" style="gap:4px;overflow:hidden"><div class="capHead"><div class="row"><div class="col" style="gap:2px"><span class="cap" style="opacity:.9">Deine Check-ins</span><b class="jk" style="font-size:19px">' + (doneN === today_.length ? 'Für heute alles erledigt' : 'Noch ' + (today_.length - doneN) + ' für heute') + '</b></div><button style="flex:none;min-height:38px;padding:0 12px;border-radius:12px;background:rgba(255,255,255,.22);color:#fff;font-weight:800;font-size:13px" data-a="qsQuick">⚡ Schnell eintragen</button></div><div style="display:flex;gap:4px;margin-top:10px">' + today_.map((x) => '<i style="flex:1;height:6px;border-radius:3px;background:' + (x.done ? '#fff' : 'rgba(255,255,255,.3)') + '"></i>').join('') + '</div></div>';
   const full = !!S.capAll, hidden = all.filter((x) => x.done || x.info).length;
   groups.forEach(([g, label]) => {
     const rows = all.filter((x) => x.grp === g && (full || (!x.done && !x.info))); if (!rows.length) return;
-    h += '<span class="sub" style="font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-top:8px">' + label + '</span>' + rows.map((x) => '<div class="row" style="padding:8px 0;border-top:1px solid var(--line);gap:10px"><span style="flex:none;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;' + (x.done ? 'background:var(--gL);color:#fff' : g === 'lang' ? 'background:#FEF3C7;color:#B45309' : 'border:2px solid #CBD2E0;color:transparent') + '">' + (x.done ? '✓' : g === 'lang' ? '!' : '') + '</span><div class="col" style="flex:1"><b style="font-size:14px;' + (x.done ? 'color:var(--sub)' : '') + '">' + esc(x.title) + '</b><span class="sub">' + esc(x.sub) + '</span></div>' + (!x.done ? '<button class="ghost" style="width:auto;min-height:38px;padding:0 12px;font-size:13px" data-a="' + x.act + '">' + (x.info ? 'Ansehen' : 'Eintragen') + '</button>' : '') + '</div>').join('');
+    h += '<span class="sub" style="font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-top:8px">' + label + '</span>' + rows.map((x) => '<div class="row" style="padding:8px 0;border-top:1px solid var(--line);gap:10px"><span class="gdot" style="background:' + (x.done ? 'var(--gL)' : GC[g]) + ';' + (x.done ? '' : 'opacity:.92') + '">' + (x.done ? '✓' : x.id === 'al' ? '🏡' : g === 'lang' ? '!' : g === 'heute' ? '✎' : g === 'woche' ? 'W' : 'M') + '</span><div class="col" style="flex:1"><b style="font-size:14px;' + (x.done ? 'color:var(--sub)' : '') + '">' + esc(x.title) + '</b><span class="sub">' + esc(x.sub) + '</span></div>' + (!x.done ? '<button class="ghost" style="width:auto;min-height:38px;padding:0 12px;font-size:13px" data-a="' + x.act + '">' + (x.info ? 'Ansehen' : x.act === 'qsAlltag' ? 'Abhaken' : 'Eintragen') + '</button>' : '') + '</div>').join('');
   });
   if (!full && !all.some((x) => !x.done && !x.info)) h += '<span class="small" style="padding:6px 0">Alles eingetragen, was gerade ansteht.</span>';
   return h + (hidden ? '<button class="link" style="align-self:flex-start;color:#1D4ED8;min-height:36px" data-a="capAll">' + (full ? 'Nur Offenes zeigen' : 'Auch Erledigtes zeigen (' + hidden + ')') + '</button>' : '') + (full ? '<span class="sub" style="margin-top:4px;line-height:1.45">Täglich abends Leben und Liebe, sonntags der Wochen-Check, Monatsziele abhaken, sobald du sie erledigt hast.</span>' : '') + '</div>';
@@ -949,7 +963,8 @@ function alltagWeek(wStart, todayS) {
   const s0 = wStart > start ? wStart : start, dd = (a, b) => Math.round((parse(a) - parse(b)) / 86400000);
   const days = Math.max(1, dd(todayS < wEnd ? addDays(todayS, 1) : wEnd, s0));
   const [A, B] = names2(), comp = [], zExp = { [A]: 0, [B]: 0 }, zDone = { [A]: 0, [B]: 0 }, pool = { [A]: 0, [B]: 0 }, cnt = { [A]: 0, [B]: 0 };
-  AL().done.forEach((d) => { if (d.d >= s0 && d.d < wEnd && d.d <= todayS && cnt[d.p] != null) cnt[d.p]++; });
+  let both = 0; const per = { [A]: {}, [B]: {}, both: {} };
+  AL().done.forEach((d) => { if (d.d >= s0 && d.d < wEnd && d.d <= todayS) { const k = d.z ? 'both' : d.p; if (!per[k]) return; per[k][d.id] = (per[k][d.id] || 0) + 1; if (d.z) both++; else if (cnt[d.p] != null) cnt[d.p]++; } });
   tasksAct().forEach((t) => {
     let exp, rows;
     if (t.r === 'Monat') {
@@ -965,23 +980,23 @@ function alltagWeek(wStart, todayS) {
     } else { exp = (t.r === 'Tag' ? t.n * 7 : t.n) * days / 7; rows = AL().done.filter((d) => d.id === t.id && d.d >= s0 && d.d < wEnd && d.d <= todayS); }
     if (exp <= 0) return;
     comp.push(Math.min(1, rows.length / exp));
-    const by = { [A]: 0, [B]: 0 }; rows.forEach((d) => { if (by[d.p] != null) by[d.p]++; });
-    if (t.resp === A || t.resp === B) { zExp[t.resp] += exp; zDone[t.resp] += Math.min(by[t.resp], exp); }
-    else if (t.resp === 'Abwechselnd') [A, B].forEach((p) => { zExp[p] += exp / 2; zDone[p] += Math.min(by[p], exp / 2); });
+    const by = { [A]: 0, [B]: 0 }; let bz = 0; rows.forEach((d) => { if (d.z) bz++; else if (by[d.p] != null) by[d.p]++; });
+    if (t.resp === A || t.resp === B) { zExp[t.resp] += exp; zDone[t.resp] += Math.min(by[t.resp] + bz, exp); }
+    else if (t.resp === 'Abwechselnd') [A, B].forEach((p) => { zExp[p] += exp / 2; zDone[p] += Math.min(by[p] + bz, exp / 2); });
     else { pool[A] += by[A]; pool[B] += by[B]; }
   });
-  if (!comp.length) return { score: null, cnt, zusage: {}, pool, completion: null, fairness: null };
+  if (!comp.length) return { score: null, cnt, both, per, zusage: {}, pool, completion: null, fairness: null };
   const completion = mean(comp), fair = [], zusage = {};
   [A, B].forEach((p) => { if (zExp[p] > 0) { zusage[p] = Math.min(1, zDone[p] / zExp[p]); fair.push(zusage[p]); } });
   const pt = pool[A] + pool[B]; if (pt > 0) fair.push(1 - Math.max(0, Math.abs(pool[A] - pool[B]) - 1) / pt);
   const fairness = fair.length ? mean(fair) : null;
-  return { score: fairness == null ? completion : 0.5 * completion + 0.5 * fairness, completion, fairness, zusage, pool, cnt };
+  return { score: fairness == null ? completion : 0.5 * completion + 0.5 * fairness, completion, fairness, zusage, pool, cnt, both, per };
 }
 function thanked(id, d) { return (AL().danke || []).some((x) => x.from === S.sum.me && x.id === id && x.for === d); }
 function thankable() { // Erledigtes vom Partner der letzten 3 Tage, für das noch kein Danke kam
   if (!AL()) return [];
   const seen = {}, out = [];
-  AL().done.filter((d) => d.p === S.sum.partner && d.d >= addDays(today(), -2)).sort((a, b) => (a.d < b.d ? 1 : -1)).forEach((d) => {
+  AL().done.filter((d) => d.p === S.sum.partner && !d.z && d.d >= addDays(today(), -2)).sort((a, b) => (a.d < b.d ? 1 : -1)).forEach((d) => {
     const k = d.id + d.d; if (seen[k] || thanked(d.id, d.d)) return; seen[k] = 1;
     const t = tasksAll().find((x) => x.id === d.id); if (t) out.push({ id: d.id, d: d.d, name: t.name });
   });
@@ -991,9 +1006,9 @@ const dankeToday = () => (AL() ? (AL().danke || []).filter((x) => x.to === S.sum
 function newDanke() {
   if (!AL()) return [];
   const seen = store.get('lt_dseen', {});
-  return (AL().danke || []).filter((x) => x.to === S.sum.me && x.from !== S.sum.me && !seen[x.ts + x.from] && x.d >= addDays(today(), -3));
+  return (AL().danke || []).filter((x) => x.to === S.sum.me && x.from !== S.sum.me && !seen[x.ts] && x.d >= addDays(today(), -3));
 }
-function markDankeSeen(list) { const seen = store.get('lt_dseen', {}); list.forEach((x) => { seen[x.ts + x.from] = x.d; }); Object.keys(seen).forEach((k) => { if (seen[k] < addDays(today(), -10)) delete seen[k]; }); store.set('lt_dseen', seen); }
+function markDankeSeen(list) { const seen = store.get('lt_dseen', {}); list.forEach((x) => { seen[x.ts] = x.d; }); Object.keys(seen).forEach((k) => { if (seen[k] < addDays(today(), -10)) delete seen[k]; }); store.set('lt_dseen', seen); }
 function pendingInfo() {
   const p = AL() && AL().pending; if (!p) return null;
   const cur = {}; tasksAll().forEach((t) => { cur[t.id] = t; });
@@ -1027,7 +1042,9 @@ function send(action, payload, local) {
   });
   return apiChain;
 }
-function doneAdd(id, date) { send('doneAdd', { id, date }, () => { AL().done.push({ d: date, p: S.sum.me, id }); }); }
+function doneAdd(id, date, together) { const now = new Date(); send('doneAdd', { id, date, together: !!together }, () => { AL().done.push({ d: date, p: S.sum.me, id, z: !!together, ts: iso(now) + 'T' + pad(now.getHours()) + ':' + pad(now.getMinutes()) + ':' + pad(now.getSeconds()), own: 1 }); }); }
+function doneTogether(id, date, on) { send('doneTogether', { id, date, on }, () => { const L = AL().done; for (let k = L.length - 1; k >= 0; k--) if (L[k].id === id && L[k].d === date && L[k].p === S.sum.me) { L[k].z = on; break; } }); }
+const myLastZ = (id, date) => { const L = AL().done.filter((d) => d.id === id && d.d === date && d.p === S.sum.me); return L.length ? !!L[L.length - 1].z : false; };
 function doneDel(id, date) {
   send('doneDel', { id, date }, () => { const L = AL().done; for (let k = L.length - 1; k >= 0; k--) if (L[k].id === id && L[k].d === date && L[k].p === S.sum.me) { L.splice(k, 1); break; } });
 }
@@ -1147,12 +1164,15 @@ function vBenOv(o) {
 }
 function renderOv() {
   const o = S.ov;
-  $ov.innerHTML = !o ? '' : o.type === 'danke' ? vDankeOv(o) : vBenOv(o);
+  $ov.innerHTML = !o ? '' : o.type === 'danke' ? vDankeOv(o) : o.type === 'together' ? vTogetherOv(o) : o.type === 'news' ? vNewsOv(o) : vBenOv(o);
 }
 function checkOv() {
   if (!S.sum || !S.conn || !store.get('lt_onboarded', false) || S.view === 'onboarding' || S.view === 'checkin') return;
   const nd = newDanke(), q = [];
-  if (nd.length && !(S.ov && S.ov.type === 'danke') && !S.ovQ.some((x) => x.type === 'danke')) q.push({ type: 'danke', list: nd });
+  const inQ = (t) => (S.ov && S.ov.type === t) || S.ovQ.some((x) => x.type === t);
+  if (nd.length && !inQ('danke')) q.push({ type: 'danke', list: nd });
+  const nz = newTogether(); if (nz.length && !inQ('together')) q.push({ type: 'together', list: nz });
+  const nn = newNews(); if (nn.length && !inQ('news')) q.push({ type: 'news', list: nn });
   if (needSummary() && !(S.ov && S.ov.type === 'ben') && !S.ovQ.some((x) => x.type === 'ben')) q.push({ type: 'ben', anim: pick(BEN_IN) });
   if (!q.length) return;
   if (S.ov) { S.ovQ = S.ovQ.concat(q); return; }
@@ -1161,10 +1181,12 @@ function checkOv() {
 async function closeOv(fast) {
   const o = S.ov; if (!o) return;
   if (o.type === 'danke') markDankeSeen(o.list);
+  if (o.type === 'together') markSeen('lt_zseen', o.list, (x) => x.d + x.id + x.p);
+  if (o.type === 'news') markSeen('lt_nseen', o.list, (x) => x.ts);
   if (o.type === 'ben') { takeSnap(); S.bubOff = true; }
   if (!fast && !reduced()) {
     if (o.type === 'ben') { o.leaving = true; renderOv(); }
-    else { const c = $ov.querySelector('.dCard'), bg = $ov.querySelector('.ovbg'); if (c) c.classList.add('out'); if (bg) bg.classList.add('out'); }
+    else { const c = $ov.querySelector('.dCard') || $ov.querySelector('.newsT'), bg = $ov.querySelector('.ovbg'); if (c) c.classList.add('out'); if (bg) bg.classList.add('out'); }
     await new Promise((r) => setTimeout(r, 420));
   }
   S.ov = S.ovQ.shift() || null; renderOv();
@@ -1175,10 +1197,12 @@ async function closeOv(fast) {
 function taskRow(s, date, compact) {
   const t = s.t, mineN = s.mineToday, tag = s.mineResp && s.due ? '<span class="pill" style="background:#FEF3C7;color:#92400E">' + (s.alt ? 'Du bist dran' : 'Heute') + '</span>' : '';
   const status = t.r === 'Tag' ? s.done + ' von ' + s.n + ' heute' : t.r === 'Woche' ? s.done + ' von ' + s.n + ' diese Woche' : s.n ? s.done + ' von ' + s.n + ' diesen Monat' : 'zählt erst nächsten Monat';
-  const extra = s.otherToday && !mineN ? ' · heute von ' + esc(S.sum.partner) : s.alt && !s.mineResp ? ' · ' + esc(S.sum.partner) + ' ist dran' : '';
-  return '<div class="trow"><span class="ticon">' + tIcon(t.name) + '</span><div class="col" style="flex:1;gap:1px;min-width:0"><b style="font-size:14px">' + esc(t.name) + '</b><span class="sub">' + status + extra + '</span></div>' + (compact ? '' : tag) +
+  const todayRows = s.rows.filter((d) => d.d === date), zus = todayRows.some((d) => d.z);
+  const extra = zus ? ' · heute zusammen' : s.otherToday && !mineN ? ' · heute von ' + esc(S.sum.partner) : s.alt && !s.mineResp ? ' · ' + esc(S.sum.partner) + ' ist dran' : '';
+  const tog = mineN && !compact ? '<button class="ztog ' + (myLastZ(t.id, date) ? 'on' : '') + '" data-a="alTog" data-v="' + esc(t.id) + '" data-d="' + date + '" aria-pressed="' + myLastZ(t.id, date) + '"><i><b></b></i>Zusammen gemacht</button>' : '';
+  return '<div><div class="trow" style="' + (tog ? 'border-bottom:none' : '') + '"><span class="ticon">' + tIcon(t.name) + '</span><div class="col" style="flex:1;gap:1px;min-width:0"><b style="font-size:14px">' + esc(t.name) + '</b><span class="sub">' + status + extra + '</span></div>' + (compact ? '' : tag) +
     (mineN ? '<button class="tbtn minus" data-a="alDel" data-v="' + esc(t.id) + '" data-d="' + date + '" aria-label="' + esc(t.name) + ' einmal zurücknehmen">−</button>' : '') +
-    '<button class="tbtn ' + (mineN ? 'done' : 'add') + '" data-a="alAdd" data-v="' + esc(t.id) + '" data-d="' + date + '" aria-label="' + esc(t.name) + ' erledigt">' + (mineN ? (mineN > 1 ? mineN + '×' : '✓') : '+') + '</button></div>';
+    '<button class="tbtn ' + (mineN ? 'done' : 'add') + '" data-a="alAdd" data-v="' + esc(t.id) + '" data-d="' + date + '" aria-label="' + esc(t.name) + ' erledigt">' + (mineN ? (mineN > 1 ? mineN + '×' : '✓') : '+') + '</button></div>' + tog + '</div>';
 }
 function vAlltagCheckin(date) {
   if (!AL() || !tasksAct().length) return '';
@@ -1224,7 +1248,7 @@ function vAlltagHome() {
     '<div class="chips" style="position:relative">' + dt.map((x) => '<span style="padding:7px 12px;border-radius:14px;background:rgba(255,255,255,.2);font-size:13px;font-weight:700">' + (x.id ? tIcon(x.name) + ' ' + esc(x.name) : '♥ einfach so') + '</span>').join('') + '</div></div>';
   if (tasksAct().length) {
     const due = myDue(today()), th = thankable()[0];
-    h += '<div class="card" style="gap:2px"><div class="row" style="margin-bottom:2px"><h2>Euer Alltag heute</h2><button class="link" style="min-height:32px;color:#1D4ED8" data-a="goAlltag">Alles ansehen</button></div>' +
+    h += '<div class="card" style="gap:2px"><div class="row" style="margin-bottom:2px"><h2>Euer Alltag heute</h2><button class="link" style="min-height:32px;color:#1D4ED8" data-a="qsAlltag">Alle Aufgaben</button></div>' +
       (due.length ? due.slice(0, 4).map((s) => taskRow(s, today(), true)).join('') : '<span class="small" style="padding:6px 0">Für dich ist heute nichts mehr offen. Stark!</span>') +
       (th ? '<div class="trow"><span class="ticon" style="background:#FFF1F2">♥</span><span style="flex:1;font-size:13px;line-height:1.4">' + esc(S.sum.partner) + ' hat ' + whenText(th.d) + ' „' + esc(th.name) + '“ erledigt.</span><button style="flex:none;min-height:38px;padding:0 14px;border-radius:12px;background:var(--gR);color:#fff;font-weight:800;font-size:13px" data-a="thank" data-v="' + esc(th.id) + '" data-d="' + th.d + '">Danke</button></div>' : '') + '</div>';
   } else if (!pi) h += '<button class="card" style="flex-direction:row;align-items:center;gap:12px;border:1px dashed #B8C1D3;box-shadow:none;text-align:left" data-a="anpAlltag"><span class="ticon">🏡</span><div class="col" style="flex:1"><b style="font-size:14px">Euren Alltag aufteilen</b><span class="sub">Einkaufen, Gassi, Putzen: wer macht was, wie oft?</span></div><span style="font-weight:800;color:#1D4ED8">+</span></button>';
@@ -1232,33 +1256,34 @@ function vAlltagHome() {
 }
 function alltagPops(w) {
   const me = S.sum.me, pa = S.sum.partner, wt = (S.sum.weights && S.sum.weights.alltag) || 0.2;
-  const z = (p) => (w.zusage[p] != null ? 'Zusagen ' + Math.round(w.zusage[p] * 100) + ' % gehalten' : 'keine festen Aufgaben');
-  const pt = w.pool[me] + w.pool[pa];
+  const sum = (map) => { const l = perLine(map || {}); return l.length ? l.map((x) => x.e + ' ' + x.n + ' ' + x.c).join(' · ') : 'noch nichts'; };
+  const z = (p) => (w.zusage[p] != null ? 'Zusagen zu ' + Math.round(w.zusage[p] * 100) + ' % gehalten' : '');
   return [
-    { l: 'Du · blau', c: '#1D4ED8', b: w.cnt[me] + (w.cnt[me] === 1 ? ' Aufgabe' : ' Aufgaben') + ' erledigt', x: z(me) },
-    { l: pa + ' · rot', c: '#BE123C', b: w.cnt[pa] + (w.cnt[pa] === 1 ? ' Aufgabe' : ' Aufgaben') + ' erledigt', x: z(pa) },
-    { l: 'Pool', c: '#334155', b: pt ? 'Du ' + w.pool[me] + ', ' + pa + ' ' + w.pool[pa] : 'Noch nichts aus dem Pool', x: pt ? (Math.abs(w.pool[me] - w.pool[pa]) <= 1 ? 'Gleicht sich gut aus.' : (w.pool[me] > w.pool[pa] ? 'Du' : pa) + ' übernimmt gerade mehr.') : 'Wer Zeit hat, macht es.' },
-    { l: 'Im Liebe-Score', c: '#6D28D9', b: w.score != null ? Math.round(w.score * 100) + ' von 100' : 'noch offen', x: 'Alltag zählt ' + Math.round(wt * 100) + ' % in euren gemeinsamen Score.' }
+    { l: me, c: '#1D4ED8', b: sum(w.per[me]), x: z(me) },
+    { l: pa, c: '#BE123C', b: sum(w.per[pa]), x: z(pa) },
+    { l: 'Zusammen', c: '#7C3AED', b: sum(w.per.both), x: w.both ? 'zählt für euch beide' : 'Haken „Zusammen gemacht“ beim Abhaken' },
+    { l: 'Im Liebe-Score', c: '#334155', b: w.score != null ? Math.round(w.score * 100) + ' von 100' : 'noch offen', x: 'Alltag zählt ' + Math.round(wt * 100) + ' %' },
+    { l: 'Fazit', c: '#6D28D9', wide: true, b: alltagFazit(w) }
   ];
 }
 function vAlltagVerlauf() {
   if (!AL()) return '<div class="card"><h2>Alltag</h2><span class="small">Für diesen Bereich muss das Script auf Version 3 aktualisiert werden. Die Anleitung steht in der Nachricht von Claude.</span></div>';
   const tasks = tasksAct();
   if (!tasks.length) return '<div class="card" style="align-items:center;text-align:center;gap:10px"><span style="font-size:40px">🏡</span><h2>Noch keine Aufgaben</h2><span class="small">Legt fest, wer was im Haushalt übernimmt, wie oft es ansteht und was in den Pool kommt.</span><button class="btn L" data-a="anpAlltag">Aufgaben anlegen</button></div>';
-  const w = alltagWeek(monday(today())), me = S.sum.me, pa = S.sum.partner, tot = w.cnt[me] + w.cnt[pa], share = tot ? w.cnt[me] / tot : 0.5;
+  const w = alltagWeek(monday(today())) || { cnt: { [S.sum.me]: 0, [S.sum.partner]: 0 }, per: {}, both: 0, zusage: {}, pool: {}, score: null }, me = S.sum.me, pa = S.sum.partner, tot = w.cnt[me] + w.cnt[pa], share = tot ? w.cnt[me] / tot : 0.5;
   const dev = Math.abs(share - 0.5), word = !tot ? 'Diese Woche noch offen' : dev < 0.1 ? 'Gut ausgewogen' : dev < 0.2 ? 'Fast ausgewogen' : (share > 0.5 ? 'Du' : pa) + ' trägt gerade mehr';
   const open = S.vOpen === 'alltag';
   let h = '<button class="card" style="align-items:center;text-align:center;gap:8px;background:transparent;box-shadow:none" data-a="vOpen" data-v="alltag" aria-expanded="' + open + '">' + balanceShape(share, 240, 'Aufteilung diese Woche: ' + word) +
-    '<b class="jk" style="font-size:20px">' + esc(word) + '</b><span class="sub">' + (open ? 'Tippen zum Schließen' : 'Tippen, um zu sehen, wer was trägt') + '</span></button>';
+    '<b class="jk" style="font-size:20px">' + esc(word) + '</b><span class="sub">' + (open ? 'Tippen zum Schließen' : 'Tippen für die Details') + '</span></button>';
   if (open) h += popsHtml(alltagPops(w), S.popAnim, '#334155');
-  h += '<div class="card" style="gap:10px"><div class="row"><h2>Diese Woche</h2><span class="sub">blau du · rot ' + esc(pa) + '</span></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">' +
-    tasks.map((t) => {
-      const s = taskState(t, today()), segs = s.rows.map((d) => '<i style="flex:1;height:6px;border-radius:3px;background:' + (d.p === me ? '#2563EB' : '#E11D48') + '"></i>').join('') + Array.from({ length: Math.max(0, s.n - s.rows.length) }, () => '<i style="flex:1;height:6px;border-radius:3px;background:#E6EAF3"></i>').join('');
-      return '<div style="border-radius:16px;background:var(--bg);padding:10px 12px;display:flex;flex-direction:column;gap:6px"><div class="row" style="gap:6px"><span style="font-size:13px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + tIcon(t.name) + ' ' + esc(t.name) + '</span><span class="sub" style="flex:none">' + s.done + '/' + s.n + '</span></div><div style="display:flex;gap:3px">' + segs + '</div></div>';
-    }).join('') + '</div><span class="sub">Zählt je nach Rhythmus pro Tag, Woche oder Monat.</span></div>';
+  else {
+    h += '<div style="display:flex;gap:10px">' + personCard(me, '#2563EB', w.per[me], w.cnt[me], w.zusage[me]) + personCard(pa, '#E11D48', w.per[pa], w.cnt[pa], w.zusage[pa]) + '</div>';
+    if (w.both) h += '<div style="border-radius:20px;padding:12px 14px;background:linear-gradient(135deg,#F5F3FF,#FDF2F8);border:1px solid #E9D5FF;display:flex;align-items:center;gap:10px"><span style="flex:none;font-size:22px">💜</span><div class="col" style="flex:1"><b style="font-size:14px;color:#6D28D9">Zusammen geschafft</b><span style="font-size:12px;color:#5B21B6">' + perLine(w.per.both).map((x) => x.e + ' ' + esc(x.n) + ' ' + x.c + '×').join(' · ') + '</span></div></div>';
+    h += '<div class="card" style="gap:6px;background:linear-gradient(135deg,#EEF2FF,#FDF2F8);box-shadow:none;border:1px solid #E0E7FF"><span class="cap" style="color:#6D28D9">Fazit der Woche</span><span style="font-size:14px;line-height:1.5;color:#1E1B4B">' + esc(alltagFazit(w)) + '</span></div>';
+  }
   const th = thankable();
   if (th.length) h += '<div class="card" style="gap:2px"><h2 style="margin-bottom:4px">Danke sagen</h2>' + th.slice(0, 3).map((x) => '<div class="trow"><span class="ticon" style="background:#FFF1F2">' + tIcon(x.name) + '</span><span style="flex:1;font-size:14px">„' + esc(x.name) + '“ <span class="sub">' + whenText(x.d) + '</span></span><button style="flex:none;min-height:38px;padding:0 14px;border-radius:12px;background:var(--gR);color:#fff;font-weight:800;font-size:13px" data-a="thank" data-v="' + esc(x.id) + '" data-d="' + x.d + '">♥ Danke</button></div>').join('') + '</div>';
-  return h + '<button class="ghost" data-a="anpAlltag">Aufgaben verwalten</button>';
+  return h + '<div class="row" style="gap:10px"><button class="btn L" style="flex:1.3" data-a="qsAlltag">Abhaken</button><button class="ghost" style="flex:1;min-height:54px" data-a="anpAlltag">Aufgaben verwalten</button></div>';
 }
 
 function lebenPops(sc) {
@@ -1335,6 +1360,89 @@ function vTaskSheet() {
     (s.err ? '<p class="err" style="margin:0">' + esc(s.err) + '</p>' : '') +
     '<button class="btn L" data-a="tOk">' + (isNew ? 'Hinzufügen' : 'Übernehmen') + '</button>' +
     (!isNew ? '<button class="link" data-a="tAct" style="align-self:center;color:' + (t.act ? '#B91C1C' : '#047857') + '">' + (t.act ? 'Aufgabe entfernen' : 'Wieder aufnehmen') + '</button>' : '') + '</div></div>';
+}
+
+/* ================= Schnellerfassung (Pop-ups auf der Startseite) ================= */
+function vAlltagSheet() {
+  const t0 = today(), st = tasksAct().map((x) => taskState(x, t0));
+  const due = st.filter((s) => s.due && (s.mineResp || s.pool)), rest = st.filter((s) => due.indexOf(s) < 0);
+  return '<div class="qsheet"><button style="flex:1" data-a="qsClose" aria-label="Schließen"></button><div class="panel" role="dialog" aria-label="Alltag abhaken"><div class="grab"></div>' +
+    '<div class="row"><h1 style="font-size:22px">Alltag abhaken</h1><span class="sub" style="font-weight:700">' + (due.length ? 'offen: ' + due.length : 'alles erledigt') + '</span></div>' +
+    (due.length ? '<span class="sub" style="font-weight:800;letter-spacing:.05em;text-transform:uppercase">Steht heute an</span>' + due.map((s) => taskRow(s, t0)).join('') : '') +
+    (rest.length ? '<span class="sub" style="font-weight:800;letter-spacing:.05em;text-transform:uppercase;margin-top:6px">Alle weiteren</span>' + rest.map((s) => taskRow(s, t0)).join('') : '') +
+    '<span class="sub">' + esc(S.sum.partner) + ' sieht sofort, was du erledigt hast. „Zusammen gemacht“ zählt für euch beide.</span>' +
+    '<button class="btn L" data-a="qsClose">Fertig</button></div></div>';
+}
+function vQuickSheet() {
+  const t0 = today(), dL = draft('leben', t0), dR = draft('liebe', t0), CL = cfg('leben'), CR = cfg('liebe');
+  const wL = {}, wR = {}; CL.weekly.forEach((w) => { wL[w.f] = w.target; }); CR.weekly.forEach((w) => { wR[w.f] = w.target; });
+  const chips = (area, C, d, wm) => C.acts.map((f) => '<button class="chip ' + (area === 'leben' ? 'L' : 'R') + ' ' + (d.acts[f] ? 'on' : '') + '" data-a="qAct" data-v="' + area + '" data-f="' + esc(f) + '" aria-pressed="' + !!d.acts[f] + '">' + esc(f) + (wm[f] ? ' <small>' + weekCount(area, f, t0, startOf(area)) + '/' + wm[f] + '</small>' : '') + '</button>').join('');
+  const zeit = CR.zeit.map((z) => '<div class="row" style="border-radius:16px;background:var(--bg);padding:8px 12px"><b style="font-size:14px">' + esc(z.f) + (z.key === 'bewusst' ? ' (ohne Handy)' : '') + '</b><div class="stepper" style="gap:8px"><button data-a="qZeit" data-f="' + esc(z.f) + '" data-v="-0.5" aria-label="weniger" style="background:#fff;width:36px;height:36px">−</button><b style="font-size:17px;min-width:46px;text-align:center">' + fmt(dR.zeit[z.f], 1) + ' h</b><button data-a="qZeit" data-f="' + esc(z.f) + '" data-v="0.5" aria-label="mehr" style="background:#fff;width:36px;height:36px">+</button></div></div>').join('');
+  const month = (area, C, d) => C.monthly.map((m) => '<button class="chip ' + (d.monthly[m.f] ? 'on' : '') + '" style="' + (d.monthly[m.f] ? 'background:linear-gradient(135deg,#6D28D9,#BE185D);color:#fff;border-color:transparent' : '') + '" data-a="qMonth" data-v="' + area + '" data-f="' + esc(m.f) + '" aria-pressed="' + !!d.monthly[m.f] + '">' + (d.monthly[m.f] ? '✓ ' : '') + esc(m.f) + '</button>').join('');
+  const lab = (t, c) => '<span class="sub" style="font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:' + c + ';margin-top:4px">' + t + '</span>';
+  return '<div class="qsheet"><button style="flex:1" data-a="qsClose" aria-label="Schließen"></button><div class="panel" role="dialog" aria-label="Schnell eintragen"><div class="grab"></div>' +
+    '<div class="row"><h1 style="font-size:22px">Schnell eintragen</h1><span class="sub" style="font-weight:700">heute</span></div>' +
+    (CL.acts.length ? lab('Leben · für dich', '#047857') + '<div class="chips">' + chips('leben', CL, dL, wL) + '</div>' : '') +
+    (CR.acts.length ? lab('Liebe · füreinander', '#BE123C') + '<div class="chips">' + chips('liebe', CR, dR, wR) + '</div>' : '') +
+    (zeit ? lab('Zeit zu zweit', '#BE123C') + zeit : '') +
+    (CL.monthly.length || CR.monthly.length ? lab('Monatsziele · ' + MON[parse(t0).getMonth()], '#6D28D9') + '<div class="chips">' + month('leben', CL, dL) + month('liebe', CR, dR) + '</div>' : '') +
+    '<span class="sub">Wird sofort gespeichert. Bewertungen wie Stimmung und Schlaf machst du abends im Check-in.</span>' +
+    '<button class="btn" data-a="qsClose">Fertig</button></div></div>';
+}
+const qTimers = {};
+function quickSave(area) {
+  clearTimeout(qTimers[area]);
+  qTimers[area] = setTimeout(() => { send('saveDay', payload(area, today())); }, 700);
+}
+/* ================= Zusammen erledigt und Hinweise vom Partner ================= */
+function newTogether() {
+  if (!AL()) return [];
+  const seen = store.get('lt_zseen', {});
+  return AL().done.filter((d) => d.z && !seen[d.d + d.id + d.p] && d.d >= addDays(today(), -2));
+}
+function newNews() {
+  if (!AL()) return [];
+  const seen = store.get('lt_nseen', {});
+  return AL().done.filter((d) => !d.z && d.p === S.sum.partner && d.ts && !seen[d.ts] && d.d >= addDays(today(), -1));
+}
+function markSeen(key, list, kf) { const seen = store.get(key, {}); list.forEach((x) => { seen[kf(x)] = x.d; }); Object.keys(seen).forEach((k) => { if (seen[k] < addDays(today(), -10)) delete seen[k]; }); store.set(key, seen); }
+const taskName = (id) => (tasksAll().find((t) => t.id === id) || {}).name || 'Aufgabe';
+function vTogetherOv(o) {
+  const names = []; o.list.forEach((d) => { const n = taskName(d.id); if (names.indexOf(n) < 0) names.push(n); });
+  const em = names.map(tIcon), red = reduced(), W = Math.min(window.innerWidth || 390, 560);
+  let fl = '';
+  if (!red) for (let k = 0; k < 18; k++) fl += '<span class="eRise" style="left:' + Math.round(4 + (k * 53) % 88) + '%;font-size:' + (26 + (k * 7) % 24) + 'px;animation-delay:' + ((k * 0.17) % 2.2).toFixed(2) + 's;--sx:' + (((k * 37) % 100) - 50) + 'px;--r:' + (((k * 13) % 50) - 25) + 'deg">' + (k % 5 === 4 ? '💜' : em[k % em.length]) + '</span>';
+  const when = o.list.every((d) => d.d === today()) ? 'Heute' : o.list.every((d) => d.d === addDays(today(), -1)) ? 'Gestern' : 'Zuletzt';
+  return '<div class="ovw"><div class="ovbg" style="background:rgba(46,16,101,.35)" data-a="ovClose"></div><div style="position:absolute;inset:0;overflow:hidden;pointer-events:none">' + fl + '</div>' +
+    '<div class="dCard" role="dialog" aria-label="Zusammen erledigt" style="' + (red ? 'animation:none;' : 'animation-delay:1.2s;') + 'top:30%"><div style="font-size:36px;letter-spacing:4px">' + em.slice(0, 4).join('') + '</div><b class="jk" style="font-size:21px;line-height:1.3">' + when + ' habt ihr zusammen ' + esc(joinDe(names.slice(0, 3))) + ' gemacht</b><span style="font-size:14px;line-height:1.5;color:#334155">Das zählt für euch beide. Gemeinsam angepackt ist auch Zeit zu zweit.</span><button class="btn" style="margin-top:6px;background:linear-gradient(135deg,#7C3AED,#DB2777)" data-a="ovClose">Schön</button></div></div>';
+}
+function vNewsOv(o) {
+  const names = []; o.list.forEach((d) => { const n = taskName(d.id); if (names.indexOf(n) < 0) names.push(n); });
+  return '<div class="ovw" style="pointer-events:none"><div class="newsT" role="status" style="pointer-events:auto"><div class="row" style="justify-content:flex-start;gap:12px"><span style="font-size:30px">' + names.slice(0, 3).map(tIcon).join('') + '</span><div class="col" style="flex:1;gap:2px"><b style="font-size:15px;line-height:1.35">' + esc(S.sum.partner) + ' hat ' + esc(joinDe(names.slice(0, 3).map((n) => '„' + n + '“'))) + ' erledigt</b><span style="font-size:12px;opacity:.95">Musst du heute nicht mehr machen.</span></div></div>' +
+    '<div class="row" style="gap:8px"><button style="flex:1;min-height:42px;border-radius:13px;background:rgba(255,255,255,.2);color:#fff;font-weight:700" data-a="ovClose">Okay</button><button style="flex:1.3;min-height:42px;border-radius:13px;background:#fff;color:#BE185D;font-weight:800" data-a="newsThanks">♥ Danke sagen</button></div></div></div>';
+}
+/* ================= Alltag pro Person ================= */
+function perLine(map) {
+  const ids = Object.keys(map).sort((a, b) => map[b] - map[a]);
+  return ids.map((id) => ({ e: tIcon(taskName(id)), n: taskName(id), c: map[id] }));
+}
+function alltagFazit(w) {
+  const me = S.sum.me, pa = S.sum.partner, tot = w.cnt[me] + w.cnt[pa];
+  if (!tot && !w.both) return 'Diese Woche ist im Alltag noch nichts eingetragen.';
+  const share = tot ? w.cnt[me] / tot : 0.5, dev = Math.abs(share - 0.5), more = share > 0.5 ? me : pa;
+  const top = (p) => { const l = perLine(w.per[p] || {}); return l[0] ? l[0].n : null; };
+  let s = dev < 0.1 ? 'Ihr teilt euch den Alltag richtig gut. ' : dev < 0.2 ? 'Ihr teilt euch den Alltag gut, ' + more + ' trägt etwas mehr. ' : more + ' trägt diese Woche deutlich mehr. Vielleicht kann ' + (more === me ? pa : 'du') + ' morgen etwas übernehmen. ';
+  const tm = top(me), tp = top(pa);
+  if (tm || tp) s += [tm ? me + ' vor allem ' + tm : '', tp ? pa + ' vor allem ' + tp : ''].filter(Boolean).join(', ') + '. ';
+  if (w.both) s += w.both + '× habt ihr zusammen angepackt. ';
+  const behind = tasksAct().map((t) => taskState(t, today())).filter((x) => x.t.r !== 'Tag' && x.n && x.done < x.plan).sort((a, b) => (a.done / a.n) - (b.done / b.n))[0];
+  if (behind) s += 'Hinterher hängt ihr bei ' + behind.t.name + ' (' + behind.done + ' von ' + behind.n + ').';
+  return s.trim();
+}
+function personCard(name, col, map, total, z) {
+  const l = perLine(map);
+  return '<div style="flex:1;min-width:0;border-radius:20px;background:#fff;box-shadow:0 8px 22px rgba(15,23,42,.07);padding:12px 12px 8px;display:flex;flex-direction:column;gap:2px;border-top:4px solid ' + col + '"><div class="row" style="justify-content:flex-start;gap:8px;margin-bottom:4px"><span style="flex:none;width:30px;height:30px;border-radius:15px;background:' + col + ';color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center">' + esc(name.slice(0, 1)) + '</span><div class="col" style="min-width:0"><b style="font-size:14px">' + esc(name) + '</b><span class="sub">' + (z != null ? 'Zusagen ' + Math.round(z * 100) + ' %' : total + ' erledigt') + '</span></div></div>' +
+    (l.length ? l.slice(0, 6).map((x) => '<div class="row" style="gap:6px;padding:5px 0;border-top:1px solid #F1F2F6"><span style="font-size:17px">' + x.e + '</span><span style="flex:1;font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(x.n) + '</span><b style="font-size:13px;color:' + col + '">' + x.c + '×</b></div>').join('') : '<span class="sub" style="padding:6px 0">Noch nichts diese Woche</span>') + '</div>';
 }
 
 /* ================= Ansichten ================= */
@@ -1734,7 +1842,7 @@ function render() {
   else if (S.view === 'analyse') h = vAnalyse();
   else if (S.view === 'anpassen') h = vAnpassen();
   else h = vHome();
-  h += vSheet() + vTaskSheet();
+  h += vSheet() + vTaskSheet() + (S.qs === 'alltag' && AL() ? vAlltagSheet() : S.qs === 'quick' ? vQuickSheet() : '');
   if (S.toast) h += '<div class="toast" role="status">' + esc(S.toast) + '</div>';
   $app.innerHTML = h;
   const sc2 = document.querySelector('.scroll'); if (sc2 && S.keepScroll) sc2.scrollTop = top;
@@ -1744,7 +1852,7 @@ function render() {
   startTicker();
   if (fid) { const el = document.getElementById(fid); if (el && (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT')) { el.focus(); try { el.setSelectionRange(el.value.length, el.value.length); } catch (e) { /* type=url */ } } }
 }
-function go(v) { if (v !== S.view && (v === 'home' || v === 'summary' || v === 'buddy')) S.appear = true; S.view = v; S.sheet = null; S.tsheet = null; render(); const sc = document.querySelector('.scroll'); if (sc) sc.scrollTop = 0; }
+function go(v) { if (v !== S.view && (v === 'home' || v === 'summary' || v === 'buddy')) S.appear = true; S.view = v; S.sheet = null; S.tsheet = null; S.qs = null; render(); const sc = document.querySelector('.scroll'); if (sc) sc.scrollTop = 0; }
 
 /* ================= Bedienung ================= */
 $app.addEventListener('input', (ev) => {
@@ -1782,6 +1890,7 @@ async function onTap(ev) {
   if ($ov.contains(b)) {
     if (a === 'ovClose') { await closeOv(); return; }
     if (a === 'thankBack') { thank('', 'Danke zurück', ''); await closeOv(); return; }
+    if (a === 'newsThanks') { const seen = {}; S.ov.list.forEach((d) => { if (seen[d.id + d.d]) return; seen[d.id + d.d] = 1; thank(d.id, taskName(d.id), d.d); }); await closeOv(); return; }
     await closeOv(true);
     if (a === 'ovBuddy') { go('buddy'); return; }
   }
@@ -1790,6 +1899,12 @@ async function onTap(ev) {
   if (a === 'alDel') { doneDel(v, b.dataset.d || today()); S.keepScroll = true; render(); return; }
   if (a === 'thank') { const t = tasksAll().find((x) => x.id === v); thank(v, t ? t.name : 'Danke', b.dataset.d || ''); S.keepScroll = true; render(); return; }
   if (a === 'goAlltag') { if (S.view === 'home') await leaveBud(); S.vTab = 'alltag'; S.vOpen = null; go('verlauf'); return; }
+  if (a === 'qsAlltag' || a === 'qsQuick') { if (S.view === 'home' && a === 'qsAlltag' && !AL()) { toast('Bitte zuerst das Script aktualisieren'); return; } S.qs = a === 'qsAlltag' ? 'alltag' : 'quick'; S.keepScroll = true; render(); return; }
+  if (a === 'qsClose') { S.qs = null; S.keepScroll = true; render(); if (S.view === 'home') checkOv(); return; }
+  if (a === 'alTog') { doneTogether(v, b.dataset.d || today(), !myLastZ(v, b.dataset.d || today())); S.keepScroll = true; render(); return; }
+  if (a === 'qAct') { const d = draft(v, today()); d.acts[f] = !d.acts[f]; quickSave(v); S.keepScroll = true; render(); return; }
+  if (a === 'qMonth') { const d = draft(v, today()); d.monthly[f] = !d.monthly[f]; quickSave(v); S.keepScroll = true; render(); return; }
+  if (a === 'qZeit') { const d = draft('liebe', today()); d.zeit[f] = Math.max(0, Math.min(16, (d.zeit[f] || 0) + Number(v))); quickSave('liebe'); S.keepScroll = true; render(); return; }
   if (a === 'capAll') { S.capAll = !S.capAll; S.keepScroll = true; render(); return; }
   if (a === 'startAsk' || a === 'startCancel') { S.startAsk = a === 'startAsk'; S.keepScroll = true; render(); return; }
   if (a === 'startNow' || a === 'restart') {
