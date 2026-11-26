@@ -848,11 +848,13 @@ function vCapture() {
   const all = captureTasks(), groups = [['heute', 'Heute'], ['woche', 'Diese Woche'], ['monat', 'Diesen Monat'], ['lang', 'Länger offen']];
   const today_ = all.filter((x) => x.grp === 'heute'), doneN = today_.filter((x) => x.done).length;
   let h = '<div class="card" style="gap:4px"><div class="row" style="margin-bottom:4px"><h2>Was wann eintragen</h2><span class="pill ' + (doneN === today_.length ? 'L' : 'N') + '">Heute ' + doneN + '/' + today_.length + '</span></div>';
+  const full = !!S.capAll, hidden = all.filter((x) => x.done || x.info).length;
   groups.forEach(([g, label]) => {
-    const rows = all.filter((x) => x.grp === g); if (!rows.length) return;
+    const rows = all.filter((x) => x.grp === g && (full || (!x.done && !x.info))); if (!rows.length) return;
     h += '<span class="sub" style="font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-top:8px">' + label + '</span>' + rows.map((x) => '<div class="row" style="padding:8px 0;border-top:1px solid var(--line);gap:10px"><span style="flex:none;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;' + (x.done ? 'background:var(--gL);color:#fff' : g === 'lang' ? 'background:#FEF3C7;color:#B45309' : 'border:2px solid #CBD2E0;color:transparent') + '">' + (x.done ? '✓' : g === 'lang' ? '!' : '') + '</span><div class="col" style="flex:1"><b style="font-size:14px;' + (x.done ? 'color:var(--sub)' : '') + '">' + esc(x.title) + '</b><span class="sub">' + esc(x.sub) + '</span></div>' + (!x.done ? '<button class="ghost" style="width:auto;min-height:38px;padding:0 12px;font-size:13px" data-a="' + x.act + '">' + (x.info ? 'Ansehen' : 'Eintragen') + '</button>' : '') + '</div>').join('');
   });
-  return h + '<span class="sub" style="margin-top:8px;line-height:1.45">Täglich abends Leben und Liebe, sonntags der Wochen-Check, Monatsziele abhaken, sobald du sie erledigt hast.</span></div>';
+  if (!full && !all.some((x) => !x.done && !x.info)) h += '<span class="small" style="padding:6px 0">Alles eingetragen, was gerade ansteht.</span>';
+  return h + (hidden ? '<button class="link" style="align-self:flex-start;color:#1D4ED8;min-height:36px" data-a="capAll">' + (full ? 'Nur Offenes zeigen' : 'Auch Erledigtes zeigen (' + hidden + ')') + '</button>' : '') + (full ? '<span class="sub" style="margin-top:4px;line-height:1.45">Täglich abends Leben und Liebe, sonntags der Wochen-Check, Monatsziele abhaken, sobald du sie erledigt hast.</span>' : '') + '</div>';
 }
 
 function vGreeting() {
@@ -959,6 +961,7 @@ function alltagWeek(wStart, todayS) {
       }
       if (ref < from) return;
       exp = n * (dd(ref, from) + 1) / span; rows = AL().done.filter((d) => d.id === t.id && d.d >= from && d.d <= ref);
+      if (!rows.length && (dd(ref, from) + 1) / span < 0.5) return;
     } else { exp = (t.r === 'Tag' ? t.n * 7 : t.n) * days / 7; rows = AL().done.filter((d) => d.id === t.id && d.d >= s0 && d.d < wEnd && d.d <= todayS); }
     if (exp <= 0) return;
     comp.push(Math.min(1, rows.length / exp));
@@ -1418,7 +1421,6 @@ function vHome() {
     T.map((t) => '<div class="li" style="align-items:flex-start"><button class="box ' + (tick[t.id] ? 'on' : '') + '" data-a="todo" data-v="' + esc(t.id) + '" aria-pressed="' + !!tick[t.id] + '" aria-label="' + esc(t.t) + ' erledigt">' + (tick[t.id] ? '✓' : '') + '</button><div class="col" style="flex:1;gap:2px"><b style="font-size:14px;' + (tick[t.id] ? 'text-decoration:line-through;color:var(--sub)' : '') + '">' + esc(t.t) + '</b><span class="sub">' + esc(t.x) + '</span></div><span class="pill ' + (t.area === 'leben' ? 'L' : 'R') + '">' + (t.area === 'leben' ? 'Leben' : 'Liebe') + '</span></div>').join('') + '</div></div>';
   h += '<div class="reco"><span class="cap" style="opacity:.92">Empfehlung</span><b class="jk" style="font-size:17px;line-height:1.3">' + esc(reco.t) + '</b><span style="font-size:13px;line-height:1.5">' + esc(reco.x) + '</span></div>';
   if (behind) h += '<div class="behind"><div class="row"><b style="font-size:13px;color:#92400E">Hier hängst du hinterher</b><span class="sub" style="color:#92400E">' + (behind.left ? 'noch ' + behind.left + (behind.left === 1 ? ' Tag' : ' Tage') : 'letzter Tag') + '</span></div><div class="row" style="font-size:14px"><b>' + esc(behind.f) + '</b><span style="color:#78350F">' + behind.done + ' / ' + behind.target + '</span></div><div class="bar" style="background:#FEF3C7"><i style="width:' + Math.max(4, Math.round(behind.done / behind.target * 100)) + '%;background:#D97706"></i></div><span class="sub" style="color:#78350F">' + (behind.impossible ? 'Diese Woche wird knapp. Jedes Mal zählt trotzdem anteilig.' : 'Plan es dir fest ein, dann ist es gut machbar.') + '</span></div>';
-  h += '<div class="card"><div class="row"><h2>Dein Verlauf</h2><span class="sub">' + (V.weeks ? V.weeks + (V.weeks === 1 ? ' Woche' : ' Wochen') + ' Daten' : 'gerade gestartet') + '</span></div><span style="font-size:14px;line-height:1.5">' + esc(V.text) + '</span></div>';
   const q = store.get('lt_queue', []);
   if (q.length) h += '<p class="small" style="margin:0">' + q.length + ' Check-in(s) warten auf Übertragung.</p>';
   return h + '</div></div>' + vBuddyPeek() + vTabs('home');
@@ -1788,6 +1790,7 @@ async function onTap(ev) {
   if (a === 'alDel') { doneDel(v, b.dataset.d || today()); S.keepScroll = true; render(); return; }
   if (a === 'thank') { const t = tasksAll().find((x) => x.id === v); thank(v, t ? t.name : 'Danke', b.dataset.d || ''); S.keepScroll = true; render(); return; }
   if (a === 'goAlltag') { if (S.view === 'home') await leaveBud(); S.vTab = 'alltag'; S.vOpen = null; go('verlauf'); return; }
+  if (a === 'capAll') { S.capAll = !S.capAll; S.keepScroll = true; render(); return; }
   if (a === 'startAsk' || a === 'startCancel') { S.startAsk = a === 'startAsk'; S.keepScroll = true; render(); return; }
   if (a === 'startNow' || a === 'restart') {
     const area = a === 'restart' ? v : !startOf('leben') && !startOf('liebe') ? 'both' : !startOf('leben') ? 'leben' : 'liebe';
